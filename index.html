@@ -33,9 +33,10 @@
         #app-container { display: none; }
 
         /* HEADER E TABS */
-        header { background-color: var(--secondary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        header h1 { font-size: 1.5rem; font-weight: 700; color: #FDE68A; }
-        .header-actions button { background-color: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-weight: 600; margin-left: 10px; transition: 0.2s;}
+        header { background-color: var(--secondary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 10px;}
+        header h1 { font-size: 1.5rem; font-weight: 700; color: #FDE68A; margin: 0;}
+        .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
+        .header-actions button { background-color: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-weight: 600; transition: 0.2s;}
         .header-actions button:hover { background-color: var(--primary-hover); }
 
         .tabs { display: flex; overflow-x: auto; background: var(--card-bg); padding: 0 1rem; border-bottom: 3px solid var(--border); }
@@ -120,7 +121,10 @@
         <header>
             <h1>🍮 Pudim Du Cariri</h1>
             <div class="header-actions">
-                <span id="user-badge" style="font-size: 0.8rem; margin-right: 15px; color: #FDE68A;"></span>
+                <span id="user-badge" style="font-size: 0.8rem; color: #FDE68A;"></span>
+                <button onclick="exportData()">📥 Backup</button>
+                <button onclick="document.getElementById('importFile').click()">📤 Restaurar</button>
+                <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
                 <button id="btn-logout" style="background: var(--danger)" onclick="fazerLogout()">Sair</button>
             </div>
         </header>
@@ -615,7 +619,7 @@
         }
 
         // =========================================================
-        // FUNÇÕES PADRÕES (Abas, Inputs, etc)
+        // FUNÇÕES PADRÕES E RESTAURAÇÃO DE BACKUP
         // =========================================================
         function resetDateInputs() {
             const hoje = new Date().toISOString().split('T')[0];
@@ -630,6 +634,23 @@
                 if(btn.getAttribute('onclick').includes(tabId)) btn.classList.add('active');
             });
             updateAll();
+        }
+        
+        function importData(event) {
+            if(currentUserRole !== 'admin') return alert("Apenas Administradores podem restaurar backups.");
+            
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsedData = JSON.parse(e.target.result);
+                    db = loadDBData(parsedData);
+                    saveData();
+                    alert("Backup restaurado com sucesso! Seus dados já estão na nuvem.");
+                } catch (err) { alert("Erro ao ler o arquivo JSON."); }
+            };
+            reader.readAsText(file);
         }
 
         // =========================================================
@@ -860,7 +881,6 @@
 
             document.getElementById('v-dash-bruto').innerText = formatMoney(vBruto); document.getElementById('v-dash-liquido').innerText = formatMoney(vLiquido); document.getElementById('v-dash-entrega').innerText = formatMoney(vEntrega); document.getElementById('v-dash-qtd').innerText = vQtd; document.getElementById('v-dash-insumos').innerText = formatMoney(vInsumo); document.getElementById('v-dash-cg').innerText = formatMoney(vCG); document.getElementById('v-dash-mo').innerText = formatMoney(vMO); document.getElementById('v-dash-lucro-restante').innerText = formatMoney(vLucro); document.getElementById('v-dash-giro').innerText = formatMoney(vGiro); document.getElementById('v-dash-fundo').innerText = formatMoney(vFundo); document.getElementById('v-dash-luyan').innerText = formatMoney(vLuyan); document.getElementById('v-dash-beatriz').innerText = formatMoney(vBeatriz);
             document.getElementById('a-dash-bruto').innerText = formatMoney(aBruto); document.getElementById('a-dash-desconto').innerText = "- " + formatMoney(aDesc); document.getElementById('a-dash-liquido').innerText = formatMoney(aLiquido); document.getElementById('a-dash-qtd').innerText = aQtd; document.getElementById('a-dash-insumos').innerText = formatMoney(aInsumo); document.getElementById('a-dash-cg').innerText = formatMoney(aCG); document.getElementById('a-dash-mo').innerText = formatMoney(aMO); document.getElementById('a-dash-lucro-restante').innerText = formatMoney(aLucro); document.getElementById('a-dash-giro').innerText = formatMoney(aGiro); document.getElementById('a-dash-fundo').innerText = formatMoney(aFundo); document.getElementById('a-dash-luyan').innerText = formatMoney(aLuyan); document.getElementById('a-dash-beatriz').innerText = formatMoney(aBeatriz);
-            document.getElementById('dash-desp-insumos').innerText = formatMoney(tInsumos); document.getElementById('dash-desp-embalagem').innerText = formatMoney(tEmbalagem); document.getElementById('dash-desp-gerais').innerText = formatMoney(tGerais); document.getElementById('dash-desp-marketing').innerText = formatMoney(tMarketing);
 
             document.querySelectorAll('.global-faturamento').forEach(el => el.innerText = formatMoney(vLiquido + aBruto));
             document.querySelectorAll('.global-pudins').forEach(el => el.innerText = vQtd + aQtd);
@@ -876,6 +896,11 @@
 
             const roi = db.investimentos.reduce((a,c)=>a+c.valor,0) - saquesGiro;
             document.querySelectorAll('.global-roi').forEach(el => { el.innerText = roi>0 ? "Falta " + formatMoney(roi) : "PAGO! Sobra: " + formatMoney(Math.abs(roi)); el.style.color = roi>0 ? 'var(--danger)' : 'var(--success)'; });
+
+            document.getElementById('dash-desp-insumos').innerText = formatMoney(tInsumos);
+            document.getElementById('dash-desp-embalagem').innerText = formatMoney(tEmbalagem);
+            document.getElementById('dash-desp-gerais').innerText = formatMoney(tGerais);
+            document.getElementById('dash-desp-marketing').innerText = formatMoney(tMarketing);
         }
 
         init();
