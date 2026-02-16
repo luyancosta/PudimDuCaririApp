@@ -37,7 +37,7 @@
         header h1 { font-size: 1.5rem; font-weight: 700; color: #FDE68A; margin: 0;}
         .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
         .header-actions button { background-color: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-weight: 600; transition: 0.2s;}
-        .header-actions button:hover { background-color: var(--primary-hover); }
+        .header-actions button:hover { background: var(--primary-hover); }
 
         .tabs { display: flex; overflow-x: auto; background: var(--card-bg); padding: 0 1rem; border-bottom: 3px solid var(--border); }
         .tab-btn { background: none; border: none; padding: 1rem 1.2rem; font-size: 0.95rem; font-weight: 600; color: var(--secondary); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -3px; transition: 0.3s; white-space: nowrap; }
@@ -173,8 +173,8 @@
                 <div class="card"><h3>Pudins Vendidos</h3><p id="a-dash-qtd">0</p></div>
                 
                 <div class="card" style="border-left-color: #EF4444;"><h3>Insumo Fixo Gerado</h3><p id="a-dash-insumos" style="color: #EF4444;">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #EF4444;"><h3>Custos Gerais (Fixo)</h3><p id="a-dash-cg" style="color: #EF4444;">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #EF4444;"><h3>Mão de Obra (Fixo)</h3><p id="a-dash-mo" style="color: #EF4444;">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #EF4444;"><h3>Custos Gerais (15%)</h3><p id="a-dash-cg" style="color: #EF4444;">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #EF4444;"><h3>Mão de Obra (20%)</h3><p id="a-dash-mo" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #10B981;"><h3>Lucro Restante</h3><p id="a-dash-lucro-restante" style="color: #10B981;">R$ 0,00</p></div>
                 
                 <div class="card" style="border-left-color: #8B5CF6;"><h3>Giro Gerado (50%)</h3><p id="a-dash-giro">R$ 0,00</p></div>
@@ -381,7 +381,7 @@
             <h2 class="section-title mt-2">Matemática do Rateio - ATACADO (Apenas Pagos)</h2>
             <div class="table-container">
                 <table>
-                    <thead><tr><th>Data</th><th>Cliente/Qtd</th><th>Líquido(c/ Desc)</th><th>Insumo(Fixo)</th><th>Gerais(Fixo)</th><th>Mão(Fixo)</th><th>Restante</th><th>Giro(50%)</th><th>Fundo(15%)</th><th>Luyan</th><th>Beatriz</th></tr></thead>
+                    <thead><tr><th>Data</th><th>Cliente/Qtd</th><th>Líquido(c/ Desc)</th><th>Insumo(Fixo)</th><th>Gerais(15%)</th><th>Mão(20%)</th><th>Restante</th><th>Giro(50%)</th><th>Fundo(15%)</th><th>Luyan</th><th>Beatriz</th></tr></thead>
                     <tbody id="tbody-rateio-atacado"></tbody>
                 </table>
             </div>
@@ -724,187 +724,398 @@
             const data = document.getElementById('a-data').value; const cliente = document.getElementById('a-cliente').value; const qtd = parseInt(document.getElementById('a-qtd').value); const unitario = parseFloat(document.getElementById('a-valor').value);
             const coposDevolvidos = parseInt(document.getElementById('a-copos').value) || 0; const desconto = parseFloat(document.getElementById('a-desconto').value) || 0; const status = document.getElementById('a-status').value;
             if(!data || !cliente || !qtd || !unitario) return alert('Preencha os campos obrigatórios');
+            
             const totalBruto = qtd * unitario;
-            finalizarEdicao('atacado', { id: (editingItem.lista==='atacado'?editingItem.id:Date.now()), data, cliente, qtd, unitario, coposDevolvidos, desconto, totalBruto: totalBruto, totalLiquido: totalBruto - desconto, status }, 'btn-submit-atacado', 'Adicionar Venda Atacado');
-            document.getElementById('a-cliente').value = ''; document.getElementById('a-qtd').value = ''; document.getElementById('a-valor').value = ''; document.getElementById('a-copos').value = '0'; document.getElementById('a-desconto').value = '0';
+            const totalLiquido = totalBruto - desconto;
+
+            const novo = { 
+                id: (editingItem.lista==='atacado'?editingItem.id:Date.now()), 
+                data, cliente, qtd, unitario, coposDevolvidos, desconto, 
+                totalBruto, totalLiquido, status 
+            };
+            finalizarEdicao('atacado', novo, 'btn-submit-atacado', 'Adicionar Venda Atacado');
+            document.getElementById('a-cliente').value = '';
+            document.getElementById('a-qtd').value = '';
+            document.getElementById('a-valor').value = '';
+            document.getElementById('a-copos').value = '0';
+            document.getElementById('a-desconto').value = '0';
         }
 
         function addDespesa() {
             const data = document.getElementById('d-data').value; const item = document.getElementById('d-item').value; const qtd = parseFloat(document.getElementById('d-qtd').value); const unitario = parseFloat(document.getElementById('d-valor').value); const categoria = document.getElementById('d-categoria').value;
             if(!data || !item || !qtd || !unitario) return alert('Preencha tudo');
-            finalizarEdicao('despesas', { id: (editingItem.lista==='despesas'?editingItem.id:Date.now()), data, item, qtd, unitario, total: qtd * unitario, categoria }, 'btn-submit-despesas', 'Adicionar Despesa');
-            document.getElementById('d-item').value = ''; document.getElementById('d-qtd').value = ''; document.getElementById('d-valor').value = '';
+
+            const novo = { id: (editingItem.lista==='despesas'?editingItem.id:Date.now()), data, item, qtd, unitario, total: qtd * unitario, categoria };
+            finalizarEdicao('despesas', novo, 'btn-submit-despesas', 'Adicionar Despesa');
+            document.getElementById('d-item').value = '';
+            document.getElementById('d-qtd').value = '';
+            document.getElementById('d-valor').value = '';
         }
 
         function addInvestimento() {
             const data = document.getElementById('i-data').value; const item = document.getElementById('i-item').value; const valor = parseFloat(document.getElementById('i-valor').value);
             if(!data || !item || !valor) return alert('Preencha tudo');
-            finalizarEdicao('investimentos', { id: (editingItem.lista==='investimentos'?editingItem.id:Date.now()), data, item, valor }, 'btn-submit-investimentos', 'Adicionar Investimento');
-            document.getElementById('i-item').value = ''; document.getElementById('i-valor').value = '';
+
+            const novo = { id: (editingItem.lista==='investimentos'?editingItem.id:Date.now()), data, item, valor };
+            finalizarEdicao('investimentos', novo, 'btn-submit-investimentos', 'Adicionar Investimento');
+            document.getElementById('i-item').value = '';
+            document.getElementById('i-valor').value = '';
         }
 
         function addPagamento() {
             const data = document.getElementById('p-data').value; const valor = parseFloat(document.getElementById('p-valor').value); const tipo = document.getElementById('p-tipo').value;
             if(!data || !valor) return alert('Preencha tudo');
-            finalizarEdicao('pagamentos', { id: (editingItem.lista==='pagamentos'?editingItem.id:Date.now()), data, valor, tipo }, 'btn-submit-pagamentos', 'Registrar Retirada Manual');
+
+            const novo = { id: (editingItem.lista==='pagamentos'?editingItem.id:Date.now()), data, valor, tipo };
+            finalizarEdicao('pagamentos', novo, 'btn-submit-pagamentos', 'Registrar Retirada Manual');
             document.getElementById('p-valor').value = '';
-        }
-
-        function addProducao() {
-            const data = document.getElementById('prod-data').value; const qtd = parseInt(document.getElementById('prod-qtd').value);
-            if(!data || !qtd) return alert("Preencha a data e a quantidade de receitas!");
-            finalizarEdicao('producoes', { id: (editingItem.lista==='producoes'?editingItem.id:Date.now()), data, qtd }, 'btn-submit-producao', 'Registrar Produção');
-            document.getElementById('prod-qtd').value = '1';
-        }
-
-        function addEstoqueMov() {
-            const data = document.getElementById('mov-data').value; const tipo = document.getElementById('mov-tipo').value; const item = document.getElementById('mov-item').value; const qtd = parseFloat(document.getElementById('mov-qtd').value);
-            const desc = document.getElementById('mov-desc').value || (tipo === 'entrada' ? 'Entrada Manual' : 'Saída Manual');
-            if(!data || !qtd) return alert("Preencha a data e a quantidade!");
-            finalizarEdicao('estoqueMov', { id: (editingItem.lista==='estoqueMov'?editingItem.id:Date.now()), data, tipo, item, qtd, desc }, 'btn-submit-mov', 'Lançar Ajuste');
-            document.getElementById('mov-qtd').value = ''; document.getElementById('mov-desc').value = '';
         }
 
         function realizarSaque(tipoRequest) {
             let saldo = parseFloat(document.querySelector(`.global-${tipoRequest.toLowerCase().replace('maoobra', 'mo')}`).innerText.replace('R$','').replace('.','').replace(',','.').trim());
             if(tipoRequest === 'Divida') saldo = parseFloat(document.querySelector('.global-giro').innerText.replace('R$','').replace('.','').replace(',','.').trim());
 
-            let valor = prompt(`Seu Saldo Livre Atual na caixa [${descTipoMap[tipoRequest] || tipoRequest}] é de: ${formatMoney(saldo)}\n\nDigite o valor EXATO que deseja retirar/abater agora:`);
-            if(!valor) return; valor = parseFloat(valor.replace(',', '.'));
-            if(isNaN(valor) || valor <= 0) return alert("Valor inválido.");
+            let nomeCaixa = descTipoMap[tipoRequest] || tipoRequest;
 
-            db.pagamentos.push({ id: Date.now(), data: new Date().toISOString().split('T')[0], valor: valor, tipo: tipoRequest });
-            saveData(); alert(`Retirada registrada com sucesso!`);
-        }
-
-        function ajustarEstoqueRapido(itemKey, nomeItem) {
-            let atual = calcularSaldosEstoque()[itemKey];
-            let novo = prompt(`Estoque atual de ${nomeItem}: ${atual}\n\nDigite a quantidade REAL que você tem agora:`, atual);
-            if(novo === null || novo === "") return; novo = parseFloat(novo.replace(',', '.'));
-            if(isNaN(novo)) return alert("Valor inválido.");
-            let diferenca = novo - atual; if(diferenca === 0) return;
+            let valor = prompt(`Seu Saldo Livre Atual na caixa [${nomeCaixa}] é de: ${formatMoney(saldo)}\n\nDigite o valor EXATO que deseja retirar/abater agora:`);
+            if(!valor) return;
             
-            db.estoqueMov.push({ id: Date.now(), data: new Date().toISOString().split('T')[0], tipo: diferenca > 0 ? 'entrada' : 'saida', item: itemKey, qtd: Math.abs(diferenca), desc: 'Ajuste Rápido' });
+            valor = parseFloat(valor.replace(',', '.'));
+            if(isNaN(valor) || valor <= 0) return alert("Valor inválido. Use ponto em vez de vírgula se necessário.");
+
+            db.pagamentos.push({
+                id: Date.now(),
+                data: new Date().toISOString().split('T')[0],
+                valor: valor,
+                tipo: tipoRequest
+            });
+            
             saveData();
+            alert(`Retirada de ${formatMoney(valor)} registrada com sucesso! Veja no Extrato.`);
         }
 
-        function deletarItem(lista, id) { if(confirm("Certeza que deseja apagar este registro?")) { db[lista] = db[lista].filter(item => item.id !== id); saveData(); } }
-
-        // ================= UPDATE UI E MATEMÁTICA =================
-        function calcularSaldosEstoque() {
-            let saldos = { pudim: 0, leite_condensado: 0, leite_integral: 0, ovos: 0, acucar: 0, copo: 0, tampa: 0, sacola: 0, adesivo: 0, colher: 0 };
-            db.estoqueMov.forEach(m => { if(m.tipo === 'entrada') saldos[m.item] += m.qtd; else saldos[m.item] -= m.qtd; });
-            db.producoes.forEach(p => { saldos.pudim += p.qtd*6; saldos.leite_condensado -= p.qtd*1; saldos.leite_integral -= p.qtd*400; saldos.ovos -= p.qtd*3; saldos.acucar -= p.qtd*200; });
-            db.vendas.forEach(v => { const p = (v.produto.includes('Combo')?3:1)*(v.qtd||1); saldos.pudim -= p; saldos.copo -= p; saldos.tampa -= p; saldos.adesivo -= p; saldos.colher -= p; saldos.sacola -= 1; });
-            db.atacado.forEach(a => { saldos.pudim -= a.qtd; saldos.copo -= a.qtd; saldos.tampa -= a.qtd; saldos.adesivo -= a.qtd; if(a.coposDevolvidos) saldos.copo += a.coposDevolvidos; });
-            return saldos;
+        function deletarItem(lista, id) {
+            if(confirm("Tem certeza que deseja apagar este registro?")) {
+                db[lista] = db[lista].filter(item => item.id !== id);
+                saveData();
+            }
         }
 
         function updateAll() {
-            loadConfigUI();
+            renderEstoque();
+            renderTabelas();
+            renderRateio();
+            updateDashboard();
+        }
 
-            // ESTOQUE
+        function renderEstoque() {
             let saldos = calcularSaldosEstoque();
+
             const mapKeys = ['pudim', 'leite_condensado', 'leite_integral', 'ovos', 'acucar', 'copo', 'tampa', 'sacola', 'adesivo', 'colher'];
             mapKeys.forEach(k => {
                 let el = document.getElementById('est-' + k);
                 if(el) {
-                    let v = saldos[k], suf = (k==='leite_integral') ? ' ml' : (k==='acucar' ? ' g' : ' un');
-                    el.innerText = v + suf;
-                    el.className = 'status-green';
-                    if (k === 'pudim') { if(v<=0)el.className='status-red'; else if(v<10)el.className='status-yellow'; }
-                    else if (k === 'leite_condensado') { if(v<=0)el.className='status-red'; else if(v<=2)el.className='status-yellow'; }
-                    else if (k === 'leite_integral') { if(v<=0)el.className='status-red'; else if(v<=800)el.className='status-yellow'; }
-                    else if (k === 'ovos') { if(v<=0)el.className='status-red'; else if(v<=6)el.className='status-yellow'; }
-                    else if (k === 'acucar') { if(v<=0)el.className='status-red'; else if(v<=400)el.className='status-yellow'; }
-                    else if (k === 'copo') { if(v<=0)el.className='status-red'; else if(v<24)el.className='status-yellow'; }
-                    else if (k === 'tampa' || k === 'adesivo' || k === 'colher') { if(v<70)el.className='status-red'; else if(v<150)el.className='status-yellow'; }
-                    else if (k === 'sacola') { if(v<=0)el.className='status-red'; else if(v<50)el.className='status-yellow'; }
+                    let val = saldos[k];
+                    let suffix = (k==='leite_integral') ? ' ml' : (k==='acucar' ? ' g' : ' un');
+                    el.innerText = val + suffix;
+                    
+                    el.classList.remove('status-red', 'status-yellow', 'status-green');
+                    
+                    let status = 'status-green';
+                    if (k === 'pudim') { if (val <= 0) status = 'status-red'; else if (val < 10) status = 'status-yellow'; }
+                    else if (k === 'leite_condensado') { if (val <= 0) status = 'status-red'; else if (val <= 2) status = 'status-yellow'; }
+                    else if (k === 'leite_integral') { if (val <= 0) status = 'status-red'; else if (val <= 800) status = 'status-yellow'; }
+                    else if (k === 'ovos') { if (val <= 0) status = 'status-red'; else if (val <= 6) status = 'status-yellow'; }
+                    else if (k === 'acucar') { if (val <= 0) status = 'status-red'; else if (val <= 400) status = 'status-yellow'; }
+                    else if (k === 'copo') { if (val <= 0) status = 'status-red'; else if (val < 24) status = 'status-yellow'; }
+                    else if (k === 'tampa') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
+                    else if (k === 'sacola') { if (val <= 0) status = 'status-red'; else if (val < 50) status = 'status-yellow'; }
+                    else if (k === 'adesivo') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
+                    else if (k === 'colher') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
+
+                    el.classList.add(status);
                 }
             });
 
-            // TABELAS ESTOQUE
-            document.getElementById('tbody-producoes').innerHTML = db.producoes.sort((a,b)=>new Date(b.data)-new Date(a.data)).map(p => `<tr><td>${formatData(p.data)}</td><td>${p.qtd} Rec</td><td style="color:var(--success); font-weight:bold">+${p.qtd*6} Pudins</td><td><button class="btn-edit" onclick="prepararEdicao('producoes', ${p.id})">✏️</button><button class="btn-delete" onclick="deletarItem('producoes', ${p.id})">🗑️</button></td></tr>`).join('');
-            const mapItemNames = { leite_condensado: "Leite Condensado", leite_integral: "Leite Integral", ovos: "Ovos", acucar: "Açúcar", copo: "Copo", tampa: "Tampas", sacola: "Sacolas", adesivo: "Adesivos", colher: "Colheres", pudim: "Pudins" };
-            document.getElementById('tbody-estoquemov').innerHTML = db.estoqueMov.sort((a,b)=>new Date(b.data)-new Date(a.data)).map(m => `<tr><td>${formatData(m.data)}</td><td>${mapItemNames[m.item]}</td><td style="color:${m.tipo==='entrada'?'var(--success)':'var(--danger)'}; font-weight:bold">${m.tipo==='entrada'?'+':'-'}${m.qtd}</td><td>${m.desc}</td><td><button class="btn-edit" onclick="prepararEdicao('estoqueMov', ${m.id})">✏️</button><button class="btn-delete" onclick="deletarItem('estoqueMov', ${m.id})">🗑️</button></td></tr>`).join('');
-            
-            // TABELAS VENDAS E ATACADO
-            document.getElementById('tbody-vendas').innerHTML = db.vendas.sort((a,b)=>new Date(b.data)-new Date(a.data)).map(v => `<tr><td>${formatData(v.data)}</td><td>${v.produto}</td><td>${v.qtd||1}</td><td style="color:var(--primary)">${v.desconto>0?'-'+formatMoney(v.desconto):'-'}</td><td>${v.pgto}</td><td>${formatMoney(v.valorBruto)}</td><td style="color:red">-${formatMoney(v.valorTaxa)}</td><td style="color:#059669">+${formatMoney(v.entrega||0)}</td><td style="font-weight:bold">${formatMoney(v.valorLiquido)}</td><td style="white-space:nowrap;"><button class="btn-edit" onclick="prepararEdicao('vendas', ${v.id})">✏️</button><button class="btn-delete" onclick="deletarItem('vendas', ${v.id})">🗑️</button></td></tr>`).join('');
-            document.getElementById('tbody-atacado').innerHTML = db.atacado.sort((a,b)=>new Date(b.data)-new Date(a.data)).map(v => { const corStatus = v.status === 'PAGO' ? 'green' : 'red'; const bruto = v.totalBruto !== undefined ? v.totalBruto : (v.qtd * v.unitario); const liq = v.totalLiquido !== undefined ? v.totalLiquido : (v.total !== undefined ? v.total : bruto - (v.desconto||0)); return `<tr><td>${formatData(v.data)}</td><td>${v.cliente}</td><td>${v.qtd}</td><td>${formatMoney(v.unitario)}</td><td>${formatMoney(bruto)}</td><td style="color:red">-${formatMoney(v.desconto||0)}<br><small>(${v.coposDevolvidos||0} un)</small></td><td style="font-weight:bold">${formatMoney(liq)}</td><td style="color:${corStatus}; font-weight:bold">${v.status}</td><td style="white-space: nowrap;"><button class="btn-edit" onclick="prepararEdicao('atacado', ${v.id})">✏️</button><button class="btn-delete" onclick="deletarItem('atacado', ${v.id})">🗑️</button></td></tr>`;}).join('');
-            
-            // DESPESAS E INV
-            document.getElementById('tbody-despesas').innerHTML = db.despesas.sort((a,b)=>new Date(b.data)-new Date(a.data)).map(d => `<tr><td>${formatData(d.data)}</td><td>${d.item}</td><td>${d.qtd}</td><td>${formatMoney(d.unitario)}</td><td style="color:red; font-weight:bold">${formatMoney(d.total)}</td><td>${d.categoria}</td><td style="white-space: nowrap;"><button class="btn-edit" onclick="prepararEdicao('despesas', ${d.id})">✏️</button><button class="btn-delete" onclick="deletarItem('despesas', ${d.id})">🗑️</button></td></tr>`).join('');
-            document.getElementById('tbody-investimentos').innerHTML = db.investimentos.sort((a,b)=>new Date(b.data)-new Date(a.data)).map(i => `<tr><td>${formatData(i.data)}</td><td>${i.item}</td><td style="color:red; font-weight:bold">${formatMoney(i.valor)}</td><td style="white-space: nowrap;"><button class="btn-edit" onclick="prepararEdicao('investimentos', ${i.id})">✏️</button><button class="btn-delete" onclick="deletarItem('investimentos', ${i.id})">🗑️</button></td></tr>`).join('');
+            const tbProd = document.getElementById('tbody-producoes');
+            tbProd.innerHTML = '';
+            db.producoes.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(p => {
+                tbProd.innerHTML += `<tr><td>${formatData(p.data)}</td><td>${p.qtd} Receitas</td>
+                <td style="color:var(--success); font-weight:bold">+${p.qtd*6} Pudins</td>
+                <td><button class="btn-edit" onclick="prepararEdicao('producoes', ${p.id})">✏️</button><button class="btn-delete" onclick="deletarItem('producoes', ${p.id})">🗑️</button></td></tr>`;
+            });
 
-            // CUSTOS DE REFERÊNCIA DO VAREJO (Aplicados ao Atacado)
-            const refBase = db.config.precoUnd - db.config.custoInsumo;
-            const refCG = refBase * 0.15;
-            const refMO = refBase * 0.20;
+            const mapItemNames = {
+                leite_condensado: "Leite Condensado", leite_integral: "Leite Integral", ovos: "Ovos", acucar: "Açúcar",
+                copo: "Copo Americano", tampa: "Tampas", sacola: "Sacolas", adesivo: "Adesivos", colher: "Colheres", pudim: "Pudins Prontos"
+            };
+            const tbMov = document.getElementById('tbody-estoquemov');
+            tbMov.innerHTML = '';
+            db.estoqueMov.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(m => {
+                const color = m.tipo === 'entrada' ? 'var(--success)' : 'var(--danger)';
+                const signal = m.tipo === 'entrada' ? '+' : '-';
+                tbMov.innerHTML += `<tr><td>${formatData(m.data)}</td><td>${mapItemNames[m.item]}</td>
+                <td style="color:${color}; font-weight:bold">${signal}${m.qtd}</td><td>${m.desc}</td>
+                <td><button class="btn-edit" onclick="prepararEdicao('estoqueMov', ${m.id})">✏️</button><button class="btn-delete" onclick="deletarItem('estoqueMov', ${m.id})">🗑️</button></td></tr>`;
+            });
+        }
 
-            // LINHA DO TEMPO
+        function renderTabelas() {
+            const tbVendas = document.getElementById('tbody-vendas');
+            tbVendas.innerHTML = '';
+            db.vendas.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(v => {
+                const entrega = v.entrega || 0;
+                const desconto = v.desconto || 0;
+                const qtd = v.qtd || 1;
+                tbVendas.innerHTML += `<tr>
+                    <td>${formatData(v.data)}</td><td>${v.produto}</td><td>${qtd}</td>
+                    <td style="color:var(--primary)">${desconto > 0 ? '-'+formatMoney(desconto) : '-'}</td>
+                    <td>${v.pgto}</td><td>${formatMoney(v.valorBruto)}</td>
+                    <td style="color:red">-${formatMoney(v.valorTaxa)}</td>
+                    <td style="color:#059669">+${formatMoney(entrega)}</td>
+                    <td style="font-weight:bold">${formatMoney(v.valorLiquido)}</td>
+                    <td style="white-space: nowrap;"><button class="btn-edit" onclick="prepararEdicao('vendas', ${v.id})">✏️</button><button class="btn-delete" onclick="deletarItem('vendas', ${v.id})">🗑️</button></td>
+                </tr>`;
+            });
+
+            const tbAtacado = document.getElementById('tbody-atacado');
+            tbAtacado.innerHTML = '';
+            db.atacado.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(v => {
+                const corStatus = v.status === 'PAGO' ? 'green' : 'red';
+                const copos = v.coposDevolvidos || 0;
+                const desconto = v.desconto || 0;
+                const bruto = v.totalBruto || (v.qtd * v.unitario);
+                const liq = v.totalLiquido || v.total;
+
+                tbAtacado.innerHTML += `<tr><td>${formatData(v.data)}</td><td>${v.cliente}</td><td>${v.qtd}</td><td>${formatMoney(v.unitario)}</td>
+                <td>${formatMoney(bruto)}</td><td style="color:red">-${formatMoney(desconto)}<br><small>(${copos} un)</small></td>
+                <td style="font-weight:bold">${formatMoney(liq)}</td><td style="color:${corStatus}; font-weight:bold">${v.status}</td>
+                <td style="white-space: nowrap;"><button class="btn-edit" onclick="prepararEdicao('atacado', ${v.id})">✏️</button><button class="btn-delete" onclick="deletarItem('atacado', ${v.id})">🗑️</button></td></tr>`;
+            });
+
+            const tbDesp = document.getElementById('tbody-despesas');
+            tbDesp.innerHTML = '';
+            db.despesas.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(d => {
+                tbDesp.innerHTML += `<tr><td>${formatData(d.data)}</td><td>${d.item}</td><td>${d.qtd}</td><td>${formatMoney(d.unitario)}</td><td style="color:red; font-weight:bold">${formatMoney(d.total)}</td><td>${d.categoria}</td>
+                <td style="white-space: nowrap;"><button class="btn-edit" onclick="prepararEdicao('despesas', ${d.id})">✏️</button><button class="btn-delete" onclick="deletarItem('despesas', ${d.id})">🗑️</button></td></tr>`;
+            });
+
+            const tbInv = document.getElementById('tbody-investimentos');
+            tbInv.innerHTML = '';
+            db.investimentos.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(i => {
+                tbInv.innerHTML += `<tr><td>${formatData(i.data)}</td><td>${i.item}</td><td style="color:red; font-weight:bold">${formatMoney(i.valor)}</td>
+                <td style="white-space: nowrap;"><button class="btn-edit" onclick="prepararEdicao('investimentos', ${i.id})">✏️</button><button class="btn-delete" onclick="deletarItem('investimentos', ${i.id})">🗑️</button></td></tr>`;
+            });
+
+            // LÓGICA DA LINHA DO TEMPO (EXTRATO)
+            const tbPag = document.getElementById('tbody-pagamentos');
+            tbPag.innerHTML = '';
+            
             let timeline = [];
-            db.vendas.forEach(v => { const q = (v.produto.includes('Combo')?3:1)*(v.qtd||1); const base = v.valorLiquido - (q*db.config.custoInsumo); const cg = base*0.15; const mo = base*0.20; const lucro = base-cg-mo; timeline.push({ id: v.id, data: v.data, tipoAcao: 'ganho', giro: lucro*0.50, mo: mo, luyan: lucro*0.175, beatriz: lucro*0.175 }); });
-            db.atacado.forEach(a => { 
+            
+            db.vendas.forEach(v => {
+                const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
+                const base = v.valorLiquido - (q * db.config.custoInsumo);
+                const lucro = base - (base * 0.15) - (base * 0.20);
+                timeline.push({ id: v.id, data: v.data, tipoAcao: 'ganho', giro: lucro * 0.50, mo: base * 0.20, luyan: lucro * 0.175, beatriz: lucro * 0.175 });
+            });
+
+            db.atacado.forEach(a => {
                 if (a.status !== 'PAGO') return; 
                 const bruto = a.totalBruto !== undefined ? a.totalBruto : (a.qtd * a.unitario);
                 const liq = a.totalLiquido !== undefined ? a.totalLiquido : (a.total !== undefined ? a.total : bruto - (a.desconto||0));
                 const insBase = a.qtd*db.config.custoInsumo; 
                 const abatCopos = (a.coposDevolvidos||0)*(db.config.custoCopo||1.80); 
                 const ins = Math.max(0, insBase - abatCopos); 
-                const cg = a.qtd * refCG;
-                const mo = a.qtd * refMO;
-                const lucro = liq - ins - cg - mo; 
-                timeline.push({ id: a.id, data: a.data, tipoAcao: 'ganho', giro: lucro*0.50, mo: mo, luyan: lucro*0.175, beatriz: lucro*0.175 }); 
+                const base = liq - ins;
+                const lucro = base - (base * 0.15) - (base * 0.20);
+                timeline.push({ id: a.id, data: a.data, tipoAcao: 'ganho', giro: lucro * 0.50, mo: base * 0.20, luyan: lucro * 0.175, beatriz: lucro * 0.175 });
             });
+
             db.pagamentos.forEach(p => { timeline.push({ id: p.id, data: p.data, tipoAcao: 'saque', obj: p }); });
 
-            timeline.sort((a,b) => { const dA = new Date(a.data).getTime(), dB = new Date(b.data).getTime(); return dA === dB ? a.id - b.id : dA - dB; });
-            let saldosCx = { Divida: 0, MaoObra: 0, Luyan: 0, Beatriz: 0 };
-            let arrPags = [];
-            timeline.forEach(t => {
-                if(t.tipoAcao === 'ganho') { saldosCx.Divida+=t.giro; saldosCx.MaoObra+=t.mo; saldosCx.Luyan+=t.luyan; saldosCx.Beatriz+=t.beatriz; } 
-                else { let cType = t.obj.tipo||'Divida'; let ant = saldosCx[cType]||0; saldosCx[cType]-=t.obj.valor; arrPags.push({ ...t.obj, saldoAnterior: ant, saldoAtual: saldosCx[cType]}); }
+            timeline.sort((a, b) => {
+                const dateA = new Date(a.data).getTime();
+                const dateB = new Date(b.data).getTime();
+                if(dateA === dateB) return a.id - b.id;
+                return dateA - dateB;
             });
-            document.getElementById('tbody-pagamentos').innerHTML = arrPags.sort((a,b)=> { const dA=new Date(a.data).getTime(), dB=new Date(b.data).getTime(); return dA===dB? b.id-a.id : dB-dA; }).map(p => `<tr><td>${formatData(p.data)}</td><td style="font-weight:bold; color:var(--secondary)">${descTipoMap[p.tipo||'Divida']}</td><td style="color:#6B7280">${formatMoney(p.saldoAnterior)}</td><td style="color:var(--danger); font-weight:bold">-${formatMoney(p.valor)}</td><td style="color:${p.saldoAtual<0?'var(--danger)':'var(--success)'}; font-weight:bold">${formatMoney(p.saldoAtual)}</td><td style="white-space:nowrap;"><button class="btn-edit" onclick="prepararEdicao('pagamentos', ${p.id})">✏️</button><button class="btn-delete" onclick="deletarItem('pagamentos', ${p.id})">🗑️</button></td></tr>`).join('');
 
-            // RATEIO
-            document.getElementById('tbody-rateio-varejo').innerHTML = db.vendas.sort((a,b)=>new Date(b.data)-new Date(a.data)).map(v => { const q = (v.produto.includes('Combo')?3:1)*(v.qtd||1); const ins = q*db.config.custoInsumo; const base = v.valorLiquido-ins; const cg=base*0.15; const mo=base*0.20; const lucro=base-cg-mo; return `<tr><td>${formatData(v.data)}</td><td>${v.produto} (${v.qtd||1}x)</td><td style="font-weight:bold">${formatMoney(v.valorLiquido)}</td><td style="color:red">-${formatMoney(ins)}</td><td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td><td style="color:green; font-weight:bold">${formatMoney(lucro)}</td><td>${formatMoney(lucro*0.50)}</td><td>${formatMoney(lucro*0.15)}</td><td>${formatMoney(lucro*0.175)}</td><td>${formatMoney(lucro*0.175)}</td></tr>`; }).join('');
-            document.getElementById('tbody-rateio-atacado').innerHTML = db.atacado.sort((a,b)=>new Date(b.data)-new Date(a.data)).map(a => { 
-                if(a.status!=='PAGO') return ''; 
+            let saldos = { Divida: 0, MaoObra: 0, Luyan: 0, Beatriz: 0 };
+            let renderListaPagamentos = [];
+
+            timeline.forEach(t => {
+                if(t.tipoAcao === 'ganho') {
+                    saldos.Divida += t.giro;
+                    saldos.MaoObra += t.mo;
+                    saldos.Luyan += t.luyan;
+                    saldos.Beatriz += t.beatriz;
+                } else if(t.tipoAcao === 'saque') {
+                    let caixaType = t.obj.tipo || 'Divida';
+                    let saldoAnterior = saldos[caixaType] || 0;
+                    saldos[caixaType] -= t.obj.valor;
+                    let saldoAtual = saldos[caixaType];
+                    
+                    renderListaPagamentos.push({
+                        ...t.obj,
+                        saldoAnterior: saldoAnterior,
+                        saldoAtual: saldoAtual
+                    });
+                }
+            });
+
+            renderListaPagamentos.sort((a, b) => {
+                const dateA = new Date(a.data).getTime();
+                const dateB = new Date(b.data).getTime();
+                if(dateA === dateB) return b.id - a.id;
+                return dateB - dateA;
+            });
+
+            renderListaPagamentos.forEach(p => {
+                const tipoStr = p.tipo || 'Divida';
+                tbPag.innerHTML += `<tr>
+                    <td>${formatData(p.data)}</td>
+                    <td style="font-weight:bold; color:var(--secondary)">${descTipoMap[tipoStr]}</td>
+                    <td style="color:#6B7280">${formatMoney(p.saldoAnterior)}</td>
+                    <td style="color:var(--danger); font-weight:bold">-${formatMoney(p.valor)}</td>
+                    <td style="color:${p.saldoAtual < 0 ? 'var(--danger)' : 'var(--success)'}; font-weight:bold">${formatMoney(p.saldoAtual)}</td>
+                    <td style="white-space: nowrap;"><button class="btn-edit" onclick="prepararEdicao('pagamentos', ${p.id})">✏️</button><button class="btn-delete" onclick="deletarItem('pagamentos', ${p.id})">🗑️</button></td>
+                </tr>`;
+            });
+        }
+
+        function renderRateio() {
+            const tbVar = document.getElementById('tbody-rateio-varejo');
+            tbVar.innerHTML = '';
+            db.vendas.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(v => {
+                const qtdPudins = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
+                const custoInsumoTotal = qtdPudins * db.config.custoInsumo;
+                const baseCalculo = v.valorLiquido - custoInsumoTotal;
+                const cg = baseCalculo * 0.15; const mo = baseCalculo * 0.20; const lucro = baseCalculo - cg - mo;
+                const giro = lucro * 0.50, fundo = lucro * 0.15, luyan = lucro * 0.175, beatriz = lucro * 0.175;
+
+                tbVar.innerHTML += `<tr>
+                    <td>${formatData(v.data)}</td><td>${v.produto} (${v.qtd||1}x)</td><td style="font-weight:bold">${formatMoney(v.valorLiquido)}</td>
+                    <td style="color:red">-${formatMoney(custoInsumoTotal)}</td><td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td>
+                    <td style="color:green; font-weight:bold">${formatMoney(lucro)}</td>
+                    <td>${formatMoney(giro)}</td><td>${formatMoney(fundo)}</td><td>${formatMoney(luyan)}</td><td>${formatMoney(beatriz)}</td>
+                </tr>`;
+            });
+
+            const tbAtac = document.getElementById('tbody-rateio-atacado');
+            tbAtac.innerHTML = '';
+            db.atacado.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(a => {
+                if (a.status !== 'PAGO') return; 
                 const bruto = a.totalBruto !== undefined ? a.totalBruto : (a.qtd * a.unitario);
                 const liq = a.totalLiquido !== undefined ? a.totalLiquido : (a.total !== undefined ? a.total : bruto - (a.desconto||0));
-                const insBase = a.qtd*db.config.custoInsumo; const abatCopos = (a.coposDevolvidos||0)*(db.config.custoCopo||1.80); const ins = Math.max(0, insBase-abatCopos); 
-                const cg = a.qtd * refCG; const mo = a.qtd * refMO; const lucro = liq - ins - cg - mo; 
-                return `<tr><td>${formatData(a.data)}</td><td>${a.cliente} (${a.qtd}x)</td><td style="font-weight:bold">${formatMoney(liq)}</td><td style="color:red">-${formatMoney(ins)} <br><small style="color:green">${abatCopos>0?'(Eco: '+formatMoney(abatCopos)+')':''}</small></td><td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td><td style="color:green; font-weight:bold">${formatMoney(lucro)}</td><td>${formatMoney(lucro*0.50)}</td><td>${formatMoney(lucro*0.15)}</td><td>${formatMoney(lucro*0.175)}</td><td>${formatMoney(lucro*0.175)}</td></tr>`; 
-            }).join('');
+                const insBase = a.qtd * db.config.custoInsumo;
+                const abatCopos = (a.coposDevolvidos || 0) * (db.config.custoCopo || 1.80);
+                const custoInsumoTotal = Math.max(0, insBase - abatCopos); 
+                const baseCalculo = liq - custoInsumoTotal;
+                const cg = baseCalculo * 0.15; const mo = baseCalculo * 0.20; const lucro = baseCalculo - cg - mo;
+                const giro = lucro * 0.50, fundo = lucro * 0.15, luyan = lucro * 0.175, beatriz = lucro * 0.175;
 
-            // DASHBOARDS
-            let vBruto=0, vLiquido=0, vQtd=0, vEntrega=0, vInsumo=0, vCG=0, vMO=0, vLucro=0, vGiro=0, vFundo=0, vLuyan=0, vBeatriz=0;
-            db.vendas.forEach(v => { vBruto+=v.valorBruto; vLiquido+=v.valorLiquido; vEntrega+=v.entrega||0; const q = (v.produto.includes('Combo')?3:1)*(v.qtd||1); vQtd+=q; const ins=q*db.config.custoInsumo; const base=v.valorLiquido-ins; const cg=base*0.15; const mo=base*0.20; const lucro=base-cg-mo; vInsumo+=ins; vCG+=cg; vMO+=mo; vLucro+=lucro; vGiro+=lucro*0.50; vFundo+=lucro*0.15; vLuyan+=lucro*0.175; vBeatriz+=lucro*0.175; });
+                tbAtac.innerHTML += `<tr>
+                    <td>${formatData(a.data)}</td><td>${a.cliente} (${a.qtd}x)</td><td style="font-weight:bold">${formatMoney(liq)}</td>
+                    <td style="color:red">-${formatMoney(custoInsumoTotal)} <br><small style="color:green">${abatCopos>0?'(Eco: '+formatMoney(abatCopos)+')':''}</small></td>
+                    <td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td>
+                    <td style="color:green; font-weight:bold">${formatMoney(lucro)}</td>
+                    <td>${formatMoney(giro)}</td><td>${formatMoney(fundo)}</td><td>${formatMoney(luyan)}</td><td>${formatMoney(beatriz)}</td>
+                </tr>`;
+            });
+        }
+
+        function applyAlertClass(elementCollection, val) {
+            elementCollection.forEach(el => {
+                el.innerText = formatMoney(val);
+                if(val < 0) el.classList.add('alerta-negativo');
+                else el.classList.remove('alerta-negativo');
+            });
+        }
+
+        function updateDashboard() {
+            let vBruto = 0, vLiquido = 0, vQtd = 0, vEntrega = 0;
+            let vInsumo = 0, vCG = 0, vMO = 0, vLucro = 0, vGiro = 0, vFundo = 0, vLuyan = 0, vBeatriz = 0;
             
-            let aBruto=0, aDesc=0, aLiquido=0, aQtd=0, aInsumo=0, aCG=0, aMO=0, aLucro=0, aGiro=0, aFundo=0, aLuyan=0, aBeatriz=0;
-            db.atacado.forEach(a => { 
-                if(a.status!=='PAGO') return; 
+            db.vendas.forEach(v => {
+                vBruto += v.valorBruto; vLiquido += v.valorLiquido; vEntrega += v.entrega || 0;
+                const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
+                vQtd += q;
+                const ins = q * db.config.custoInsumo;
+                const base = v.valorLiquido - ins;
+                const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
+                vInsumo += ins; vCG += cg; vMO += mo; vLucro += lucro;
+                vGiro += lucro * 0.50; vFundo += lucro * 0.15; vLuyan += lucro * 0.175; vBeatriz += lucro * 0.175;
+            });
+
+            let aBruto = 0, aDescCopos = 0, aLiquido = 0, aQtd = 0;
+            let aInsumo = 0, aCG = 0, aMO = 0, aLucro = 0, aGiro = 0, aFundo = 0, aLuyan = 0, aBeatriz = 0;
+
+            db.atacado.forEach(a => {
+                if (a.status !== 'PAGO') return; 
                 const bruto = a.totalBruto !== undefined ? a.totalBruto : (a.qtd * a.unitario);
                 const desc = a.desconto || 0;
                 const liq = a.totalLiquido !== undefined ? a.totalLiquido : (a.total !== undefined ? a.total : bruto - desc);
-                aBruto+=bruto; aDesc+=desc; aLiquido+=liq; aQtd+=a.qtd; 
-                
-                const insBase=a.qtd*db.config.custoInsumo; const abatCopos=(a.coposDevolvidos||0)*(db.config.custoCopo||1.80); const ins=Math.max(0,insBase-abatCopos); 
-                const cg = a.qtd * refCG; const mo = a.qtd * refMO; const lucro = liq - ins - cg - mo; 
-                aInsumo+=ins; aCG+=cg; aMO+=mo; aLucro+=lucro; aGiro+=lucro*0.50; aFundo+=lucro*0.15; aLuyan+=lucro*0.175; aBeatriz+=lucro*0.175; 
-            });
-            
-            let tInsumos=0, tEmbalagem=0, tGerais=0, tMarketing=0;
-            db.despesas.forEach(d => { if(d.categoria==='INSUMOS') tInsumos+=d.total; else if(d.categoria==='EMBALAGEM') tEmbalagem+=d.total; else if(d.categoria==='GASTOS GERAIS') tGerais+=d.total; else if(d.categoria==='MARKETING') tMarketing+=d.total; });
-            let saquesGiro=0, saquesMO=0, saquesLuyan=0, saquesBeat=0;
-            db.pagamentos.forEach(p => { if(p.tipo==='Divida'||!p.tipo) saquesGiro+=p.valor; else if(p.tipo==='MaoObra') saquesMO+=p.valor; else if(p.tipo==='Luyan') saquesLuyan+=p.valor; else if(p.tipo==='Beatriz') saquesBeat+=p.valor; });
+                aBruto += bruto; aDescCopos += desc; aLiquido += liq; aQtd += a.qtd;
 
-            document.getElementById('v-dash-bruto').innerText = formatMoney(vBruto); document.getElementById('v-dash-liquido').innerText = formatMoney(vLiquido); document.getElementById('v-dash-entrega').innerText = formatMoney(vEntrega); document.getElementById('v-dash-qtd').innerText = vQtd; document.getElementById('v-dash-insumos').innerText = formatMoney(vInsumo); document.getElementById('v-dash-cg').innerText = formatMoney(vCG); document.getElementById('v-dash-mo').innerText = formatMoney(vMO); document.getElementById('v-dash-lucro-restante').innerText = formatMoney(vLucro); document.getElementById('v-dash-giro').innerText = formatMoney(vGiro); document.getElementById('v-dash-fundo').innerText = formatMoney(vFundo); document.getElementById('v-dash-luyan').innerText = formatMoney(vLuyan); document.getElementById('v-dash-beatriz').innerText = formatMoney(vBeatriz);
-            document.getElementById('a-dash-bruto').innerText = formatMoney(aBruto); document.getElementById('a-dash-desconto').innerText = "- " + formatMoney(aDesc); document.getElementById('a-dash-liquido').innerText = formatMoney(aLiquido); document.getElementById('a-dash-qtd').innerText = aQtd; document.getElementById('a-dash-insumos').innerText = formatMoney(aInsumo); document.getElementById('a-dash-cg').innerText = formatMoney(aCG); document.getElementById('a-dash-mo').innerText = formatMoney(aMO); document.getElementById('a-dash-lucro-restante').innerText = formatMoney(aLucro); document.getElementById('a-dash-giro').innerText = formatMoney(aGiro); document.getElementById('a-dash-fundo').innerText = formatMoney(aFundo); document.getElementById('a-dash-luyan').innerText = formatMoney(aLuyan); document.getElementById('a-dash-beatriz').innerText = formatMoney(aBeatriz);
+                const insBase = a.qtd * db.config.custoInsumo;
+                const abatCopos = (a.coposDevolvidos || 0) * (db.config.custoCopo || 1.80);
+                const ins = Math.max(0, insBase - abatCopos); 
+                const base = liq - ins; 
+                const cg = base * 0.15; 
+                const mo = base * 0.20; 
+                const lucro = base - cg - mo;
+                
+                aInsumo += ins; aCG += cg; aMO += mo; aLucro += lucro;
+                aGiro += lucro * 0.50; aFundo += lucro * 0.15; aLuyan += lucro * 0.175; aBeatriz += lucro * 0.175;
+            });
+
+            let tInsumos = 0, tEmbalagem = 0, tGerais = 0, tMarketing = 0;
+            db.despesas.forEach(d => {
+                if(d.categoria === 'INSUMOS') tInsumos += d.total;
+                else if(d.categoria === 'EMBALAGEM') tEmbalagem += d.total;
+                else if(d.categoria === 'GASTOS GERAIS') tGerais += d.total;
+                else if(d.categoria === 'MARKETING') tMarketing += d.total;
+            });
+
+            let saquesGiro = 0, saquesMO = 0, saquesLuyan = 0, saquesBeat = 0;
+            db.pagamentos.forEach(p => {
+                const t = p.tipo || 'Divida';
+                if(t === 'Divida') saquesGiro += p.valor;
+                else if(t === 'MaoObra') saquesMO += p.valor;
+                else if(t === 'Luyan') saquesLuyan += p.valor;
+                else if(t === 'Beatriz') saquesBeat += p.valor;
+            });
+
+            document.getElementById('v-dash-bruto').innerText = formatMoney(vBruto);
+            document.getElementById('v-dash-liquido').innerText = formatMoney(vLiquido);
+            document.getElementById('v-dash-entrega').innerText = formatMoney(vEntrega);
+            document.getElementById('v-dash-qtd').innerText = vQtd;
+            document.getElementById('v-dash-insumos').innerText = formatMoney(vInsumo);
+            document.getElementById('v-dash-cg').innerText = formatMoney(vCG);
+            document.getElementById('v-dash-mo').innerText = formatMoney(vMO);
+            document.getElementById('v-dash-lucro-restante').innerText = formatMoney(vLucro);
+            document.getElementById('v-dash-giro').innerText = formatMoney(vGiro);
+            document.getElementById('v-dash-fundo').innerText = formatMoney(vFundo);
+            document.getElementById('v-dash-luyan').innerText = formatMoney(vLuyan);
+            document.getElementById('v-dash-beatriz').innerText = formatMoney(vBeatriz);
+
+            document.getElementById('a-dash-bruto').innerText = formatMoney(aBruto);
+            document.getElementById('a-dash-desconto').innerText = "- " + formatMoney(aDescCopos);
+            document.getElementById('a-dash-liquido').innerText = formatMoney(aLiquido);
+            document.getElementById('a-dash-qtd').innerText = aQtd;
+            document.getElementById('a-dash-insumos').innerText = formatMoney(aInsumo);
+            document.getElementById('a-dash-cg').innerText = formatMoney(aCG);
+            document.getElementById('a-dash-mo').innerText = formatMoney(aMO);
+            document.getElementById('a-dash-lucro-restante').innerText = formatMoney(aLucro);
+            document.getElementById('a-dash-giro').innerText = formatMoney(aGiro);
+            document.getElementById('a-dash-fundo').innerText = formatMoney(aFundo);
+            document.getElementById('a-dash-luyan').innerText = formatMoney(aLuyan);
+            document.getElementById('a-dash-beatriz').innerText = formatMoney(aBeatriz);
 
             let faturamentoGlobal = vLiquido + aBruto;
             let pudinsGlobais = vQtd + aQtd;
+
             document.querySelectorAll('.global-faturamento').forEach(el => { el.innerText = formatMoney(faturamentoGlobal); });
             document.querySelectorAll('.global-pudins').forEach(el => { el.innerText = pudinsGlobais; });
 
@@ -916,17 +1127,16 @@
             let saldoBeatriz = (vBeatriz + aBeatriz) - saquesBeat;
             let saldoGiro = (vGiro + aGiro) - saquesGiro;
 
-            const totalInvestimento = db.investimentos.reduce((a, c) => a + c.valor, 0);
+            const totalInvestimento = db.investimentos.reduce((acc, curr) => acc + curr.valor, 0);
             const roi = totalInvestimento - saquesGiro;
 
-            const ap = (sel, val) => document.querySelectorAll(sel).forEach(el => { el.innerText = formatMoney(val); if(val<0) el.classList.add('alerta-negativo'); else el.classList.remove('alerta-negativo'); });
-            ap('.global-insumos', saldoInsumo);
-            ap('.global-cg', saldoCG);
-            ap('.global-fundo', saldoFundo);
-            ap('.global-mo', saldoMO);
-            ap('.global-luyan', saldoLuyan);
-            ap('.global-beatriz', saldoBeatriz);
-            ap('.global-giro', saldoGiro);
+            applyAlertClass(document.querySelectorAll('.global-insumos'), saldoInsumo);
+            applyAlertClass(document.querySelectorAll('.global-cg'), saldoCG);
+            applyAlertClass(document.querySelectorAll('.global-fundo'), saldoFundo);
+            applyAlertClass(document.querySelectorAll('.global-mo'), saldoMO);
+            applyAlertClass(document.querySelectorAll('.global-luyan'), saldoLuyan);
+            applyAlertClass(document.querySelectorAll('.global-beatriz'), saldoBeatriz);
+            applyAlertClass(document.querySelectorAll('.global-giro'), saldoGiro);
 
             document.querySelectorAll('.global-roi').forEach(el => {
                 el.innerText = roi > 0 ? "Falta " + formatMoney(roi) : "PAGO! Sobra: " + formatMoney(Math.abs(roi));
