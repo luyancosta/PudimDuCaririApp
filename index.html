@@ -1226,8 +1226,10 @@
         }
 
         function renderRateio() {
-            const tbVar = document.getElementById('tbody-rateio-varejo');
-            tbVar.innerHTML = '';
+            // VAREJO
+            let htmlVar = '';
+            let vLiq=0, vIns=0, vCg=0, vMo=0, vLucro=0, vGiro=0, vFundo=0, vLu=0, vBea=0;
+
             db.vendas.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(v => {
                 const qtdPudins = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
                 const custoInsumoTotal = qtdPudins * db.config.custoInsumo;
@@ -1235,19 +1237,32 @@
                 const cg = baseCalculo * 0.15; const mo = baseCalculo * 0.20; const lucro = baseCalculo - cg - mo;
                 const giro = lucro * 0.50, fundo = lucro * 0.15, luyan = lucro * 0.175, beatriz = lucro * 0.175;
 
-                tbVar.innerHTML += `<tr>
+                vLiq+=v.valorLiquido; vIns+=custoInsumoTotal; vCg+=cg; vMo+=mo; vLucro+=lucro; vGiro+=giro; vFundo+=fundo; vLu+=luyan; vBea+=beatriz;
+
+                htmlVar += `<tr>
                     <td>${formatData(v.data)}</td><td>${v.produto} (${v.qtd||1}x)</td><td style="font-weight:bold">${formatMoney(v.valorLiquido)}</td>
                     <td style="color:red">-${formatMoney(custoInsumoTotal)}</td><td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td>
                     <td style="color:green; font-weight:bold">${formatMoney(lucro)}</td>
                     <td>${formatMoney(giro)}</td><td>${formatMoney(fundo)}</td><td>${formatMoney(luyan)}</td><td>${formatMoney(beatriz)}</td>
                 </tr>`;
             });
+            
+            if(db.vendas.length > 0) {
+                htmlVar += `<tr style="background: var(--border); font-weight: bold; color: var(--text-main);">
+                    <td colspan="2" style="text-align: right;">TOTAIS VAREJO:</td>
+                    <td>${formatMoney(vLiq)}</td><td style="color:red">-${formatMoney(vIns)}</td><td style="color:red">-${formatMoney(vCg)}</td><td style="color:red">-${formatMoney(vMo)}</td>
+                    <td style="color:green">${formatMoney(vLucro)}</td><td>${formatMoney(vGiro)}</td><td>${formatMoney(vFundo)}</td><td>${formatMoney(vLu)}</td><td>${formatMoney(vBea)}</td>
+                </tr>`;
+            }
+            document.getElementById('tbody-rateio-varejo').innerHTML = htmlVar;
 
-            const tbAtac = document.getElementById('tbody-rateio-atacado');
-            tbAtac.innerHTML = '';
+            // ATACADO
+            let htmlAta = '';
+            let aLiq=0, aIns=0, aCg=0, aMo=0, aLucro=0, aGiro=0, aFundo=0, aLu=0, aBea=0;
+
             db.atacado.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(a => {
                 if (a.status !== 'PAGO') return; 
-                const liq = a.totalLiquido || a.total;
+                const liq = a.totalLiquido !== undefined ? a.totalLiquido : (a.total !== undefined ? a.total : (a.qtd*a.unitario) - (a.desconto||0));
                 const insBase = a.qtd * db.config.custoInsumo;
                 const abatCopos = (a.coposDevolvidos || 0) * (db.config.custoCopo || 1.80);
                 const custoInsumoTotal = Math.max(0, insBase - abatCopos); 
@@ -1255,7 +1270,9 @@
                 const cg = baseCalculo * 0.15; const mo = baseCalculo * 0.20; const lucro = baseCalculo - cg - mo;
                 const giro = lucro * 0.50, fundo = lucro * 0.15, luyan = lucro * 0.175, beatriz = lucro * 0.175;
 
-                tbAtac.innerHTML += `<tr>
+                aLiq+=liq; aIns+=custoInsumoTotal; aCg+=cg; aMo+=mo; aLucro+=lucro; aGiro+=giro; aFundo+=fundo; aLu+=luyan; aBea+=beatriz;
+
+                htmlAta += `<tr>
                     <td>${formatData(a.data)}</td><td>${a.cliente} (${a.qtd}x)</td><td style="font-weight:bold">${formatMoney(liq)}</td>
                     <td style="color:red">-${formatMoney(custoInsumoTotal)} <br><small style="color:green">${abatCopos>0?'(Eco: '+formatMoney(abatCopos)+')':''}</small></td>
                     <td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td>
@@ -1263,6 +1280,15 @@
                     <td>${formatMoney(giro)}</td><td>${formatMoney(fundo)}</td><td>${formatMoney(luyan)}</td><td>${formatMoney(beatriz)}</td>
                 </tr>`;
             });
+
+            if(db.atacado.filter(a=>a.status === 'PAGO').length > 0) {
+                htmlAta += `<tr style="background: var(--border); font-weight: bold; color: var(--text-main);">
+                    <td colspan="2" style="text-align: right;">TOTAIS ATACADO:</td>
+                    <td>${formatMoney(aLiq)}</td><td style="color:red">-${formatMoney(aIns)}</td><td style="color:red">-${formatMoney(aCg)}</td><td style="color:red">-${formatMoney(aMo)}</td>
+                    <td style="color:green">${formatMoney(aLucro)}</td><td>${formatMoney(aGiro)}</td><td>${formatMoney(aFundo)}</td><td>${formatMoney(aLu)}</td><td>${formatMoney(aBea)}</td>
+                </tr>`;
+            }
+            document.getElementById('tbody-rateio-atacado').innerHTML = htmlAta;
         }
 
         function applyAlertClass(elementCollection, val) {
