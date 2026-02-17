@@ -121,7 +121,7 @@
         <header>
             <h1>🍮 Pudim Du Cariri</h1>
             <div class="header-actions">
-                <span id="user-badge" style="font-size: 0.8rem; color: #FDE68A;"></span>
+                <span id="user-badge" style="font-size: 0.8rem; color: #FDE68A; font-weight: bold;"></span>
                 <button onclick="exportData()">📥 Backup</button>
                 <button onclick="document.getElementById('importFile').click()">📤 Restaurar</button>
                 <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
@@ -188,7 +188,6 @@
 
         <div id="estoque" class="content">
             <h2 class="section-title">📦 Posição Atual do Estoque</h2>
-            
             <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
                 <div class="card estoque-card" style="border-left-color: #10B981; background: #ECFDF5;">
                     <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('pudim', 'Pudins Prontos')">✏️</button>
@@ -479,32 +478,19 @@
             appId: "1:302932015479:web:dd46d6c1c0b27ee6948972"
         };
         
-        // EMAIL DO DONO (Quem pode Editar tudo)
+        // ⚠️ ATENÇÃO: COLOQUE AQUI O SEU E-MAIL DE LOGIN NO FIREBASE
         const ADMIN_EMAIL = "luyan@pudim.com"; 
 
-        // Inicializar Firebase
         let isOnline = firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLE_SUA_API_KEY_AQUI";
-        if(isOnline) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if(isOnline) { firebase.initializeApp(firebaseConfig); }
 
-        // =========================================================
-        // DADOS LOCAIS DA MEMÓRIA
-        // =========================================================
-        let db = {
-            config: { precoUnd: 15.00, precoCombo: 40.00, custoInsumo: 5.95, custoCopo: 1.80, taxaCredIns: 1.24, taxaCredApr: 1.30, taxaDebIns: 0.40, taxaDebApr: 0.45 },
-            vendas: [], atacado: [], despesas: [], investimentos: [], pagamentos: [], producoes: [], estoqueMov: []
-        };
+        let db = { config: { precoUnd: 15.00, precoCombo: 40.00, custoInsumo: 5.95, custoCopo: 1.80, taxaCredIns: 1.24, taxaCredApr: 1.30, taxaDebIns: 0.40, taxaDebApr: 0.45 }, vendas: [], atacado: [], despesas: [], investimentos: [], pagamentos: [], producoes: [], estoqueMov: [] };
         let currentUserRole = 'viewer';
         let editingItem = { lista: null, id: null };
         const formatMoney = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
         const formatData = (date) => date ? new Date(date + "T00:00:00").toLocaleDateString('pt-BR') : '';
-
         const descTipoMap = { 'Divida': 'Giro (Abatimento Dívida)', 'MaoObra': 'Saque Mão de Obra', 'Luyan': 'Saque Luyan', 'Beatriz': 'Saque Beatriz' };
 
-        // =========================================================
-        // TEMPLATE GERAL DE CARDS (Injetado)
-        // =========================================================
         const globalCardsTemplate = `
         <div class="dashboard-grid">
             <div class="card" style="border-left-color: #3B82F6;"><h3>Faturamento Total</h3><p class="global-faturamento" style="color: #3B82F6;">R$ 0,00</p></div>
@@ -528,9 +514,6 @@
             <div class="card" style="grid-column: 1 / -1; text-align: center;"><h3>Falta p/ Pagar Investimento</h3><p class="global-roi" style="color: var(--danger)">R$ 0,00</p></div>
         </div>`;
 
-        // =========================================================
-        // INIT E AUTH
-        // =========================================================
         function init() {
             document.getElementById('grid-saldos-varejo').innerHTML = globalCardsTemplate;
             document.getElementById('grid-saldos-atacado').innerHTML = globalCardsTemplate;
@@ -564,6 +547,9 @@
                             if(snapshot.exists()) {
                                 db = loadDBData(snapshot.val());
                             } else {
+                                // RESGATE AUTOMÁTICO: A nuvem tá vazia, pega do navegador e joga lá!
+                                const oldData = localStorage.getItem('pudimDuCaririDB');
+                                if(oldData) { db = loadDBData(JSON.parse(oldData)); }
                                 if(currentUserRole === 'admin') saveData(); 
                             }
                             updateAll();
@@ -622,6 +608,21 @@
             updateAll();
         }
         
+        // NOVO MOTOR DE EXPORTAÇÃO SEGURO (BLOB)
+        function exportData() {
+            const dataStr = JSON.stringify(db, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.href = url;
+            downloadAnchorNode.download = "backup_pudim_du_cariri.json";
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            document.body.removeChild(downloadAnchorNode);
+            URL.revokeObjectURL(url);
+        }
+
+        // NOVO MOTOR DE IMPORTAÇÃO SEGURO
         function importData(event) {
             if(currentUserRole !== 'admin') return alert("Apenas Administradores podem restaurar backups.");
             const file = event.target.files[0];
@@ -632,8 +633,10 @@
                     const parsedData = JSON.parse(e.target.result);
                     db = loadDBData(parsedData);
                     saveData();
-                    alert("Backup restaurado com sucesso! Seus dados já estão na nuvem.");
-                } catch (err) { alert("Erro ao ler o arquivo JSON."); }
+                    updateAll();
+                    alert("Backup restaurado com sucesso! Os dados foram enviados para a nuvem.");
+                } catch (err) { alert("Erro ao ler o arquivo JSON. O arquivo pode estar corrompido."); }
+                event.target.value = ''; // reseta o input para permitir selecionar o mesmo arquivo
             };
             reader.readAsText(file);
         }
@@ -922,14 +925,14 @@
 
             db.atacado.forEach(a => {
                 if (a.status !== 'PAGO') return; 
-                const bruto = a.totalBruto !== undefined ? a.totalBruto : (a.qtd * a.unitario);
-                const liq = a.totalLiquido !== undefined ? a.totalLiquido : (a.total !== undefined ? a.total : bruto - (a.desconto||0));
-                const insBase = a.qtd*db.config.custoInsumo; 
-                const abatCopos = (a.coposDevolvidos||0)*(db.config.custoCopo||1.80); 
-                const ins = Math.max(0, insBase - abatCopos); 
-                const base = liq - ins;
-                const lucro = base - (base * 0.15) - (base * 0.20);
-                timeline.push({ id: a.id, data: a.data, tipoAcao: 'ganho', giro: lucro * 0.50, mo: base * 0.20, luyan: lucro * 0.175, beatriz: lucro * 0.175 });
+                const liq = a.totalLiquido || a.total;
+                const insBase = a.qtd * db.config.custoInsumo;
+                const abatCopos = (a.coposDevolvidos || 0) * (db.config.custoCopo || 1.80);
+                const base = liq - Math.max(0, insBase - abatCopos);
+                const cg = base * 0.15;
+                const mo = base * 0.20;
+                const lucro = base - cg - mo;
+                timeline.push({ id: a.id, data: a.data, tipoAcao: 'ganho', giro: lucro * 0.50, mo: mo, luyan: lucro * 0.175, beatriz: lucro * 0.175 });
             });
 
             db.pagamentos.forEach(p => { timeline.push({ id: p.id, data: p.data, tipoAcao: 'saque', obj: p }); });
@@ -1006,8 +1009,7 @@
             tbAtac.innerHTML = '';
             db.atacado.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(a => {
                 if (a.status !== 'PAGO') return; 
-                const bruto = a.totalBruto !== undefined ? a.totalBruto : (a.qtd * a.unitario);
-                const liq = a.totalLiquido !== undefined ? a.totalLiquido : (a.total !== undefined ? a.total : bruto - (a.desconto||0));
+                const liq = a.totalLiquido || a.total;
                 const insBase = a.qtd * db.config.custoInsumo;
                 const abatCopos = (a.coposDevolvidos || 0) * (db.config.custoCopo || 1.80);
                 const custoInsumoTotal = Math.max(0, insBase - abatCopos); 
@@ -1053,9 +1055,9 @@
 
             db.atacado.forEach(a => {
                 if (a.status !== 'PAGO') return; 
-                const bruto = a.totalBruto !== undefined ? a.totalBruto : (a.qtd * a.unitario);
+                const bruto = a.totalBruto || (a.qtd * a.unitario);
+                const liq = a.totalLiquido || a.total;
                 const desc = a.desconto || 0;
-                const liq = a.totalLiquido !== undefined ? a.totalLiquido : (a.total !== undefined ? a.total : bruto - desc);
                 aBruto += bruto; aDescCopos += desc; aLiquido += liq; aQtd += a.qtd;
 
                 const insBase = a.qtd * db.config.custoInsumo;
