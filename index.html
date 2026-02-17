@@ -59,7 +59,8 @@
         .estoque-card p { font-size: 1.8rem; transition: 0.3s; }
         .estoque-card p.status-green { color: var(--success) !important; }
         .estoque-card p.status-yellow { color: #F59E0B !important; }
-        .estoque-card p.status-red { color: var(--danger) !important; animation: piscarTextRed 1.2s infinite; }
+        .estoque-card p.status-red { color: var(--danger) !important; }
+        .estoque-card p.status-blink { animation: piscarTextRed 1.2s infinite; }
         .btn-edit-stock { position: absolute; top: 10px; right: 10px; background: none; border: none; cursor: pointer; font-size: 1.2rem; opacity: 0.4; transition: 0.2s;}
 
         @keyframes piscarFundoRed { 0%, 100% { background-color: transparent; color: #EF4444; } 50% { background-color: #EF4444; color: white; border-radius: 5px; padding: 0 5px; } }
@@ -234,6 +235,7 @@
                 <div style="flex: 1; min-width: 300px;">
                     <h2 class="section-title">👩‍🍳 Bater Receita (Produzir)</h2>
                     <div class="card">
+                        <p style="font-size:0.8rem; color:#666; margin-bottom: 10px;"><b>1 Receita gera:</b> +6 Pudins Prontos.<br><b>Consome:</b> 1 Leite Cond., 400ml Leite, 3 Ovos, 200g Açúcar.<br><b>Consome Embalagem:</b> 6 Copos, 6 Tampas, 6 Adesivos.</p>
                         <div class="form-grid">
                             <div class="form-group"><label>Data</label><input type="date" id="prod-data"></div>
                             <div class="form-group"><label>Qtd. de Receitas Feitas</label><input type="number" id="prod-qtd" min="1" value="1"></div>
@@ -295,6 +297,7 @@
                     <div class="form-group"><label>Taxa Crédito (Aproximação) %</label><input type="number" id="cfg-taxa-cred-apr" step="0.01"></div>
                     <div class="form-group"><label>Taxa Débito (Inserção) %</label><input type="number" id="cfg-taxa-deb-ins" step="0.01"></div>
                     <div class="form-group"><label>Taxa Débito (Aproximação) %</label><input type="number" id="cfg-taxa-deb-apr" step="0.01"></div>
+                    <div class="form-group"><label>Taxa Cartão Online (%)</label><input type="number" id="cfg-taxa-cartao-online" step="0.01" placeholder="Ex: 2.99"></div>
                 </div>
                 <button class="btn-submit" onclick="saveConfig()">Salvar Configurações</button>
             </div>
@@ -324,6 +327,7 @@
                             <option value="Credito Aproximacao">Crédito (Aproximação)</option>
                             <option value="Debito Insercao">Débito (Inserção)</option>
                             <option value="Debito Aproximacao">Débito (Aproximação)</option>
+                            <option value="Cartao Online">Cartão Online (Mercado Pago)</option>
                         </select>
                     </div>
                     
@@ -493,7 +497,17 @@
         // 2. DADOS INJETADOS DO SEU BACKUP (RESTAURAÇÃO SEGURA)
         // =========================================================
         let db = {
-            "config": { "precoUnd": 15, "precoCombo": 40, "custoInsumo": 5.95, "taxaCredIns": 4.98, "taxaCredApr": 3.09, "taxaDebIns": 1.99, "taxaDebApr": 0.89, "custoCopo": 1.5 },
+            "config": {
+                "precoUnd": 15.00,
+                "precoCombo": 40.00,
+                "custoInsumo": 5.95,
+                "taxaCredIns": 4.98,
+                "taxaCredApr": 3.09,
+                "taxaDebIns": 1.99,
+                "taxaDebApr": 0.89,
+                "custoCopo": 1.50,
+                "taxaCartaoOnline": 2.99
+            },
             "vendas": [
                 {"id": 328, "data": "2026-02-15", "produto": "Pudim 1 Und", "pgto": "PIX", "valorBruto": 15, "valorTaxa": 0, "valorLiquido": 15, "entrega": 0},
                 {"id": 329, "data": "2026-02-15", "produto": "Pudim 1 Und", "pgto": "PIX", "valorBruto": 15, "valorTaxa": 0, "valorLiquido": 15, "entrega": 0},
@@ -616,7 +630,7 @@
             document.getElementById('grid-saldos-atacado').innerHTML = globalCardsTemplate;
             resetDateInputs();
 
-            // FORÇA A ATUALIZAÇÃO DA TELA COM OS DADOS INJETADOS ANTES MESMO DA NUVEM
+            // GARANTE QUE A TELA RENDERIZE O BACKUP INJETADO IMEDIATAMENTE ANTES DA NUVEM
             updateAll();
 
             if(!isOnline) {
@@ -636,8 +650,9 @@
             } else {
                 firebase.auth().onAuthStateChanged((user) => {
                     if(user) {
+                        // VALIDAÇÃO ESTRITA DE USUÁRIO
                         if(user.email !== ADMIN_EMAIL && user.email !== VIEWER_EMAIL) {
-                            alert("Usuário não autorizado!");
+                            alert("Usuário não autorizado! Você não tem permissão para acessar este sistema.");
                             firebase.auth().signOut();
                             return;
                         }
@@ -656,12 +671,12 @@
                         }
 
                         firebase.database().ref('pudimAppDB').on('value', (snapshot) => {
-                            if(snapshot.exists()) {
+                            if(snapshot.exists() && snapshot.val().vendas && snapshot.val().vendas.length > 0) {
                                 db = loadDBData(snapshot.val());
                                 localStorage.setItem('pudimDuCaririDB', JSON.stringify(db)); // Backup segurança local
                                 updateAll();
                             } else {
-                                // SE A NUVEM TÁ VAZIA, SOBE O BACKUP INJETADO!
+                                // SE A NUVEM TÁ VAZIA, SOBE O BACKUP INJETADO QUE ESTÁ NA VARIÁVEL "db" AGORA MESMO!
                                 if(currentUserRole === 'admin') {
                                     firebase.database().ref('pudimAppDB').set(db);
                                 }
@@ -696,8 +711,8 @@
             if(!data.atacado) data.atacado = [];
             if(!data.despesas) data.despesas = [];
             if(!data.investimentos) data.investimentos = [];
-            if(data.config === undefined) data.config = { precoUnd: 15, precoCombo: 40, custoInsumo: 5.95, taxaCredIns: 1.24, taxaCredApr: 1.30, taxaDebIns: 0.40, taxaDebApr: 0.45, custoCopo: 1.80 };
-            if(data.config.custoCopo === undefined) data.config.custoCopo = 1.80;
+            if(data.config === undefined) data.config = { precoUnd: 15, precoCombo: 40, custoInsumo: 5.95, taxaCredIns: 4.98, taxaCredApr: 3.09, taxaDebIns: 1.99, taxaDebApr: 0.89, custoCopo: 1.50, taxaCartaoOnline: 2.99 };
+            if(data.config.taxaCartaoOnline === undefined) data.config.taxaCartaoOnline = 2.99;
             return data;
         }
 
@@ -773,6 +788,7 @@
             document.getElementById('cfg-taxa-cred-apr').value = db.config.taxaCredApr;
             document.getElementById('cfg-taxa-deb-ins').value = db.config.taxaDebIns;
             document.getElementById('cfg-taxa-deb-apr').value = db.config.taxaDebApr;
+            document.getElementById('cfg-taxa-cartao-online').value = db.config.taxaCartaoOnline || 2.99;
         }
 
         function saveConfig() {
@@ -784,6 +800,7 @@
             db.config.taxaCredApr = parseFloat(document.getElementById('cfg-taxa-cred-apr').value) || 0;
             db.config.taxaDebIns = parseFloat(document.getElementById('cfg-taxa-deb-ins').value) || 0;
             db.config.taxaDebApr = parseFloat(document.getElementById('cfg-taxa-deb-apr').value) || 0;
+            db.config.taxaCartaoOnline = parseFloat(document.getElementById('cfg-taxa-cartao-online').value) || 0;
             saveData(); alert("Configurações salvas!");
         }
 
@@ -793,6 +810,7 @@
                 case 'Credito Aproximacao': return db.config.taxaCredApr;
                 case 'Debito Insercao': return db.config.taxaDebIns;
                 case 'Debito Aproximacao': return db.config.taxaDebApr;
+                case 'Cartao Online': return db.config.taxaCartaoOnline || 2.99;
                 default: return 0;
             }
         }
@@ -991,10 +1009,39 @@
 
         function calcularSaldosEstoque() {
             let saldos = { pudim: 0, leite_condensado: 0, leite_integral: 0, ovos: 0, acucar: 0, copo: 0, tampa: 0, sacola: 0, adesivo: 0, colher: 0 };
-            db.estoqueMov.forEach(m => { if(m.tipo === 'entrada') saldos[m.item] += m.qtd; else saldos[m.item] -= m.qtd; });
-            db.producoes.forEach(p => { saldos.pudim += p.qtd*6; saldos.leite_condensado -= p.qtd*1; saldos.leite_integral -= p.qtd*400; saldos.ovos -= p.qtd*3; saldos.acucar -= p.qtd*200; });
-            db.vendas.forEach(v => { const p = (v.produto.includes('Combo')?3:1)*(v.qtd||1); saldos.pudim -= p; saldos.copo -= p; saldos.tampa -= p; saldos.adesivo -= p; saldos.colher -= p; saldos.sacola -= 1; });
-            db.atacado.forEach(a => { saldos.pudim -= a.qtd; saldos.copo -= a.qtd; saldos.tampa -= a.qtd; saldos.adesivo -= a.qtd; if(a.coposDevolvidos) saldos.copo += a.coposDevolvidos; });
+            
+            db.estoqueMov.forEach(m => { 
+                if(m.tipo === 'entrada') saldos[m.item] += m.qtd; 
+                else saldos[m.item] -= m.qtd; 
+            });
+            
+            db.producoes.forEach(p => { 
+                saldos.pudim += p.qtd*6; 
+                saldos.leite_condensado -= p.qtd*1; 
+                saldos.leite_integral -= p.qtd*400; 
+                saldos.ovos -= p.qtd*3; 
+                saldos.acucar -= p.qtd*200; 
+                
+                // Embalagens usadas na produção para guardar o pudim na geladeira
+                saldos.copo -= p.qtd*6;
+                saldos.tampa -= p.qtd*6;
+                saldos.adesivo -= p.qtd*6;
+            });
+            
+            db.vendas.forEach(v => { 
+                const p = (v.produto.includes('Combo')?3:1)*(v.qtd||1); 
+                saldos.pudim -= p; 
+                
+                // Embalagens exclusivas da entrega no varejo
+                saldos.colher -= p; 
+                saldos.sacola -= 1; 
+            });
+            
+            db.atacado.forEach(a => { 
+                saldos.pudim -= a.qtd; 
+                if(a.coposDevolvidos) saldos.copo += a.coposDevolvidos; 
+            });
+            
             return saldos;
         }
 
@@ -1009,7 +1056,7 @@
                     let suffix = (k==='leite_integral') ? ' ml' : (k==='acucar' ? ' g' : ' un');
                     el.innerText = val + suffix;
                     
-                    el.classList.remove('status-red', 'status-yellow', 'status-green');
+                    el.classList.remove('status-red', 'status-yellow', 'status-green', 'status-blink');
                     
                     let status = 'status-green';
                     if (k === 'pudim') { if (val <= 0) status = 'status-red'; else if (val < 10) status = 'status-yellow'; }
@@ -1024,6 +1071,9 @@
                     else if (k === 'colher') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
 
                     el.classList.add(status);
+                    
+                    // Pisca somente se for negativo de verdade (abaixo de 0)
+                    if (val < 0) el.classList.add('status-blink');
                 }
             });
 
@@ -1098,8 +1148,10 @@
                 <td style="white-space: nowrap;"><button class="btn-edit" onclick="prepararEdicao('investimentos', ${i.id})">✏️</button><button class="btn-delete" onclick="deletarItem('investimentos', ${i.id})">🗑️</button></td></tr>`;
             });
 
+            // LÓGICA DA LINHA DO TEMPO (EXTRATO)
             const tbPag = document.getElementById('tbody-pagamentos');
             tbPag.innerHTML = '';
+            
             let timeline = [];
             
             db.vendas.forEach(v => {
@@ -1144,7 +1196,12 @@
                     let saldoAnterior = saldos[caixaType] || 0;
                     saldos[caixaType] -= t.obj.valor;
                     let saldoAtual = saldos[caixaType];
-                    renderListaPagamentos.push({ ...t.obj, saldoAnterior: saldoAnterior, saldoAtual: saldoAtual });
+                    
+                    renderListaPagamentos.push({
+                        ...t.obj,
+                        saldoAnterior: saldoAnterior,
+                        saldoAtual: saldoAtual
+                    });
                 }
             });
 
