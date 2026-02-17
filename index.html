@@ -113,7 +113,7 @@
             <input type="email" id="login-email" placeholder="E-mail" autocomplete="off">
             <input type="password" id="login-password" placeholder="Senha">
             <button onclick="fazerLogin()">Entrar no Sistema</button>
-            <p id="login-error" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; display: none;">Email ou senha incorretos!</p>
+            <p id="login-error" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; display: none;">Email/Senha incorretos ou sem permissão!</p>
         </div>
     </div>
 
@@ -480,6 +480,7 @@
         
         // ⚠️ ATENÇÃO: COLOQUE AQUI O SEU E-MAIL DE LOGIN NO FIREBASE
         const ADMIN_EMAIL = "luyan@pudim.com"; 
+        const VIEWER_EMAIL = "beatriz@pudim.com"; 
 
         let isOnline = firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLE_SUA_API_KEY_AQUI";
         if(isOnline) { firebase.initializeApp(firebaseConfig); }
@@ -615,25 +616,41 @@
             <div class="card" style="grid-column: 1 / -1; text-align: center;"><h3>Falta p/ Pagar Investimento</h3><p class="global-roi" style="color: var(--danger)">R$ 0,00</p></div>
         </div>`;
 
+        // =========================================================
+        // INIT E AUTH
+        // =========================================================
         function init() {
             document.getElementById('grid-saldos-varejo').innerHTML = globalCardsTemplate;
             document.getElementById('grid-saldos-atacado').innerHTML = globalCardsTemplate;
             resetDateInputs();
+
+            // GARANTE QUE A TELA RENDERIZE O BACKUP INJETADO IMEDIATAMENTE ANTES DA NUVEM
+            updateAll();
 
             if(!isOnline) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-container').style.display = 'block';
                 document.getElementById('user-badge').innerText = "🔴 MODO OFFLINE (Sem Nuvem)";
                 currentUserRole = 'admin'; 
-                // Prioriza os dados que acabei de injetar, mas checa se tem algo no localstorage
+                
                 const saved = localStorage.getItem('pudimDuCaririDB');
-                if(saved && JSON.parse(saved).vendas && JSON.parse(saved).vendas.length > 0) {
-                    db = loadDBData(JSON.parse(saved));
+                if(saved) {
+                    try {
+                        let parsed = JSON.parse(saved);
+                        if(parsed.vendas && parsed.vendas.length > 0) db = loadDBData(parsed);
+                    } catch(e){}
                 }
                 updateAll();
             } else {
                 firebase.auth().onAuthStateChanged((user) => {
                     if(user) {
+                        // VALIDAÇÃO ESTRITA DE USUÁRIO
+                        if(user.email !== ADMIN_EMAIL && user.email !== VIEWER_EMAIL) {
+                            alert("Usuário não autorizado! Você não tem permissão para acessar este sistema.");
+                            firebase.auth().signOut();
+                            return;
+                        }
+
                         document.getElementById('login-screen').style.display = 'none';
                         document.getElementById('app-container').style.display = 'block';
                         
@@ -650,11 +667,14 @@
                         firebase.database().ref('pudimAppDB').on('value', (snapshot) => {
                             if(snapshot.exists() && snapshot.val().vendas && snapshot.val().vendas.length > 0) {
                                 db = loadDBData(snapshot.val());
+                                localStorage.setItem('pudimDuCaririDB', JSON.stringify(db)); // Backup segurança local
+                                updateAll();
                             } else {
-                                // Se a nuvem estiver vazia, ele PUSH os dados do Backup injetado pra nuvem!
-                                if(currentUserRole === 'admin') saveData(); 
+                                // SE A NUVEM TÁ VAZIA, SOBE O BACKUP INJETADO QUE ESTÁ NA VARIÁVEL "db" AGORA MESMO!
+                                if(currentUserRole === 'admin') {
+                                    firebase.database().ref('pudimAppDB').set(db);
+                                }
                             }
-                            updateAll();
                         });
                     } else {
                         document.getElementById('login-screen').style.display = 'flex';
@@ -732,9 +752,19 @@
                 try {
                     const parsedData = JSON.parse(e.target.result);
                     db = loadDBData(parsedData);
-                    saveData();
+                    
+                    // FORÇA A ATUALIZAÇÃO DA TELA IMEDIATAMENTE (RESOLVE O BUG)
+                    localStorage.setItem('pudimDuCaririDB', JSON.stringify(db));
                     updateAll();
-                    alert("Backup restaurado com sucesso! Os dados foram enviados para a nuvem.");
+                    
+                    // TENTA SUBIR PRA NUVEM SE TIVER ONLINE
+                    if(isOnline) {
+                        firebase.database().ref('pudimAppDB').set(db)
+                        .then(() => alert("Backup restaurado e sincronizado com a Nuvem!"))
+                        .catch((err) => alert("Restaurado na tela, mas erro ao enviar pra nuvem: " + err.message));
+                    } else {
+                        alert("Backup restaurado com sucesso (Modo Offline)!");
+                    }
                 } catch (err) { alert("Erro ao ler o arquivo JSON. O arquivo pode estar corrompido."); }
                 event.target.value = ''; 
             };
@@ -905,7 +935,11 @@
         }
 
         function renderEstoque() {
-            let saldos = calcularSaldosEstoque();
+            let saldos = { pudim: 0, leite_condensado: 0, leite_integral: 0, ovos: 0, acucar: 0, copo: 0, tampa: 0, sacola: 0, adesivo: 0, colher: 0 };
+            db.estoqueMov.forEach(m => { if(m.tipo === 'entrada') saldos[m.item] += m.qtd; else saldos[m.item] -= m.qtd; });
+            db.producoes.forEach(p => { saldos.pudim += p.qtd*6; saldos.leite_condensado -= p.qtd*1; saldos.leite_integral -= p.qtd*400; saldos.ovos -= p.qtd*3; saldos.acucar -= p.qtd*200; });
+            db.vendas.forEach(v => { const p = (v.produto.includes('Combo')?3:1)*(v.qtd||1); saldos.pudim -= p; saldos.copo -= p; saldos.tampa -= p; saldos.adesivo -= p; saldos.colher -= p; saldos.sacola -= 1; });
+            db.atacado.forEach(a => { saldos.pudim -= a.qtd; saldos.copo -= a.qtd; saldos.tampa -= a.qtd; saldos.adesivo -= a.qtd; if(a.coposDevolvidos) saldos.copo += a.coposDevolvidos; });
 
             const mapKeys = ['pudim', 'leite_condensado', 'leite_integral', 'ovos', 'acucar', 'copo', 'tampa', 'sacola', 'adesivo', 'colher'];
             mapKeys.forEach(k => {
@@ -1149,8 +1183,8 @@
             db.atacado.forEach(a => {
                 if (a.status !== 'PAGO') return; 
                 const bruto = a.totalBruto || (a.qtd * a.unitario);
-                const liq = a.totalLiquido || a.total;
                 const desc = a.desconto || 0;
+                const liq = a.totalLiquido || a.total;
                 aBruto += bruto; aDescCopos += desc; aLiquido += liq; aQtd += a.qtd;
 
                 const insBase = a.qtd * db.config.custoInsumo;
