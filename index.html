@@ -85,9 +85,7 @@
         .mt-2 { margin-top: 2rem; }
         .global-title { background: var(--secondary); color: #FDE68A; padding: 0.5rem 1rem; border-radius: 5px; margin-top: 3rem; margin-bottom: 1rem; text-align: center; font-size: 1.2rem;}
 
-        /* ========================================================= */
-        /* MODO VISUALIZADOR (BLOQUEIOS PARA QUEM NÃO É ADMIN)       */
-        /* ========================================================= */
+        /* MODO VISUALIZADOR */
         body.viewer-mode .btn-submit,
         body.viewer-mode .btn-delete,
         body.viewer-mode .btn-edit,
@@ -113,7 +111,7 @@
             <input type="email" id="login-email" placeholder="E-mail" autocomplete="off">
             <input type="password" id="login-password" placeholder="Senha">
             <button onclick="fazerLogin()">Entrar no Sistema</button>
-            <p id="login-error" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; display: none;">Email/Senha incorretos ou sem permissão!</p>
+            <p id="login-error" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; display: none;">Email ou senha incorretos!</p>
         </div>
     </div>
 
@@ -319,7 +317,7 @@
                     
                     <div class="form-group">
                         <label>Forma de Pagamento</label>
-                        <select id="v-pgto">
+                        <select id="v-pgto" onchange="toggleAsaas()">
                             <option value="PIX">PIX</option>
                             <option value="Dinheiro">Dinheiro</option>
                             <option value="Credito Insercao">Crédito (Inserção)</option>
@@ -328,6 +326,12 @@
                             <option value="Debito Aproximacao">Débito (Aproximação)</option>
                         </select>
                     </div>
+                    
+                    <div class="form-group" id="asaas-group" style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="v-asaas" style="width: auto; margin: 0; padding: 0;">
+                        <label for="v-asaas" style="margin: 0; font-size: 0.85rem; color: #D97706;">Cobrado via Asaas (Descontar Taxa R$ 0,14)</label>
+                    </div>
+
                     <div class="form-group"><label>Taxa de Entrega (R$)</label><input type="number" id="v-entrega" step="0.01" value="0" placeholder="0.00"></div>
                 </div>
                 <button class="btn-submit" id="btn-submit-vendas" onclick="addVenda()">Adicionar Venda</button>
@@ -489,16 +493,7 @@
         // 2. DADOS INJETADOS DO SEU BACKUP (RESTAURAÇÃO SEGURA)
         // =========================================================
         let db = {
-            "config": {
-                "precoUnd": 15,
-                "precoCombo": 40,
-                "custoInsumo": 5.95,
-                "taxaCredIns": 4.98,
-                "taxaCredApr": 3.09,
-                "taxaDebIns": 1.99,
-                "taxaDebApr": 0.89,
-                "custoCopo": 1.5
-            },
+            "config": { "precoUnd": 15, "precoCombo": 40, "custoInsumo": 5.95, "taxaCredIns": 4.98, "taxaCredApr": 3.09, "taxaDebIns": 1.99, "taxaDebApr": 0.89, "custoCopo": 1.5 },
             "vendas": [
                 {"id": 328, "data": "2026-02-15", "produto": "Pudim 1 Und", "pgto": "PIX", "valorBruto": 15, "valorTaxa": 0, "valorLiquido": 15, "entrega": 0},
                 {"id": 329, "data": "2026-02-15", "produto": "Pudim 1 Und", "pgto": "PIX", "valorBruto": 15, "valorTaxa": 0, "valorLiquido": 15, "entrega": 0},
@@ -616,15 +611,12 @@
             <div class="card" style="grid-column: 1 / -1; text-align: center;"><h3>Falta p/ Pagar Investimento</h3><p class="global-roi" style="color: var(--danger)">R$ 0,00</p></div>
         </div>`;
 
-        // =========================================================
-        // INIT E AUTH
-        // =========================================================
         function init() {
             document.getElementById('grid-saldos-varejo').innerHTML = globalCardsTemplate;
             document.getElementById('grid-saldos-atacado').innerHTML = globalCardsTemplate;
             resetDateInputs();
 
-            // GARANTE QUE A TELA RENDERIZE O BACKUP INJETADO IMEDIATAMENTE ANTES DA NUVEM
+            // FORÇA A ATUALIZAÇÃO DA TELA COM OS DADOS INJETADOS ANTES MESMO DA NUVEM
             updateAll();
 
             if(!isOnline) {
@@ -644,9 +636,8 @@
             } else {
                 firebase.auth().onAuthStateChanged((user) => {
                     if(user) {
-                        // VALIDAÇÃO ESTRITA DE USUÁRIO
                         if(user.email !== ADMIN_EMAIL && user.email !== VIEWER_EMAIL) {
-                            alert("Usuário não autorizado! Você não tem permissão para acessar este sistema.");
+                            alert("Usuário não autorizado!");
                             firebase.auth().signOut();
                             return;
                         }
@@ -665,12 +656,12 @@
                         }
 
                         firebase.database().ref('pudimAppDB').on('value', (snapshot) => {
-                            if(snapshot.exists() && snapshot.val().vendas && snapshot.val().vendas.length > 0) {
+                            if(snapshot.exists()) {
                                 db = loadDBData(snapshot.val());
                                 localStorage.setItem('pudimDuCaririDB', JSON.stringify(db)); // Backup segurança local
                                 updateAll();
                             } else {
-                                // SE A NUVEM TÁ VAZIA, SOBE O BACKUP INJETADO QUE ESTÁ NA VARIÁVEL "db" AGORA MESMO!
+                                // SE A NUVEM TÁ VAZIA, SOBE O BACKUP INJETADO!
                                 if(currentUserRole === 'admin') {
                                     firebase.database().ref('pudimAppDB').set(db);
                                 }
@@ -705,14 +696,27 @@
             if(!data.atacado) data.atacado = [];
             if(!data.despesas) data.despesas = [];
             if(!data.investimentos) data.investimentos = [];
+            if(data.config === undefined) data.config = { precoUnd: 15, precoCombo: 40, custoInsumo: 5.95, taxaCredIns: 1.24, taxaCredApr: 1.30, taxaDebIns: 0.40, taxaDebApr: 0.45, custoCopo: 1.80 };
             if(data.config.custoCopo === undefined) data.config.custoCopo = 1.80;
             return data;
         }
 
+        // =========================================================================
+        // ATUALIZAÇÃO OTIMISTA: SALVA NA TELA NA MESMA HORA, DEPOIS MANDA PRA NUVEM
+        // =========================================================================
         function saveData() {
             if(currentUserRole !== 'admin') return alert("Apenas Administradores podem alterar os dados.");
-            if(isOnline) firebase.database().ref('pudimAppDB').set(db);
-            else { localStorage.setItem('pudimDuCaririDB', JSON.stringify(db)); updateAll(); }
+            
+            // 1. Salva local e atualiza a tela na hora (Zero Delay)
+            localStorage.setItem('pudimDuCaririDB', JSON.stringify(db)); 
+            updateAll(); 
+            
+            // 2. Manda pra nuvem em background
+            if(isOnline) {
+                firebase.database().ref('pudimAppDB').set(db).catch(err => {
+                    alert("Erro ao sincronizar na nuvem: " + err.message);
+                });
+            }
         }
 
         function resetDateInputs() {
@@ -752,20 +756,9 @@
                 try {
                     const parsedData = JSON.parse(e.target.result);
                     db = loadDBData(parsedData);
-                    
-                    // FORÇA A ATUALIZAÇÃO DA TELA IMEDIATAMENTE (RESOLVE O BUG)
-                    localStorage.setItem('pudimDuCaririDB', JSON.stringify(db));
-                    updateAll();
-                    
-                    // TENTA SUBIR PRA NUVEM SE TIVER ONLINE
-                    if(isOnline) {
-                        firebase.database().ref('pudimAppDB').set(db)
-                        .then(() => alert("Backup restaurado e sincronizado com a Nuvem!"))
-                        .catch((err) => alert("Restaurado na tela, mas erro ao enviar pra nuvem: " + err.message));
-                    } else {
-                        alert("Backup restaurado com sucesso (Modo Offline)!");
-                    }
-                } catch (err) { alert("Erro ao ler o arquivo JSON. O arquivo pode estar corrompido."); }
+                    saveData(); // Função otimista já atualiza a tela
+                    alert("Backup restaurado com sucesso! Os dados foram enviados para a nuvem.");
+                } catch (err) { alert("Erro ao ler o arquivo JSON."); }
                 event.target.value = ''; 
             };
             reader.readAsText(file);
@@ -809,12 +802,36 @@
             document.getElementById('a-desconto').value = (copos >= 12) ? copos.toFixed(2) : '0.00';
         }
 
+        function toggleAsaas() {
+            const pgto = document.getElementById('v-pgto').value;
+            const asaasGroup = document.getElementById('asaas-group');
+            if(pgto === 'PIX') {
+                asaasGroup.style.display = 'flex';
+            } else {
+                asaasGroup.style.display = 'none';
+                document.getElementById('v-asaas').checked = false;
+            }
+        }
+
         function prepararEdicao(lista, id) {
             const item = db[lista].find(i => i.id === id);
             if(!item) return;
             editingItem = { lista, id };
 
-            if(lista === 'vendas') { switchTab('vendas'); document.getElementById('v-data').value = item.data; document.getElementById('v-produto').value = item.produto.includes('Combo') ? 'Combo' : 'Unidade'; document.getElementById('v-pgto').value = item.pgto; document.getElementById('v-entrega').value = item.entrega || 0; document.getElementById('v-qtd').value = item.qtd || 1; document.getElementById('v-desconto').value = item.desconto || 0; document.getElementById('btn-submit-vendas').innerText = "Atualizar Venda"; }
+            if(lista === 'vendas') { 
+                switchTab('vendas'); 
+                document.getElementById('v-data').value = item.data; 
+                document.getElementById('v-produto').value = item.produto.includes('Combo') ? 'Combo' : 'Unidade'; 
+                document.getElementById('v-pgto').value = item.pgto; 
+                
+                document.getElementById('v-asaas').checked = item.asaas || false;
+                toggleAsaas();
+
+                document.getElementById('v-entrega').value = item.entrega || 0; 
+                document.getElementById('v-qtd').value = item.qtd || 1; 
+                document.getElementById('v-desconto').value = item.desconto || 0; 
+                document.getElementById('btn-submit-vendas').innerText = "Atualizar Venda"; 
+            }
             else if(lista === 'atacado') { switchTab('atacado'); document.getElementById('a-data').value = item.data; document.getElementById('a-cliente').value = item.cliente; document.getElementById('a-qtd').value = item.qtd; document.getElementById('a-valor').value = item.unitario; document.getElementById('a-copos').value = item.coposDevolvidos || 0; document.getElementById('a-desconto').value = item.desconto || 0; document.getElementById('a-status').value = item.status; document.getElementById('btn-submit-atacado').innerText = "Atualizar Atacado"; }
             else if(lista === 'despesas') { switchTab('despesas'); document.getElementById('d-data').value = item.data; document.getElementById('d-item').value = item.item; document.getElementById('d-qtd').value = item.qtd; document.getElementById('d-valor').value = item.unitario; document.getElementById('d-categoria').value = item.categoria; document.getElementById('btn-submit-despesas').innerText = "Atualizar Despesa"; }
             else if(lista === 'investimentos') { switchTab('investimentos'); document.getElementById('i-data').value = item.data; document.getElementById('i-item').value = item.item; document.getElementById('i-valor').value = item.valor; document.getElementById('btn-submit-investimentos').innerText = "Atualizar Investimento"; }
@@ -838,6 +855,7 @@
             const data = document.getElementById('v-data').value;
             const produtoStr = document.getElementById('v-produto').value;
             const pgto = document.getElementById('v-pgto').value;
+            const isAsaas = document.getElementById('v-asaas').checked;
             const qtd = parseInt(document.getElementById('v-qtd').value) || 1;
             const desconto = parseFloat(document.getElementById('v-desconto').value) || 0;
             const entrega = parseFloat(document.getElementById('v-entrega').value) || 0;
@@ -847,16 +865,26 @@
             const produtoNome = produtoStr === 'Combo' ? 'Combo (3 und)' : 'Pudim 1 Und';
             const valorBruto = precoBase * qtd;
             const valorCobradoMaq = valorBruto - desconto; 
-            const valorTaxa = valorCobradoMaq * (getTaxaPercent(pgto) / 100);
             
-            finalizarEdicao('vendas', { id: (editingItem.lista === 'vendas' ? editingItem.id : Date.now()), data, produto: produtoNome, pgto, qtd, desconto, valorBruto, valorTaxa, valorLiquido: valorCobradoMaq - valorTaxa, entrega }, 'btn-submit-vendas', 'Adicionar Venda');
-            document.getElementById('v-qtd').value = '1'; document.getElementById('v-desconto').value = '0'; document.getElementById('v-entrega').value = '0';
+            let valorTaxa = 0;
+            if(pgto === 'PIX' && isAsaas) {
+                valorTaxa = 0.14; // Taxa fixa do asaas
+            } else {
+                valorTaxa = valorCobradoMaq * (getTaxaPercent(pgto) / 100);
+            }
+            
+            finalizarEdicao('vendas', { id: (editingItem.lista === 'vendas' ? editingItem.id : Date.now()), data, produto: produtoNome, pgto, asaas: isAsaas, qtd, desconto, valorBruto, valorTaxa, valorLiquido: valorCobradoMaq - valorTaxa, entrega }, 'btn-submit-vendas', 'Adicionar Venda');
+            
+            document.getElementById('v-qtd').value = '1'; 
+            document.getElementById('v-desconto').value = '0'; 
+            document.getElementById('v-entrega').value = '0';
+            document.getElementById('v-asaas').checked = false;
         }
 
         function addAtacado() {
             const data = document.getElementById('a-data').value; const cliente = document.getElementById('a-cliente').value; const qtd = parseInt(document.getElementById('a-qtd').value); const unitario = parseFloat(document.getElementById('a-valor').value);
             const coposDevolvidos = parseInt(document.getElementById('a-copos').value) || 0; const desconto = parseFloat(document.getElementById('a-desconto').value) || 0; const status = document.getElementById('a-status').value;
-            if(!data || !cliente || !qtd || !unitario) return alert('Preencha os campos obrigatórios');
+            if(!data || !cliente || !qtd || !unitario || isNaN(unitario)) return alert('Preencha os campos obrigatórios corretamente.');
             
             const totalBruto = qtd * unitario;
             const totalLiquido = totalBruto - desconto;
@@ -872,7 +900,7 @@
 
         function addDespesa() {
             const data = document.getElementById('d-data').value; const item = document.getElementById('d-item').value; const qtd = parseFloat(document.getElementById('d-qtd').value); const unitario = parseFloat(document.getElementById('d-valor').value); const categoria = document.getElementById('d-categoria').value;
-            if(!data || !item || !qtd || !unitario) return alert('Preencha tudo');
+            if(!data || !item || !qtd || !unitario || isNaN(unitario)) return alert('Preencha os campos corretamente.');
 
             const novo = { id: (editingItem.lista==='despesas'?editingItem.id:Date.now()), data, item, qtd, unitario, total: qtd * unitario, categoria };
             finalizarEdicao('despesas', novo, 'btn-submit-despesas', 'Adicionar Despesa');
@@ -881,7 +909,7 @@
 
         function addInvestimento() {
             const data = document.getElementById('i-data').value; const item = document.getElementById('i-item').value; const valor = parseFloat(document.getElementById('i-valor').value);
-            if(!data || !item || !valor) return alert('Preencha tudo');
+            if(!data || !item || !valor || isNaN(valor)) return alert('Preencha os campos corretamente.');
 
             const novo = { id: (editingItem.lista==='investimentos'?editingItem.id:Date.now()), data, item, valor };
             finalizarEdicao('investimentos', novo, 'btn-submit-investimentos', 'Adicionar Investimento');
@@ -890,7 +918,7 @@
 
         function addPagamento() {
             const data = document.getElementById('p-data').value; const valor = parseFloat(document.getElementById('p-valor').value); const tipo = document.getElementById('p-tipo').value;
-            if(!data || !valor) return alert('Preencha tudo');
+            if(!data || !valor || isNaN(valor)) return alert('Preencha os campos corretamente.');
 
             const novo = { id: (editingItem.lista==='pagamentos'?editingItem.id:Date.now()), data, valor, tipo };
             finalizarEdicao('pagamentos', novo, 'btn-submit-pagamentos', 'Registrar Retirada Manual');
@@ -920,6 +948,33 @@
             alert(`Retirada de ${formatMoney(valor)} registrada com sucesso! Veja no Extrato.`);
         }
 
+        function addProducao() {
+            const data = document.getElementById('prod-data').value; const qtd = parseInt(document.getElementById('prod-qtd').value);
+            if(!data || !qtd || isNaN(qtd)) return alert("Preencha a data e a quantidade de receitas!");
+            finalizarEdicao('producoes', { id: (editingItem.lista==='producoes'?editingItem.id:Date.now()), data, qtd }, 'btn-submit-producao', 'Registrar Produção');
+            document.getElementById('prod-qtd').value = '1';
+        }
+
+        function addEstoqueMov() {
+            const data = document.getElementById('mov-data').value; const tipo = document.getElementById('mov-tipo').value; const item = document.getElementById('mov-item').value; const qtd = parseFloat(document.getElementById('mov-qtd').value);
+            const desc = document.getElementById('mov-desc').value || (tipo === 'entrada' ? 'Entrada Manual' : 'Saída Manual');
+            if(!data || !qtd || isNaN(qtd)) return alert("Preencha a data e a quantidade corretamente!");
+            finalizarEdicao('estoqueMov', { id: (editingItem.lista==='estoqueMov'?editingItem.id:Date.now()), data, tipo, item, qtd, desc }, 'btn-submit-mov', 'Lançar Ajuste');
+            document.getElementById('mov-qtd').value = ''; document.getElementById('mov-desc').value = '';
+        }
+
+        function ajustarEstoqueRapido(itemKey, nomeItem) {
+            let atual = calcularSaldosEstoque()[itemKey];
+            let novo = prompt(`Estoque atual de ${nomeItem}: ${atual}\n\nDigite a quantidade REAL que você tem agora:`, atual);
+            if(novo === null || novo === "") return; 
+            novo = parseFloat(novo.replace(',', '.'));
+            if(isNaN(novo)) return alert("Valor inválido.");
+            let diferenca = novo - atual; if(diferenca === 0) return;
+            
+            db.estoqueMov.push({ id: Date.now(), data: new Date().toISOString().split('T')[0], tipo: diferenca > 0 ? 'entrada' : 'saida', item: itemKey, qtd: Math.abs(diferenca), desc: 'Ajuste Rápido' });
+            saveData();
+        }
+
         function deletarItem(lista, id) {
             if(confirm("Tem certeza que deseja apagar este registro?")) {
                 db[lista] = db[lista].filter(item => item.id !== id);
@@ -934,12 +989,17 @@
             updateDashboard();
         }
 
-        function renderEstoque() {
+        function calcularSaldosEstoque() {
             let saldos = { pudim: 0, leite_condensado: 0, leite_integral: 0, ovos: 0, acucar: 0, copo: 0, tampa: 0, sacola: 0, adesivo: 0, colher: 0 };
             db.estoqueMov.forEach(m => { if(m.tipo === 'entrada') saldos[m.item] += m.qtd; else saldos[m.item] -= m.qtd; });
             db.producoes.forEach(p => { saldos.pudim += p.qtd*6; saldos.leite_condensado -= p.qtd*1; saldos.leite_integral -= p.qtd*400; saldos.ovos -= p.qtd*3; saldos.acucar -= p.qtd*200; });
             db.vendas.forEach(v => { const p = (v.produto.includes('Combo')?3:1)*(v.qtd||1); saldos.pudim -= p; saldos.copo -= p; saldos.tampa -= p; saldos.adesivo -= p; saldos.colher -= p; saldos.sacola -= 1; });
             db.atacado.forEach(a => { saldos.pudim -= a.qtd; saldos.copo -= a.qtd; saldos.tampa -= a.qtd; saldos.adesivo -= a.qtd; if(a.coposDevolvidos) saldos.copo += a.coposDevolvidos; });
+            return saldos;
+        }
+
+        function renderEstoque() {
+            let saldos = calcularSaldosEstoque();
 
             const mapKeys = ['pudim', 'leite_condensado', 'leite_integral', 'ovos', 'acucar', 'copo', 'tampa', 'sacola', 'adesivo', 'colher'];
             mapKeys.forEach(k => {
@@ -997,10 +1057,11 @@
                 const entrega = v.entrega || 0;
                 const desconto = v.desconto || 0;
                 const qtd = v.qtd || 1;
+                const labelAsaas = v.asaas ? ' <span style="font-size:0.7rem;color:#D97706">(Asaas)</span>' : '';
                 tbVendas.innerHTML += `<tr>
                     <td>${formatData(v.data)}</td><td>${v.produto}</td><td>${qtd}</td>
                     <td style="color:var(--primary)">${desconto > 0 ? '-'+formatMoney(desconto) : '-'}</td>
-                    <td>${v.pgto}</td><td>${formatMoney(v.valorBruto)}</td>
+                    <td>${v.pgto}${labelAsaas}</td><td>${formatMoney(v.valorBruto)}</td>
                     <td style="color:red">-${formatMoney(v.valorTaxa)}</td>
                     <td style="color:#059669">+${formatMoney(entrega)}</td>
                     <td style="font-weight:bold">${formatMoney(v.valorLiquido)}</td>
@@ -1037,10 +1098,8 @@
                 <td style="white-space: nowrap;"><button class="btn-edit" onclick="prepararEdicao('investimentos', ${i.id})">✏️</button><button class="btn-delete" onclick="deletarItem('investimentos', ${i.id})">🗑️</button></td></tr>`;
             });
 
-            // LÓGICA DA LINHA DO TEMPO (EXTRATO)
             const tbPag = document.getElementById('tbody-pagamentos');
             tbPag.innerHTML = '';
-            
             let timeline = [];
             
             db.vendas.forEach(v => {
@@ -1085,12 +1144,7 @@
                     let saldoAnterior = saldos[caixaType] || 0;
                     saldos[caixaType] -= t.obj.valor;
                     let saldoAtual = saldos[caixaType];
-                    
-                    renderListaPagamentos.push({
-                        ...t.obj,
-                        saldoAnterior: saldoAnterior,
-                        saldoAtual: saldoAtual
-                    });
+                    renderListaPagamentos.push({ ...t.obj, saldoAnterior: saldoAnterior, saldoAtual: saldoAtual });
                 }
             });
 
