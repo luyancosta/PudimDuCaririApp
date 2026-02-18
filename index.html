@@ -545,7 +545,8 @@
             appId: "1:302932015479:web:dd46d6c1c0b27ee6948972"
         };
         
-        const ADMIN_EMAIL = "luyan@pudim.com"; 
+        // ⚠️ ATUALIZADO COM O E-MAIL DA FOTO
+        const ADMIN_EMAIL = "luyancosta.2015@gmail.com"; 
         const VIEWER_EMAIL = "beatriz@pudim.com"; 
 
         let isOnline = firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLE_SUA_API_KEY_AQUI";
@@ -609,8 +610,10 @@
                     if(user) {
                         const userEmail = user.email.toLowerCase();
                         if(userEmail !== ADMIN_EMAIL.toLowerCase() && userEmail !== VIEWER_EMAIL.toLowerCase()) {
-                            alert("Usuário não autorizado!");
-                            firebase.auth().signOut(); return;
+                            alert("Usuário não autorizado! Este e-mail não tem permissão no sistema.");
+                            firebase.auth().signOut(); 
+                            document.getElementById('btn-login-action').innerText = "Entrar no Sistema";
+                            return;
                         }
 
                         document.getElementById('login-screen').style.display = 'none';
@@ -642,6 +645,7 @@
                     } else {
                         document.getElementById('login-screen').style.display = 'flex';
                         document.getElementById('app-container').style.display = 'none';
+                        document.getElementById('btn-login-action').innerText = "Entrar no Sistema";
                     }
                 });
             }
@@ -1059,8 +1063,10 @@
                     else if (k === 'ovos') { if (val <= 0) status = 'status-red'; else if (val <= 6) status = 'status-yellow'; }
                     else if (k === 'acucar') { if (val <= 0) status = 'status-red'; else if (val <= 400) status = 'status-yellow'; }
                     else if (k === 'copo') { if (val <= 0) status = 'status-red'; else if (val < 24) status = 'status-yellow'; }
-                    else if (k === 'tampa' || k === 'adesivo' || k === 'colher') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
+                    else if (k === 'tampa') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
                     else if (k === 'sacola') { if (val <= 0) status = 'status-red'; else if (val < 50) status = 'status-yellow'; }
+                    else if (k === 'adesivo') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
+                    else if (k === 'colher') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
                     el.classList.add(status); if (val < 0) el.classList.add('status-blink');
                 }
             });
