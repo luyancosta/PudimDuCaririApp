@@ -31,7 +31,10 @@
         .login-box button { width: 100%; background: var(--primary); color: white; padding: 0.8rem; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: 0.3s;}
         .login-box button:hover { background: var(--primary-hover); }
 
-        /* TOAST NOTIFICATION (Pop-up visual) */
+        /* CAIXA DE ERRO INTELIGENTE */
+        #login-error { color: #7F1D1D; font-size: 0.85rem; margin-top: 15px; display: none; padding: 12px; background: #FEE2E2; border: 1px solid #F87171; border-radius: 5px; text-align: left; line-height: 1.4; }
+
+        /* TOAST NOTIFICATION */
         .toast {
             visibility: hidden; min-width: 250px; background-color: var(--success); color: #fff;
             text-align: center; border-radius: 8px; padding: 16px; position: fixed;
@@ -42,7 +45,6 @@
         .toast.show { visibility: visible; opacity: 1; transform: translateY(0); }
         .toast.error { background-color: var(--danger); }
 
-        /* O APP PRINCIPAL FICA ESCONDIDO ATÉ LOGAR */
         #app-container { display: none; }
 
         /* HEADER E TABS */
@@ -107,15 +109,8 @@
         body.viewer-mode .btn-edit,
         body.viewer-mode .btn-edit-stock,
         body.viewer-mode .btn-action-small,
-        body.viewer-mode .header-actions button:not(#btn-logout) { 
-            display: none !important; 
-        }
-        body.viewer-mode input, 
-        body.viewer-mode select { 
-            pointer-events: none !important; 
-            background: #f3f4f6 !important; 
-            color: #999;
-        }
+        body.viewer-mode .header-actions button:not(#btn-logout) { display: none !important; }
+        body.viewer-mode input, body.viewer-mode select { pointer-events: none !important; background: #f3f4f6 !important; color: #999; }
     </style>
 </head>
 <body>
@@ -126,10 +121,11 @@
         <div class="login-box">
             <h1>🍮 Pudim Du Cariri</h1>
             <p style="margin-bottom: 1.5rem; color: #666; font-size: 0.9rem;">Acesso Restrito ao Sistema</p>
-            <input type="email" id="login-email" placeholder="E-mail" autocomplete="off">
+            <input type="email" id="login-email" placeholder="E-mail" autocomplete="email">
             <input type="password" id="login-password" placeholder="Senha">
             <button id="btn-login-action" onclick="fazerLogin()">Entrar no Sistema</button>
-            <p id="login-error" style="color: var(--danger); font-size: 0.8rem; margin-top: 15px; display: none; font-weight: 600; padding: 10px; background: #FEE2E2; border-radius: 5px;"></p>
+            
+            <p id="login-error"></p>
         </div>
     </div>
 
@@ -567,10 +563,10 @@
         // TOAST NOTIFICATION
         function showToast(msg, isError = false) {
             const toast = document.getElementById("toast");
-            toast.innerText = msg;
+            toast.innerHTML = msg;
             if(isError) toast.classList.add("error"); else toast.classList.remove("error");
             toast.classList.add("show");
-            setTimeout(() => { toast.classList.remove("show"); }, 3000);
+            setTimeout(() => { toast.classList.remove("show"); }, 5000);
         }
 
         const globalCardsTemplate = `
@@ -653,39 +649,52 @@
 
         // ================= NOVO MOTOR DE ERRO DE LOGIN =================
         function fazerLogin() {
-            const e = document.getElementById('login-email').value.trim();
-            const p = document.getElementById('login-password').value;
-            const errorEl = document.getElementById('login-error');
-            const btnLogin = document.getElementById('btn-login-action');
-            
-            if(!e || !p) {
-                errorEl.innerText = "Por favor, preencha e-mail e senha.";
-                errorEl.style.display = 'block';
-                return;
-            }
+            try {
+                const e = document.getElementById('login-email').value.trim();
+                const p = document.getElementById('login-password').value;
+                const errorEl = document.getElementById('login-error');
+                const btnLogin = document.getElementById('btn-login-action');
+                
+                if(!e || !p) {
+                    errorEl.innerText = "⚠️ Por favor, digite o e-mail e a senha.";
+                    errorEl.style.display = 'block';
+                    return;
+                }
 
-            errorEl.style.display = 'none';
-            btnLogin.innerText = "Verificando...";
-            btnLogin.style.opacity = "0.7";
-            
-            firebase.auth().signInWithEmailAndPassword(e, p)
-            .then(() => {
-                btnLogin.innerText = "Entrar no Sistema";
-                btnLogin.style.opacity = "1";
-            })
-            .catch(err => {
-                btnLogin.innerText = "Entrar no Sistema";
-                btnLogin.style.opacity = "1";
+                errorEl.style.display = 'none';
+                btnLogin.innerText = "⏳ Verificando no Google...";
+                btnLogin.style.opacity = "0.7";
                 
-                let msg = "Erro: " + err.message;
-                if(err.code === 'auth/invalid-email') msg = "O formato do e-mail é inválido.";
-                else if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') msg = "E-mail não cadastrado ou senha incorreta.";
-                else if(err.code === 'auth/too-many-requests') msg = "Muitas tentativas falhas. Conta bloqueada temporariamente.";
-                else if(err.code === 'auth/network-request-failed') msg = "Sem conexão com a internet.";
-                
-                errorEl.innerText = msg;
-                errorEl.style.display = 'block';
-            });
+                firebase.auth().signInWithEmailAndPassword(e, p)
+                .then((userCredential) => {
+                    btnLogin.innerText = "✅ Logado! Carregando...";
+                })
+                .catch(err => {
+                    btnLogin.innerText = "Entrar no Sistema";
+                    btnLogin.style.opacity = "1";
+                    
+                    let msg = "Erro desconhecido: " + err.message;
+                    
+                    if(err.code === 'auth/invalid-email') {
+                        msg = "⚠️ O formato do e-mail é inválido. Verifique se não há espaços no final.";
+                    } else if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+                        msg = "❌ E-mail não cadastrado ou Senha incorreta!";
+                    } else if(err.code === 'auth/operation-not-allowed') {
+                        msg = "⛔ LOGIN DESATIVADO NO FIREBASE! Vá no painel do Firebase > Authentication > Sign-in method e ative 'Email/Password'.";
+                    } else if(err.code === 'auth/too-many-requests') {
+                        msg = "🔒 Muitas tentativas erradas. O Google bloqueou temporariamente. Tente novamente mais tarde.";
+                    } else if(err.code === 'auth/network-request-failed') {
+                        msg = "📶 Sem conexão com a internet ou o Firebase está bloqueado na sua rede.";
+                    }
+                    
+                    errorEl.innerHTML = `<strong>Opa, deu erro!</strong><br>${msg}`;
+                    errorEl.style.display = 'block';
+                });
+            } catch(fatalErr) {
+                alert("Erro fatal ao tentar logar: " + fatalErr.message);
+                document.getElementById('btn-login-action').innerText = "Entrar no Sistema";
+                document.getElementById('btn-login-action').style.opacity = "1";
+            }
         }
 
         function fazerLogout() {
@@ -693,8 +702,7 @@
         }
 
         function loadDBData(data) {
-            // O Firebase transforma Arrays em Objetos se você apagar itens do meio (Ex: Item 1, 2, 4).
-            // Essa função força a pureza dos dados transformando os objetos de volta em array antes de ler.
+            // O Firebase transforma Arrays em Objetos se apagarmos itens do meio. Isso previne o congelamento da tela!
             const toArray = (obj) => {
                 if(!obj) return [];
                 if(Array.isArray(obj)) return obj.filter(i => i !== null);
@@ -1019,8 +1027,16 @@
             db.estoqueMov.forEach(m => { if(m.tipo === 'entrada') saldos[m.item] += m.qtd; else saldos[m.item] -= m.qtd; });
             
             db.producoes.forEach(p => { 
-                saldos.pudim += p.qtd*6; saldos.leite_condensado -= p.qtd*1; saldos.leite_integral -= p.qtd*400; saldos.ovos -= p.qtd*3; saldos.acucar -= p.qtd*200; 
-                saldos.copo -= p.qtd*6; saldos.tampa -= p.qtd*6; saldos.adesivo -= p.qtd*6;
+                saldos.pudim += p.qtd*6; 
+                saldos.leite_condensado -= p.qtd*1; 
+                saldos.leite_integral -= p.qtd*400; 
+                saldos.ovos -= p.qtd*3; 
+                saldos.acucar -= p.qtd*200; 
+                
+                // Embalagens usadas na produção para guardar o pudim na geladeira
+                saldos.copo -= p.qtd*6;
+                saldos.tampa -= p.qtd*6;
+                saldos.adesivo -= p.qtd*6;
             });
             
             db.vendas.forEach(v => { const pStr = v.produto || ''; const p = (pStr.includes('Combo')?3:1)*(v.qtd||1); saldos.pudim -= p; saldos.colher -= p; saldos.sacola -= 1; });
@@ -1145,14 +1161,6 @@
                 </tr>`;
             }
             document.getElementById('tbody-rateio-atacado').innerHTML = htmlAta;
-        }
-
-        function applyAlertClass(elementCollection, val) {
-            elementCollection.forEach(el => {
-                el.innerText = formatMoney(val);
-                if(val < 0) el.classList.add('alerta-negativo');
-                else el.classList.remove('alerta-negativo');
-            });
         }
 
         function updateDashboard() {
