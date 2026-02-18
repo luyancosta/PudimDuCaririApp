@@ -31,9 +31,6 @@
         .login-box button { width: 100%; background: var(--primary); color: white; padding: 0.8rem; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: 0.3s;}
         .login-box button:hover { background: var(--primary-hover); }
 
-        /* MENSAGEM DE ERRO VISÍVEL */
-        #login-error { color: #7F1D1D; font-size: 0.85rem; margin-top: 15px; display: none; padding: 10px; background: #FEE2E2; border-radius: 5px; font-weight: 600; }
-
         /* TOAST NOTIFICATION (Pop-up visual) */
         .toast {
             visibility: hidden; min-width: 250px; background-color: var(--success); color: #fff;
@@ -65,8 +62,12 @@
         /* CARDS & DASHBOARD */
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
         .card { background: var(--card-bg); padding: 1.5rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid var(--primary); display: flex; flex-direction: column; justify-content: space-between;}
+        .card.destaque { border-left-width: 8px; background: #111827; color: white; border-left-color: #10B981;}
         .card h3 { font-size: 0.85rem; color: var(--secondary); margin-bottom: 0.5rem; text-transform: uppercase; }
+        .card.destaque h3 { color: #9CA3AF; }
         .card p { font-size: 1.6rem; font-weight: 700; color: var(--text-main); }
+        .card.destaque p { color: #10B981; font-size: 2.5rem; }
+        
         .btn-action-small { margin-top: 10px; font-size: 0.85rem; padding: 6px 12px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: 0.2s; width: 100%;}
         
         .estoque-card { position: relative; text-align: center; }
@@ -74,7 +75,8 @@
         .estoque-card p { font-size: 1.8rem; transition: 0.3s; }
         .estoque-card p.status-green { color: var(--success) !important; }
         .estoque-card p.status-yellow { color: #F59E0B !important; }
-        .estoque-card p.status-red { color: var(--danger) !important; animation: piscarTextRed 1.2s infinite; }
+        .estoque-card p.status-red { color: var(--danger) !important; }
+        .estoque-card p.status-blink { animation: piscarTextRed 1.2s infinite; color: var(--danger) !important; }
         .btn-edit-stock { position: absolute; top: 10px; right: 10px; background: none; border: none; cursor: pointer; font-size: 1.2rem; opacity: 0.4; transition: 0.2s;}
 
         @keyframes piscarFundoRed { 0%, 100% { background-color: transparent; color: #EF4444; } 50% { background-color: #EF4444; color: white; border-radius: 5px; padding: 0 5px; } }
@@ -87,34 +89,24 @@
         input, select { width: 100%; padding: 0.6rem; border: 1px solid var(--border); border-radius: 5px; outline: none; transition: 0.3s; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
         .btn-submit { background: var(--primary); color: white; padding: 0.8rem 1.5rem; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 1rem; margin-top: 1rem; width: 100%; transition: 0.3s;}
+        .btn-excel { background: #10B981; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;}
         
         .table-container { overflow-x: auto; background: var(--card-bg); padding: 1rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; min-width: 900px; }
         th, td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid #FEF3C7; font-size: 0.9rem; }
         th { background: var(--secondary); color: white; font-weight: 600; position: sticky; top: 0; }
         tr:hover { background-color: #FFFBEB; }
+        .tr-totais td { background-color: var(--secondary); color: #FDE68A; font-weight: bold; }
         .btn-delete { background: var(--danger); color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 3px; cursor: pointer; font-size: 0.8rem; }
         .btn-edit { background: var(--info); color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 3px; cursor: pointer; font-size: 0.8rem; margin-right: 5px; }
 
-        .section-title { margin-bottom: 1rem; color: var(--secondary); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; }
+        .section-title { margin-bottom: 1rem; color: var(--secondary); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;}
         .mt-2 { margin-top: 2rem; }
-        .global-title { background: var(--secondary); color: #FDE68A; padding: 0.5rem 1rem; border-radius: 5px; margin-top: 3rem; margin-bottom: 1rem; text-align: center; font-size: 1.2rem;}
-
+        
         /* MODO VISUALIZADOR */
-        body.viewer-mode .btn-submit,
-        body.viewer-mode .btn-delete,
-        body.viewer-mode .btn-edit,
-        body.viewer-mode .btn-edit-stock,
-        body.viewer-mode .btn-action-small,
-        body.viewer-mode .header-actions button:not(#btn-logout) { 
-            display: none !important; 
-        }
-        body.viewer-mode input, 
-        body.viewer-mode select { 
-            pointer-events: none !important; 
-            background: #f3f4f6 !important; 
-            color: #999;
-        }
+        body.viewer-mode .btn-submit, body.viewer-mode .btn-delete, body.viewer-mode .btn-edit, body.viewer-mode .btn-edit-stock,
+        body.viewer-mode .btn-action-small, body.viewer-mode .header-actions button:not(#btn-logout) { display: none !important; }
+        body.viewer-mode input, body.viewer-mode select { pointer-events: none !important; background: #f3f4f6 !important; color: #999; }
     </style>
 </head>
 <body>
@@ -127,8 +119,8 @@
             <p style="margin-bottom: 1.5rem; color: #666; font-size: 0.9rem;">Acesso Restrito ao Sistema</p>
             <input type="email" id="login-email" placeholder="E-mail" autocomplete="off">
             <input type="password" id="login-password" placeholder="Senha">
-            <button onclick="fazerLogin()" id="btn-login-action">Entrar no Sistema</button>
-            <p id="login-error"></p>
+            <button onclick="fazerLogin()">Entrar no Sistema</button>
+            <p id="login-error" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; display: none;">Email ou senha incorretos!</p>
         </div>
     </div>
 
@@ -145,8 +137,7 @@
         </header>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('dashboard-varejo')">Resumo Varejo</button>
-            <button class="tab-btn" onclick="switchTab('dashboard-atacado')">Resumo Atacado</button>
+            <button class="tab-btn active" onclick="switchTab('dashboard-geral')">📊 Dashboards</button>
             <button class="tab-btn" onclick="switchTab('estoque')">📦 Estoque</button>
             <button class="tab-btn" onclick="switchTab('vendas')">Vendas (Varejo)</button>
             <button class="tab-btn" onclick="switchTab('atacado')">Vendas (Atacado)</button>
@@ -157,56 +148,28 @@
             <button class="tab-btn" onclick="switchTab('config')">⚙️ Config</button>
         </div>
 
-        <div id="dashboard-varejo" class="content active">
-            <h2 class="section-title">📊 Resumo de Desempenho - VAREJO</h2>
-            <div class="dashboard-grid">
-                <div class="card"><h3>Faturamento Bruto</h3><p id="v-dash-bruto">R$ 0,00</p></div>
-                <div class="card"><h3>Faturamento Líquido</h3><p id="v-dash-liquido">R$ 0,00</p></div>
-                <div class="card"><h3>Receita de Entrega</h3><p id="v-dash-entrega">R$ 0,00</p></div>
-                <div class="card"><h3>Pudins Vendidos</h3><p id="v-dash-qtd">0</p></div>
-                
-                <div class="card" style="border-left-color: #EF4444;"><h3>Insumo Fixo Gerado</h3><p id="v-dash-insumos" style="color: #EF4444;">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #EF4444;"><h3>Custos Gerais (15%)</h3><p id="v-dash-cg" style="color: #EF4444;">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #EF4444;"><h3>Mão de Obra (20%)</h3><p id="v-dash-mo" style="color: #EF4444;">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #10B981;"><h3>Lucro Restante</h3><p id="v-dash-lucro-restante" style="color: #10B981;">R$ 0,00</p></div>
-                
-                <div class="card" style="border-left-color: #8B5CF6;"><h3>Giro Gerado (50%)</h3><p id="v-dash-giro">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo Gerado (15%)</h3><p id="v-dash-fundo">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #F59E0B;"><h3>Luyan Gerado (17.5%)</h3><p id="v-dash-luyan">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #F59E0B;"><h3>Beatriz Gerado (17.5%)</h3><p id="v-dash-beatriz">R$ 0,00</p></div>
-            </div>
-            <div class="global-title">🔒 SALDOS GLOBAIS EM CAIXA (Varejo + Atacado - Despesas - Saques)</div>
-            <div id="grid-saldos-varejo"></div>
-        </div>
+        <div id="dashboard-geral" class="content active">
+            
+            <h2 class="section-title">🌎 RESUMO GERAL</h2>
+            <div class="dashboard-grid" id="grid-geral">
+                </div>
 
-        <div id="dashboard-atacado" class="content">
-            <h2 class="section-title">📦 Resumo de Desempenho - ATACADO (Apenas PAGOS)</h2>
-            <div class="dashboard-grid">
-                <div class="card"><h3>Faturamento Bruto</h3><p id="a-dash-bruto">R$ 0,00</p></div>
-                <div class="card"><h3>Desc. Logística Reversa</h3><p id="a-dash-desconto" style="color: var(--danger)">R$ 0,00</p></div>
-                <div class="card"><h3>Faturamento Líquido</h3><p id="a-dash-liquido">R$ 0,00</p></div>
-                <div class="card"><h3>Pudins Vendidos</h3><p id="a-dash-qtd">0</p></div>
-                
-                <div class="card" style="border-left-color: #EF4444;"><h3>Insumo Fixo Gerado</h3><p id="a-dash-insumos" style="color: #EF4444;">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #EF4444;"><h3>Custos Gerais (15%)</h3><p id="a-dash-cg" style="color: #EF4444;">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #EF4444;"><h3>Mão de Obra (20%)</h3><p id="a-dash-mo" style="color: #EF4444;">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #10B981;"><h3>Lucro Restante</h3><p id="a-dash-lucro-restante" style="color: #10B981;">R$ 0,00</p></div>
-                
-                <div class="card" style="border-left-color: #8B5CF6;"><h3>Giro Gerado (50%)</h3><p id="a-dash-giro">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo Gerado (15%)</h3><p id="a-dash-fundo">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #F59E0B;"><h3>Luyan Gerado (17.5%)</h3><p id="a-dash-luyan">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #F59E0B;"><h3>Beatriz Gerado (17.5%)</h3><p id="a-dash-beatriz">R$ 0,00</p></div>
-            </div>
-            <div class="global-title">🔒 SALDOS GLOBAIS EM CAIXA (Varejo + Atacado - Despesas - Saques)</div>
-            <div id="grid-saldos-atacado"></div>
+            <h2 class="section-title mt-2">🛒 RESUMO VAREJO</h2>
+            <div class="dashboard-grid" id="grid-varejo">
+                </div>
+
+            <h2 class="section-title mt-2">📦 RESUMO ATACADO (Apenas Pagos)</h2>
+            <div class="dashboard-grid" id="grid-atacado">
+                </div>
+
         </div>
 
         <div id="estoque" class="content">
             <h2 class="section-title">📦 Posição Atual do Estoque</h2>
             <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
                 <div class="card estoque-card" style="border-left-color: #10B981; background: #ECFDF5;">
-                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('pudim', 'Pudins Prontos')">✏️</button>
-                    <h3>🍮 PUDINS PRONTOS</h3><p id="est-pudim" class="status-green">0 un</p>
+                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('pudim', 'Pudins Prontos (Copo Cheio)')">✏️</button>
+                    <h3>🍮 PUDINS PRONTOS<br><small>(Copos Cheios)</small></h3><p id="est-pudim" class="status-green">0 un</p>
                 </div>
                 <div class="card estoque-card">
                     <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('leite_condensado', 'Leite Condensado')">✏️</button>
@@ -226,8 +189,8 @@
                 </div>
                 
                 <div class="card estoque-card" style="border-left-color: #8B5CF6;">
-                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('copo', 'Copo Americano')">✏️</button>
-                    <h3>Copo Americano</h3><p id="est-copo" class="status-green">0 un</p>
+                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('copo', 'Copo Americano (Vazio)')">✏️</button>
+                    <h3>Copo Americano<br><small>(Vazios)</small></h3><p id="est-copo" class="status-green">0 un</p>
                 </div>
                 <div class="card estoque-card" style="border-left-color: #8B5CF6;">
                     <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('tampa', 'Tampas')">✏️</button>
@@ -251,6 +214,7 @@
                 <div style="flex: 1; min-width: 300px;">
                     <h2 class="section-title">👩‍🍳 Bater Receita (Produzir)</h2>
                     <div class="card">
+                        <p style="font-size:0.85rem; color:#666; margin-bottom: 10px;"><b>1 Receita gera:</b> +6 Pudins Prontos.<br><b>Consome Insumos:</b> 1 L. Cond., 400ml Leite, 3 Ovos, 200g Açúcar.<br><b>Consome Embalagem:</b> 6 Copos Vazios, 6 Tampas, 6 Adesivos.</p>
                         <div class="form-grid">
                             <div class="form-group"><label>Data</label><input type="date" id="prod-data"></div>
                             <div class="form-group"><label>Qtd. de Receitas Feitas</label><input type="number" id="prod-qtd" min="1" value="1"></div>
@@ -272,12 +236,12 @@
                                     <option value="leite_integral">Leite Integral (ml)</option>
                                     <option value="ovos">Ovos (unidade)</option>
                                     <option value="acucar">Açúcar (g)</option>
-                                    <option value="copo">Copo (unidade)</option>
+                                    <option value="copo">Copo Vazio (unidade)</option>
                                     <option value="tampa">Tampas (unidade)</option>
                                     <option value="sacola">Sacolas (unidade)</option>
                                     <option value="adesivo">Adesivos (unidade)</option>
                                     <option value="colher">Colheres (unidade)</option>
-                                    <option value="pudim">Pudins Prontos (unidade)</option>
+                                    <option value="pudim">Pudins Prontos / Copo Cheio (unidade)</option>
                                 </select>
                             </div>
                             <div class="form-group"><label>Qtd</label><input type="number" id="mov-qtd" min="1"></div>
@@ -288,12 +252,12 @@
                 </div>
             </div>
             
-            <div style="display:flex; gap:10px; margin-top: 2rem;">
-                <div style="flex:1" class="table-container">
+            <div style="display:flex; gap:10px; margin-top: 2rem; flex-wrap:wrap;">
+                <div style="flex:1; min-width:300px;" class="table-container">
                     <h3 class="section-title">Histórico de Receitas</h3>
-                    <table><thead><tr><th>Data</th><th>Receitas</th><th>Ação</th></tr></thead><tbody id="tbody-producoes"></tbody></table>
+                    <table><thead><tr><th>Nº</th><th>Data</th><th>Receitas</th><th>Gera</th><th>Ação</th></tr></thead><tbody id="tbody-producoes"></tbody></table>
                 </div>
-                <div style="flex:2" class="table-container">
+                <div style="flex:2; min-width:300px;" class="table-container">
                     <h3 class="section-title">Histórico de Ajustes</h3>
                     <table><thead><tr><th>Data</th><th>Item</th><th>Qtd</th><th>Desc</th><th>Ação</th></tr></thead><tbody id="tbody-estoquemov"></tbody></table>
                 </div>
@@ -301,17 +265,18 @@
         </div>
 
         <div id="config" class="content">
-            <h2 class="section-title">Parâmetros e Taxas</h2>
+            <h2 class="section-title">Parâmetros e Taxas (Não deixe vazio)</h2>
             <div class="card">
                 <div class="form-grid">
-                    <div class="form-group"><label>Preço 1 Und (R$)</label><input type="number" id="cfg-preco-und" step="0.01"></div>
-                    <div class="form-group"><label>Preço Combo 3 Und (R$)</label><input type="number" id="cfg-preco-combo" step="0.01"></div>
-                    <div class="form-group"><label>Custo Fixo Insumo 1 Und (R$)</label><input type="number" id="cfg-custo-insumo" step="0.01"></div>
-                    <div class="form-group"><label>Custo do Copo p/ Abater (R$)</label><input type="number" id="cfg-custo-copo" step="0.01"></div>
-                    <div class="form-group"><label>Taxa Crédito (Inserção) %</label><input type="number" id="cfg-taxa-cred-ins" step="0.01"></div>
-                    <div class="form-group"><label>Taxa Crédito (Aproximação) %</label><input type="number" id="cfg-taxa-cred-apr" step="0.01"></div>
-                    <div class="form-group"><label>Taxa Débito (Inserção) %</label><input type="number" id="cfg-taxa-deb-ins" step="0.01"></div>
-                    <div class="form-group"><label>Taxa Débito (Aproximação) %</label><input type="number" id="cfg-taxa-deb-apr" step="0.01"></div>
+                    <div class="form-group"><label>Preço 1 Und (R$)</label><input type="number" id="cfg-preco-und" step="0.01" value="15.00"></div>
+                    <div class="form-group"><label>Preço Combo 3 Und (R$)</label><input type="number" id="cfg-preco-combo" step="0.01" value="40.00"></div>
+                    <div class="form-group"><label>Custo Fixo Insumo 1 Und (R$)</label><input type="number" id="cfg-custo-insumo" step="0.01" value="5.95"></div>
+                    <div class="form-group"><label>Custo do Copo p/ Abater (R$)</label><input type="number" id="cfg-custo-copo" step="0.01" value="1.50"></div>
+                    <div class="form-group"><label>Taxa Crédito (Inserção) %</label><input type="number" id="cfg-taxa-cred-ins" step="0.01" value="4.98"></div>
+                    <div class="form-group"><label>Taxa Crédito (Aproximação) %</label><input type="number" id="cfg-taxa-cred-apr" step="0.01" value="3.09"></div>
+                    <div class="form-group"><label>Taxa Débito (Inserção) %</label><input type="number" id="cfg-taxa-deb-ins" step="0.01" value="1.99"></div>
+                    <div class="form-group"><label>Taxa Débito (Aproximação) %</label><input type="number" id="cfg-taxa-deb-apr" step="0.01" value="0.89"></div>
+                    <div class="form-group"><label>Taxa Cartão Online (%)</label><input type="number" id="cfg-taxa-cartao-online" step="0.01" value="2.99"></div>
                 </div>
                 <button class="btn-submit" onclick="saveConfig()">Salvar Configurações</button>
             </div>
@@ -341,6 +306,7 @@
                             <option value="Credito Aproximacao">Crédito (Aproximação)</option>
                             <option value="Debito Insercao">Débito (Inserção)</option>
                             <option value="Debito Aproximacao">Débito (Aproximação)</option>
+                            <option value="Cartao Online">Cartão Online (Mercado Pago)</option>
                         </select>
                     </div>
                     <div class="form-group"><label>Taxa de Entrega (R$)</label><input type="number" id="v-entrega" step="0.01" value="0" placeholder="0.00"></div>
@@ -350,7 +316,7 @@
             <h3 class="section-title mt-2">Histórico de Vendas (Varejo)</h3>
             <div class="table-container">
                 <table>
-                    <thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Desc.</th><th>Pgto</th><th>Bruto</th><th>Taxa</th><th>Entrega</th><th>Líquido</th><th>Ação</th></tr></thead>
+                    <thead><tr><th>Pedido</th><th>Data</th><th>Produto</th><th>Qtd</th><th>Desc.</th><th>Pgto</th><th>Bruto</th><th>Taxa</th><th>Entrega</th><th>Líquido</th><th>Ação</th></tr></thead>
                     <tbody id="tbody-vendas"></tbody>
                 </table>
             </div>
@@ -377,38 +343,39 @@
             </div>
             <div class="table-container mt-2">
                 <table>
-                    <thead><tr><th>Data</th><th>Cliente</th><th>Qtd</th><th>Unitário</th><th>Bruto</th><th>Copos(R$)</th><th>Líquido</th><th>Status</th><th>Ação</th></tr></thead>
+                    <thead><tr><th>Pedido</th><th>Data</th><th>Cliente</th><th>Qtd</th><th>Unitário</th><th>Bruto</th><th>Copos(R$)</th><th>Líquido</th><th>Status</th><th>Ação</th></tr></thead>
                     <tbody id="tbody-atacado"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="rateio" class="content">
-            <h2 class="section-title">Matemática do Rateio - VAREJO</h2>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                <h2 class="section-title" style="margin:0; border:none;">Matemática do Rateio</h2>
+                <button class="btn-excel" onclick="exportarExcel()">📊 Baixar Excel do Rateio</button>
+            </div>
+            <h3 style="margin-top:20px; color:var(--secondary)">VAREJO</h3>
             <div class="table-container">
                 <table>
-                    <thead><tr><th>Data</th><th>Produto/Qtd</th><th>Líquido</th><th>Insumo(Fixo)</th><th>Gerais(15%)</th><th>Mão(20%)</th><th>Restante</th><th>Giro(50%)</th><th>Fundo(15%)</th><th>Luyan</th><th>Beatriz</th></tr></thead>
+                    <thead><tr><th>Pedido</th><th>Data</th><th>Produto/Qtd</th><th>Líquido</th><th>Insumo(Fixo)</th><th>Gerais(15%)</th><th>Mão(20%)</th><th>Restante</th><th>Giro(50%)</th><th>Fundo(15%)</th><th>Luyan</th><th>Beatriz</th></tr></thead>
                     <tbody id="tbody-rateio-varejo"></tbody>
                 </table>
             </div>
 
-            <h2 class="section-title mt-2">Matemática do Rateio - ATACADO (Apenas Pagos)</h2>
+            <h3 style="margin-top:30px; color:var(--secondary)">ATACADO (Apenas Pagos)</h3>
             <div class="table-container">
                 <table>
-                    <thead><tr><th>Data</th><th>Cliente/Qtd</th><th>Líquido(c/ Desc)</th><th>Insumo(Fixo)</th><th>Gerais(15%)</th><th>Mão(20%)</th><th>Restante</th><th>Giro(50%)</th><th>Fundo(15%)</th><th>Luyan</th><th>Beatriz</th></tr></thead>
+                    <thead><tr><th>Pedido</th><th>Data</th><th>Cliente/Qtd</th><th>Líquido(c/ Desc)</th><th>Insumo(Fixo)</th><th>Gerais(15%)</th><th>Mão(20%)</th><th>Restante</th><th>Giro(50%)</th><th>Fundo(15%)</th><th>Luyan</th><th>Beatriz</th></tr></thead>
                     <tbody id="tbody-rateio-atacado"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="despesas" class="content">
-            <div class="dashboard-grid" style="margin-bottom: 2rem;">
-                <div class="card" style="border-left-color: #3B82F6;"><h3>Total Insumos</h3><p id="dash-desp-insumos">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #F59E0B;"><h3>Total Embalagem</h3><p id="dash-desp-embalagem">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #EF4444;"><h3>Total Gastos Gerais</h3><p id="dash-desp-gerais">R$ 0,00</p></div>
-                <div class="card" style="border-left-color: #8B5CF6;"><h3>Total Marketing</h3><p id="dash-desp-marketing">R$ 0,00</p></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; flex-wrap: wrap;">
+                <h2 class="section-title" style="margin:0; border:none;">Dashboard de Despesas</h2>
+                <button class="btn-excel" onclick="exportarExcel()">📊 Baixar Excel das Despesas</button>
             </div>
-
             <h2 class="section-title">Registrar Despesas/Compras</h2>
             <div class="card">
                 <div class="form-grid">
@@ -425,7 +392,7 @@
             </div>
             <div class="table-container mt-2">
                 <table>
-                    <thead><tr><th>Data</th><th>Item</th><th>Qtd</th><th>Unitário</th><th>Total</th><th>Categoria</th><th>Ação</th></tr></thead>
+                    <thead><tr><th>Nº</th><th>Data</th><th>Item</th><th>Qtd</th><th>Unitário</th><th>Total</th><th>Categoria</th><th>Ação</th></tr></thead>
                     <tbody id="tbody-despesas"></tbody>
                 </table>
             </div>
@@ -481,7 +448,7 @@
         </div>
     </div> <script>
         // =========================================================
-        // 1. CONFIGURAÇÃO DO FIREBASE
+        // 1. CONFIGURAÇÃO DO FIREBASE (NÃO TOCADO - BASE DO CLIENTE)
         // =========================================================
         const firebaseConfig = {
             apiKey: "AIzaSyDctGxi1zGwJuHJ_eaFJn3TmErK9tWaGy0",
@@ -492,9 +459,9 @@
             messagingSenderId: "302932015479",
             appId: "1:302932015479:web:dd46d6c1c0b27ee6948972"
         };
-        
-        // OS DOIS EMAILS QUE TEM ACESSO
-        const ADMIN_EMAILS = ["luyan@pudim.com", "luyancosta.2015@gmail.com"]; 
+
+        const ADMIN_EMAIL = "luyan@pudim.com"; 
+        const ADMIN_EMAIL_2 = "luyancosta.2015@gmail.com"; 
         const VIEWER_EMAIL = "beatriz@pudim.com"; 
 
         let isOnline = firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLE_SUA_API_KEY_AQUI";
@@ -512,7 +479,8 @@
                 "taxaCredApr": 3.09,
                 "taxaDebIns": 1.99,
                 "taxaDebApr": 0.89,
-                "custoCopo": 1.5
+                "custoCopo": 1.5,
+                "taxaCartaoOnline": 2.99
             },
             "vendas": [
                 {"id": 328, "data": "2026-02-15", "produto": "Pudim 1 Und", "pgto": "PIX", "valorBruto": 15, "valorTaxa": 0, "valorLiquido": 15, "entrega": 0},
@@ -607,13 +575,10 @@
         const formatData = (date) => date ? new Date(date + "T00:00:00").toLocaleDateString('pt-BR') : '';
         const descTipoMap = { 'Divida': 'Giro (Abatimento Dívida)', 'MaoObra': 'Saque Mão de Obra', 'Luyan': 'Saque Luyan', 'Beatriz': 'Saque Beatriz' };
 
-        // SEGURANÇA NA ORDENAÇÃO DE DATAS
-        const sortByDateDesc = (a, b) => {
-            let dA = (a && a.data) ? new Date(a.data).getTime() : 0;
-            let dB = (b && b.data) ? new Date(b.data).getTime() : 0;
-            if(isNaN(dA)) dA = 0; if(isNaN(dB)) dB = 0;
-            return dA === dB ? (b.id||0) - (a.id||0) : dB - dA;
-        };
+        // SEGURANÇA NA ORDENAÇÃO DE DATAS E NÚMEROS
+        const sortByDateAsc = (a, b) => { let dA = (a && a.data) ? new Date(a.data).getTime() : 0; let dB = (b && b.data) ? new Date(b.data).getTime() : 0; if(isNaN(dA)) dA=0; if(isNaN(dB)) dB=0; return dA === dB ? (a.id||0) - (b.id||0) : dA - dB; };
+        const sortByDateDesc = (a, b) => { let dA = (a && a.data) ? new Date(a.data).getTime() : 0; let dB = (b && b.data) ? new Date(b.data).getTime() : 0; if(isNaN(dA)) dA=0; if(isNaN(dB)) dB=0; return dA === dB ? (b.id||0) - (a.id||0) : dB - dA; };
+        const getNextNum = (arr) => arr.length > 0 ? Math.max(...arr.map(x => x.num || 0)) + 1 : 1;
 
         function showToast(msg, isError = false) {
             const toast = document.getElementById("toast");
@@ -623,132 +588,18 @@
             setTimeout(() => { toast.classList.remove("show"); }, 3000);
         }
 
-        const globalCardsTemplate = `
-        <div class="dashboard-grid">
-            <div class="card" style="border-left-color: #3B82F6;"><h3>Faturamento Total</h3><p class="global-faturamento" style="color: #3B82F6;">R$ 0,00</p></div>
-            <div class="card" style="border-left-color: #3B82F6;"><h3>Pudins Vendidos</h3><p class="global-pudins">0</p></div>
-            <div class="card" style="border-left-color: #EF4444;"><h3>Insumo Fixo Total</h3><p class="global-insumos" style="color: #EF4444;">R$ 0,00</p></div>
-            <div class="card" style="border-left-color: #EF4444;"><h3>Custos Gerais 15%</h3><p class="global-cg" style="color: #EF4444;">R$ 0,00</p></div>
-            <div class="card" style="border-left-color: #EF4444;"><h3>Mão de Obra 20%</h3><p class="global-mo" style="color: #EF4444;">R$ 0,00</p>
-                <button class="btn-action-small" style="background:#EF4444" onclick="realizarSaque('MaoObra')">💸 Sacar Mão Obra</button>
-            </div>
-            <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo 15%</h3><p class="global-fundo">R$ 0,00</p></div>
-            <div class="card" style="border-left-color: #F59E0B;"><h3>Sócios: Luyan</h3><p class="global-luyan">R$ 0,00</p>
-                <button class="btn-action-small" style="background:#F59E0B" onclick="realizarSaque('Luyan')">💸 Sacar Luyan</button>
-            </div>
-            <div class="card" style="border-left-color: #F59E0B;"><h3>Sócios: Beatriz</h3><p class="global-beatriz">R$ 0,00</p>
-                <button class="btn-action-small" style="background:#F59E0B" onclick="realizarSaque('Beatriz')">💸 Sacar Beatriz</button>
-            </div>
-            <div class="card" style="border-left-color: #10B981; grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem;">
-                <div><h3 style="margin-bottom: 0;">Giro em Caixa (Disponível)</h3><p class="global-giro" style="color: #10B981; font-size: 2.2rem;">R$ 0,00</p></div>
-                <button class="btn-action-small" style="width: auto; padding: 15px 30px; font-size: 1rem; background: #10B981;" onclick="realizarSaque('Divida')">💰 Abater Dívida</button>
-            </div>
-            <div class="card" style="grid-column: 1 / -1; text-align: center;"><h3>Falta p/ Pagar Investimento</h3><p class="global-roi" style="color: var(--danger)">R$ 0,00</p></div>
-        </div>`;
-
         // =========================================================
-        // INIT E AUTH
+        // FUNÇÃO ANTI-CRASH: Força que objetos do Firebase virem Array
         // =========================================================
-        function init() {
-            document.getElementById('grid-saldos-varejo').innerHTML = globalCardsTemplate;
-            document.getElementById('grid-saldos-atacado').innerHTML = globalCardsTemplate;
-            resetDateInputs();
-
-            if(!isOnline) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('app-container').style.display = 'block';
-                document.getElementById('user-badge').innerText = "🔴 MODO OFFLINE (Sem Nuvem)";
-                currentUserRole = 'admin'; 
-                try { updateAll(); } catch(e) {}
-            } else {
-                firebase.auth().onAuthStateChanged((user) => {
-                    if(user) {
-                        const userEmail = user.email ? user.email.toLowerCase() : "";
-                        const isAdmin = ADMIN_EMAILS.includes(userEmail);
-                        const isViewer = userEmail === VIEWER_EMAIL.toLowerCase();
-
-                        if(!isAdmin && !isViewer) {
-                            alert("❌ Acesso Negado: Você não tem permissão no sistema.");
-                            firebase.auth().signOut(); 
-                            document.querySelector('.login-box button').innerText = "Entrar no Sistema";
-                            return;
-                        }
-
-                        // FECHA A TELA DE LOGIN IMEDIATAMENTE
-                        document.getElementById('login-screen').style.display = 'none';
-                        document.getElementById('app-container').style.display = 'block';
-                        
-                        if(isAdmin) {
-                            currentUserRole = 'admin';
-                            document.body.classList.remove('viewer-mode');
-                            document.getElementById('user-badge').innerText = "👑 ADMIN: " + user.email;
-                        } else {
-                            currentUserRole = 'viewer';
-                            document.body.classList.add('viewer-mode');
-                            document.getElementById('user-badge').innerText = "👁️ VISUALIZADOR: " + user.email;
-                        }
-
-                        // CARREGA DO FIREBASE BLINDADO
-                        firebase.database().ref('pudimAppDB').on('value', (snapshot) => {
-                            if(snapshot.exists()) {
-                                db = loadDBData(snapshot.val());
-                                try { updateAll(); } catch(err) { console.error("Erro render: ", err); }
-                            } else {
-                                if(currentUserRole === 'admin') firebase.database().ref('pudimAppDB').set(db);
-                            }
-                        });
-                    } else {
-                        document.getElementById('login-screen').style.display = 'flex';
-                        document.getElementById('app-container').style.display = 'none';
-                        document.querySelector('.login-box button').innerText = "Entrar no Sistema";
-                    }
-                });
-            }
-        }
-
-        // NOVO LOGIN (Sem travar o botão)
-        function fazerLogin() {
-            const e = document.getElementById('login-email').value.trim();
-            const p = document.getElementById('login-password').value;
-            const errEl = document.getElementById('login-error');
-            const btn = document.querySelector('.login-box button');
-
-            if (!e || !p) {
-                errEl.innerText = "⚠️ Preencha o e-mail e a senha.";
-                errEl.style.display = 'block';
-                return;
-            }
-            
-            errEl.style.display = 'none';
-            btn.innerText = "⏳ Entrando...";
-
-            firebase.auth().signInWithEmailAndPassword(e, p).catch(err => {
-                btn.innerText = "Entrar no Sistema";
-                let msg = "Erro desconhecido.";
-                if(err.code === 'auth/invalid-email') msg = "E-mail com formato inválido.";
-                else if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') msg = "E-mail não cadastrado.";
-                else if(err.code === 'auth/wrong-password') msg = "Senha incorreta.";
-                else if(err.code === 'auth/too-many-requests') msg = "Muitas tentativas. Tente mais tarde.";
-                else msg = err.message;
-                
-                errEl.innerText = "❌ " + msg;
-                errEl.style.display = 'block';
-            });
-        }
-
-        function fazerLogout() {
-            if(isOnline) firebase.auth().signOut();
-            else alert("Você está no modo offline.");
+        function forceArray(obj) {
+            if(!obj) return [];
+            if(Array.isArray(obj)) return obj.filter(i => i !== null && i !== undefined);
+            return Object.values(obj).filter(i => i !== null && i !== undefined);
         }
 
         function loadDBData(data) {
-            // FUNÇÃO ANTI-CRASH: Força qualquer objeto vindo do Firebase a virar tabela
-            const forceArray = (obj) => {
-                if(!obj) return [];
-                if(Array.isArray(obj)) return obj.filter(i => i !== null && i !== undefined);
-                return Object.values(obj).filter(i => i !== null && i !== undefined);
-            };
-
+            if(!data) return db; // Fallback se a nuvem estiver completamente vazia e corrompida
+            
             data.pagamentos = forceArray(data.pagamentos); 
             data.producoes = forceArray(data.producoes);
             data.estoqueMov = forceArray(data.estoqueMov);
@@ -757,20 +608,123 @@
             data.despesas = forceArray(data.despesas);
             data.investimentos = forceArray(data.investimentos);
 
-            if(data.config === undefined) data.config = { precoUnd: 15, precoCombo: 40, custoInsumo: 5.95, taxaCredIns: 4.98, taxaCredApr: 3.09, taxaDebIns: 1.99, taxaDebApr: 0.89, custoCopo: 1.5, taxaCartaoOnline: 2.99 };
+            if(data.config === undefined) data.config = { precoUnd: 15, precoCombo: 40, custoInsumo: 5.95, taxaCredIns: 4.98, taxaCredApr: 3.09, taxaDebIns: 1.99, taxaDebApr: 0.89, custoCopo: 1.50, taxaCartaoOnline: 2.99 };
+            
+            const addMissingNums = (arr) => { arr.sort(sortByDateAsc).forEach((x,i)=>{ if(!x.num) x.num=i+1; }); };
+            addMissingNums(data.vendas); addMissingNums(data.atacado); addMissingNums(data.despesas); addMissingNums(data.producoes);
             
             return data;
         }
 
+        function init() {
+            // Roda os dados nativos 1x para garantir que a tela funcione caso a internet caia
+            try { db = loadDBData(db); updateAll(); } catch(e) { console.error(e); }
+
+            if(!isOnline) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-container').style.display = 'block';
+                document.getElementById('user-badge').innerText = "🔴 MODO OFFLINE";
+                currentUserRole = 'admin'; 
+            } else {
+                firebase.auth().onAuthStateChanged((user) => {
+                    try {
+                        if(user) {
+                            const userEmail = user.email ? user.email.toLowerCase() : "";
+                            const isAdmin = ADMIN_EMAILS.includes(userEmail);
+                            const isViewer = userEmail === VIEWER_EMAIL.toLowerCase();
+
+                            if(!isAdmin && !isViewer) {
+                                alert("❌ Acesso Negado: O e-mail '" + userEmail + "' não tem permissão no sistema.");
+                                firebase.auth().signOut(); return;
+                            }
+
+                            // FECHA A TELA DE LOGIN IMEDIATAMENTE (NÃO TRAVA)
+                            document.getElementById('login-screen').style.display = 'none';
+                            document.getElementById('app-container').style.display = 'block';
+                            
+                            if(isAdmin) {
+                                currentUserRole = 'admin';
+                                document.body.classList.remove('viewer-mode');
+                                document.getElementById('user-badge').innerText = "👑 ADMIN: " + user.email;
+                            } else {
+                                currentUserRole = 'viewer';
+                                document.body.classList.add('viewer-mode');
+                                document.getElementById('user-badge').innerText = "👁️ VISUALIZADOR: " + user.email;
+                            }
+
+                            // PUXA OS DADOS BLINDADOS
+                            firebase.database().ref('pudimAppDB').on('value', (snapshot) => {
+                                try {
+                                    if(snapshot.exists()) {
+                                        db = loadDBData(snapshot.val());
+                                        localStorage.setItem('pudimDuCaririDB', JSON.stringify(db)); 
+                                        updateAll();
+                                    } else {
+                                        if(currentUserRole === 'admin') firebase.database().ref('pudimAppDB').set(db);
+                                    }
+                                } catch(err) {
+                                    console.error("Erro ao montar a tela com os dados: ", err);
+                                }
+                            });
+                        } else {
+                            document.getElementById('login-screen').style.display = 'flex';
+                            document.getElementById('app-container').style.display = 'none';
+                            document.getElementById('btn-login-action').innerText = "Entrar no Sistema";
+                            document.getElementById('btn-login-action').style.opacity = "1";
+                        }
+                    } catch(fatalErr) {
+                        console.error(fatalErr);
+                    }
+                });
+            }
+        }
+
+        function fazerLogin() {
+            const e = document.getElementById('login-email').value.trim();
+            const p = document.getElementById('login-password').value;
+            const errorEl = document.getElementById('login-error');
+            const btnLogin = document.getElementById('btn-login-action');
+            
+            if(!e || !p) {
+                errorEl.innerText = "⚠️ Preencha o e-mail e a senha.";
+                errorEl.style.display = 'block'; return;
+            }
+
+            errorEl.style.display = 'none';
+            btnLogin.innerText = "⏳ Autenticando...";
+            btnLogin.style.opacity = "0.7";
+            
+            firebase.auth().signInWithEmailAndPassword(e, p)
+            .then(() => { btnLogin.innerText = "✅ Entrando..."; })
+            .catch(err => {
+                btnLogin.innerText = "Entrar no Sistema";
+                btnLogin.style.opacity = "1";
+                let msg = "Erro: " + err.message;
+                if(err.code === 'auth/invalid-email') msg = "E-mail com formato inválido.";
+                else if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') msg = "E-mail não cadastrado ou senha incorreta.";
+                else if(err.code === 'auth/too-many-requests') msg = "Muitas tentativas falhas. Tente depois.";
+                errorEl.innerHTML = `<strong>Falha no Login</strong><br>${msg}`;
+                errorEl.style.display = 'block';
+            });
+        }
+
+        function fazerLogout() { if(isOnline) firebase.auth().signOut(); }
+
         function saveData() {
             if(currentUserRole !== 'admin') return alert("Apenas Administradores podem alterar os dados.");
-            try { updateAll(); } catch(e) { console.error(e); }
-            if(isOnline) { firebase.database().ref('pudimAppDB').set(db); }
+            localStorage.setItem('pudimDuCaririDB', JSON.stringify(db)); 
+            try { updateAll(); } catch(e) { console.error(e); } 
+            if(isOnline) { firebase.database().ref('pudimAppDB').set(db).catch(err => { alert("Erro na nuvem: " + err.message); }); }
         }
 
         function resetDateInputs() {
             const hoje = new Date().toISOString().split('T')[0];
             document.querySelectorAll('input[type="date"]').forEach(el => el.value = hoje);
+        }
+
+        function limparFiltro() {
+            document.getElementById('dash-filter-month').value = '';
+            updateDashboard();
         }
 
         function switchTab(tabId) {
@@ -788,12 +742,8 @@
             const blob = new Blob([dataStr], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.href = url;
-            downloadAnchorNode.download = "backup_pudim_du_cariri.json";
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            document.body.removeChild(downloadAnchorNode);
-            URL.revokeObjectURL(url);
+            downloadAnchorNode.href = url; downloadAnchorNode.download = "backup_pudim_du_cariri.json";
+            document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); document.body.removeChild(downloadAnchorNode); URL.revokeObjectURL(url);
         }
 
         function importData(event) {
@@ -802,46 +752,77 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                try {
-                    db = loadDBData(JSON.parse(e.target.result));
-                    saveData();
-                    showToast("Backup restaurado com sucesso!");
-                } catch (err) { showToast("Erro ao ler o arquivo JSON.", true); }
+                try { db = loadDBData(JSON.parse(e.target.result)); saveData(); showToast("Backup restaurado e sincronizado na Nuvem!"); } 
+                catch (err) { showToast("Erro ao ler o arquivo JSON.", true); }
                 event.target.value = ''; 
             };
             reader.readAsText(file);
         }
 
+        // ================= EXPORTAR EXCEL =================
+        function exportarExcel() {
+            if (typeof XLSX === 'undefined') return alert("Biblioteca do Excel não carregou. Verifique sua internet.");
+            const wb = XLSX.utils.book_new();
+
+            const wsVarData = [["Nº Pedido", "Data", "Produto", "Líquido (R$)", "Insumo Fixo (R$)", "Custos Gerais 15% (R$)", "Mão Obra 20% (R$)", "Lucro Restante (R$)", "Giro 50% (R$)", "Fundo 15% (R$)", "Sócio Luyan 17.5% (R$)", "Sócia Beatriz 17.5% (R$)"]];
+            db.vendas.sort(sortByDateDesc).forEach(v => {
+                const pStr = v.produto || ''; const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1);
+                const ins = q * (db.config.custoInsumo||0); const base = (v.valorLiquido||0) - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
+                wsVarData.push([v.num, v.data, pStr, v.valorLiquido, ins, cg, mo, lucro, lucro*0.50, lucro*0.15, lucro*0.175, lucro*0.175]);
+            });
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsVarData), "Rateio Varejo");
+
+            const wsAtaData = [["Nº Pedido", "Data", "Cliente", "Líquido (R$)", "Insumo Fixo (R$)", "Custos Gerais 15% (R$)", "Mão Obra 20% (R$)", "Lucro Restante (R$)", "Giro 50% (R$)", "Fundo 15% (R$)", "Sócio Luyan 17.5% (R$)", "Sócia Beatriz 17.5% (R$)"]];
+            db.atacado.filter(a=>a.status==='PAGO').sort(sortByDateDesc).forEach(a => {
+                const liq = a.totalLiquido !== undefined ? a.totalLiquido : (a.total !== undefined ? a.total : ((a.qtd||0)*(a.unitario||0)) - (a.desconto||0));
+                const ins = Math.max(0, ((a.qtd||0) * (db.config.custoInsumo||0)) - ((a.coposDevolvidos || 0) * (db.config.custoCopo || 1.80)));
+                const base = liq - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
+                wsAtaData.push([a.num, a.data, a.cliente, liq, ins, cg, mo, lucro, lucro*0.50, lucro*0.15, lucro*0.175, lucro*0.175]);
+            });
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsAtaData), "Rateio Atacado");
+
+            const wsDespData = [["Nº Despesa", "Data", "Item", "Quantidade", "Valor Unitário (R$)", "Total Pago (R$)", "Categoria"]];
+            db.despesas.sort(sortByDateDesc).forEach(d => { wsDespData.push([d.num, d.data, d.item, d.qtd, d.unitario, d.total, d.categoria]); });
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsDespData), "Despesas");
+
+            XLSX.writeFile(wb, "PudimDuCariri_Relatorios.xlsx");
+            showToast("Planilha Excel Gerada!");
+        }
+
+        // ================= WHATSAPP FECHAMENTO =================
+        function fechamentoWhatsApp() {
+            const hoje = new Date().toISOString().split('T')[0];
+            const vHoje = db.vendas.filter(v => (v.data||'').startsWith(hoje));
+            const aHoje = db.atacado.filter(a => (a.data||'').startsWith(hoje) && a.status === 'PAGO');
+            
+            let vQtd=0, vLiq=0; vHoje.forEach(v => { const pStr = v.produto || ''; vQtd += (pStr.includes('Combo')?3:1)*(v.qtd||1); vLiq += (v.valorLiquido||0); });
+            let aQtd=0, aLiq=0; aHoje.forEach(a => { aQtd += (a.qtd||0); aLiq += (a.totalLiquido !== undefined ? a.totalLiquido : ((a.qtd||0)*(a.unitario||0) - (a.desconto||0))); });
+
+            let despHoje=0; db.despesas.filter(d => (d.data||'').startsWith(hoje)).forEach(d => despHoje += (d.total||0));
+
+            let txt = `*📊 FECHAMENTO DO DIA - ${hoje.split('-').reverse().join('/')}*\n\n`;
+            txt += `*🛒 VAREJO*\n- Pudins vendidos: ${vQtd} un\n- Faturamento Líq: R$ ${vLiq.toFixed(2)}\n\n`;
+            txt += `*📦 ATACADO*\n- Pudins pagos: ${aQtd} un\n- Faturamento Líq: R$ ${aLiq.toFixed(2)}\n\n`;
+            txt += `*💸 DESPESAS / COMPRAS*\n- Saída Hoje: R$ ${despHoje.toFixed(2)}\n\n`;
+            txt += `*💰 FATURAMENTO GERAL HOJE*\n👉 R$ ${(vLiq + aLiq).toFixed(2)}`;
+
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`, '_blank');
+        }
+
         function loadConfigUI() {
-            document.getElementById('cfg-preco-und').value = db.config.precoUnd;
-            document.getElementById('cfg-preco-combo').value = db.config.precoCombo;
-            document.getElementById('cfg-custo-insumo').value = db.config.custoInsumo;
-            document.getElementById('cfg-custo-copo').value = db.config.custoCopo;
-            document.getElementById('cfg-taxa-cred-ins').value = db.config.taxaCredIns;
-            document.getElementById('cfg-taxa-cred-apr').value = db.config.taxaCredApr;
-            document.getElementById('cfg-taxa-deb-ins').value = db.config.taxaDebIns;
-            document.getElementById('cfg-taxa-deb-apr').value = db.config.taxaDebApr;
+            document.getElementById('cfg-preco-und').value = db.config.precoUnd || 15; document.getElementById('cfg-preco-combo').value = db.config.precoCombo || 40; document.getElementById('cfg-custo-insumo').value = db.config.custoInsumo || 5.95; document.getElementById('cfg-custo-copo').value = db.config.custoCopo || 1.50; document.getElementById('cfg-taxa-cred-ins').value = db.config.taxaCredIns || 4.98; document.getElementById('cfg-taxa-cred-apr').value = db.config.taxaCredApr || 3.09; document.getElementById('cfg-taxa-deb-ins').value = db.config.taxaDebIns || 1.99; document.getElementById('cfg-taxa-deb-apr').value = db.config.taxaDebApr || 0.89; document.getElementById('cfg-taxa-cartao-online').value = db.config.taxaCartaoOnline || 2.99;
         }
 
         function saveConfig() {
-            db.config.precoUnd = parseFloat(document.getElementById('cfg-preco-und').value) || 0;
-            db.config.precoCombo = parseFloat(document.getElementById('cfg-preco-combo').value) || 0;
-            db.config.custoInsumo = parseFloat(document.getElementById('cfg-custo-insumo').value) || 0;
-            db.config.custoCopo = parseFloat(document.getElementById('cfg-custo-copo').value) || 0;
-            db.config.taxaCredIns = parseFloat(document.getElementById('cfg-taxa-cred-ins').value) || 0;
-            db.config.taxaCredApr = parseFloat(document.getElementById('cfg-taxa-cred-apr').value) || 0;
-            db.config.taxaDebIns = parseFloat(document.getElementById('cfg-taxa-deb-ins').value) || 0;
-            db.config.taxaDebApr = parseFloat(document.getElementById('cfg-taxa-deb-apr').value) || 0;
-            saveData(); showToast("Configurações salvas!");
+            db.config.precoUnd = parseFloat(document.getElementById('cfg-preco-und').value) || 0; db.config.precoCombo = parseFloat(document.getElementById('cfg-preco-combo').value) || 0; db.config.custoInsumo = parseFloat(document.getElementById('cfg-custo-insumo').value) || 0; db.config.custoCopo = parseFloat(document.getElementById('cfg-custo-copo').value) || 0; db.config.taxaCredIns = parseFloat(document.getElementById('cfg-taxa-cred-ins').value) || 0; db.config.taxaCredApr = parseFloat(document.getElementById('cfg-taxa-cred-apr').value) || 0; db.config.taxaDebIns = parseFloat(document.getElementById('cfg-taxa-deb-ins').value) || 0; db.config.taxaDebApr = parseFloat(document.getElementById('cfg-taxa-deb-apr').value) || 0; db.config.taxaCartaoOnline = parseFloat(document.getElementById('cfg-taxa-cartao-online').value) || 0;
+            saveData(); showToast("Configurações Salvas!");
         }
 
         function getTaxaPercent(pgto) {
             switch(pgto) {
-                case 'Credito Insercao': return db.config.taxaCredIns;
-                case 'Credito Aproximacao': return db.config.taxaCredApr;
-                case 'Debito Insercao': return db.config.taxaDebIns;
-                case 'Debito Aproximacao': return db.config.taxaDebApr;
-                default: return 0;
+                case 'Credito Insercao': return db.config.taxaCredIns; case 'Credito Aproximacao': return db.config.taxaCredApr;
+                case 'Debito Insercao': return db.config.taxaDebIns; case 'Debito Aproximacao': return db.config.taxaDebApr;
+                case 'Cartao Online': return db.config.taxaCartaoOnline || 2.99; default: return 0;
             }
         }
 
@@ -850,12 +831,16 @@
             document.getElementById('a-desconto').value = (copos >= 12) ? copos.toFixed(2) : '0.00';
         }
 
-        function prepararEdicao(lista, id) {
-            const item = db[lista].find(i => i.id === id);
-            if(!item) return;
-            editingItem = { lista, id };
+        function toggleAsaas() {
+            const pgto = document.getElementById('v-pgto').value; const asaasGroup = document.getElementById('asaas-group');
+            if(pgto === 'PIX') { asaasGroup.style.display = 'flex'; } else { asaasGroup.style.display = 'none'; document.getElementById('v-asaas').checked = false; }
+        }
 
-            if(lista === 'vendas') { switchTab('vendas'); document.getElementById('v-data').value = item.data; document.getElementById('v-produto').value = (item.produto||'').includes('Combo') ? 'Combo' : 'Unidade'; document.getElementById('v-pgto').value = item.pgto; document.getElementById('v-entrega').value = item.entrega || 0; document.getElementById('v-qtd').value = item.qtd || 1; document.getElementById('v-desconto').value = item.desconto || 0; document.getElementById('btn-submit-vendas').innerText = "Atualizar Venda"; }
+        function prepararEdicao(lista, id) {
+            const item = db[lista].find(i => i.id === id); if(!item) return; editingItem = { lista, id };
+            if(lista === 'vendas') { 
+                switchTab('vendas'); document.getElementById('v-data').value = item.data; const pStr = item.produto || ''; document.getElementById('v-produto').value = pStr.includes('Combo') ? 'Combo' : 'Unidade'; document.getElementById('v-pgto').value = item.pgto; document.getElementById('v-asaas').checked = item.asaas || false; toggleAsaas(); document.getElementById('v-entrega').value = item.entrega || 0; document.getElementById('v-qtd').value = item.qtd || 1; document.getElementById('v-desconto').value = item.desconto || 0; document.getElementById('btn-submit-vendas').innerText = "Atualizar Venda"; 
+            }
             else if(lista === 'atacado') { switchTab('atacado'); document.getElementById('a-data').value = item.data; document.getElementById('a-cliente').value = item.cliente; document.getElementById('a-qtd').value = item.qtd; document.getElementById('a-valor').value = item.unitario; document.getElementById('a-copos').value = item.coposDevolvidos || 0; document.getElementById('a-desconto').value = item.desconto || 0; document.getElementById('a-status').value = item.status; document.getElementById('btn-submit-atacado').innerText = "Atualizar Atacado"; }
             else if(lista === 'despesas') { switchTab('despesas'); document.getElementById('d-data').value = item.data; document.getElementById('d-item').value = item.item; document.getElementById('d-qtd').value = item.qtd; document.getElementById('d-valor').value = item.unitario; document.getElementById('d-categoria').value = item.categoria; document.getElementById('btn-submit-despesas').innerText = "Atualizar Despesa"; }
             else if(lista === 'investimentos') { switchTab('investimentos'); document.getElementById('i-data').value = item.data; document.getElementById('i-item').value = item.item; document.getElementById('i-valor').value = item.valor; document.getElementById('btn-submit-investimentos').innerText = "Atualizar Investimento"; }
@@ -866,213 +851,234 @@
         }
 
         function finalizarEdicao(lista, novoItem, btnId, txtOriginal, msgToast) {
-            if(editingItem.lista === lista) {
-                const index = db[lista].findIndex(i => i.id === editingItem.id);
-                if(index > -1) db[lista][index] = { ...db[lista][index], ...novoItem };
-                editingItem = { lista: null, id: null };
-                document.getElementById(btnId).innerText = txtOriginal;
-            } else { db[lista].push(novoItem); }
-            saveData(); showToast(msgToast || "Ação salva com sucesso!");
+            if(editingItem.lista === lista) { const index = db[lista].findIndex(i => i.id === editingItem.id); if(index > -1) db[lista][index] = { ...db[lista][index], ...novoItem }; editingItem = { lista: null, id: null }; document.getElementById(btnId).innerText = txtOriginal; } else { db[lista].push(novoItem); }
+            saveData(); showToast(msgToast || "Salvo com sucesso!");
         }
 
         function addVenda() {
-            const data = document.getElementById('v-data').value;
-            const produtoStr = document.getElementById('v-produto').value;
-            const pgto = document.getElementById('v-pgto').value;
-            const qtd = parseInt(document.getElementById('v-qtd').value) || 1;
-            const desconto = parseFloat(document.getElementById('v-desconto').value) || 0;
-            const entrega = parseFloat(document.getElementById('v-entrega').value) || 0;
+            const data = document.getElementById('v-data').value; const produtoStr = document.getElementById('v-produto').value; const pgto = document.getElementById('v-pgto').value; const isAsaas = document.getElementById('v-asaas').checked; const qtd = parseInt(document.getElementById('v-qtd').value) || 1; const desconto = parseFloat(document.getElementById('v-desconto').value) || 0; const entrega = parseFloat(document.getElementById('v-entrega').value) || 0;
             if(!data) return alert('Preencha a data');
-
-            const precoBase = produtoStr === 'Combo' ? db.config.precoCombo : db.config.precoUnd;
-            const produtoNome = produtoStr === 'Combo' ? 'Combo (3 und)' : 'Pudim 1 Und';
-            const valorBruto = precoBase * qtd;
-            const valorCobradoMaq = valorBruto - desconto; 
-            const valorTaxa = valorCobradoMaq * (getTaxaPercent(pgto) / 100);
-            
-            finalizarEdicao('vendas', { id: (editingItem.lista === 'vendas' ? editingItem.id : Date.now()), data, produto: produtoNome, pgto, qtd, desconto, valorBruto, valorTaxa, valorLiquido: valorCobradoMaq - valorTaxa, entrega }, 'btn-submit-vendas', 'Adicionar Venda', 'Venda adicionada!');
-            document.getElementById('v-qtd').value = '1'; document.getElementById('v-desconto').value = '0'; document.getElementById('v-entrega').value = '0';
+            const precoBase = produtoStr === 'Combo' ? db.config.precoCombo : db.config.precoUnd; const produtoNome = produtoStr === 'Combo' ? 'Combo (3 und)' : 'Pudim 1 Und'; const valorBruto = precoBase * qtd; const valorCobradoMaq = valorBruto - desconto; 
+            let valorTaxa = (pgto === 'PIX' && isAsaas) ? 0.14 : (valorCobradoMaq * (getTaxaPercent(pgto) / 100));
+            let oldNum = getNextNum(db.vendas); if(editingItem.lista === 'vendas') { const old = db.vendas.find(i=>i.id===editingItem.id); if(old) oldNum = old.num; }
+            finalizarEdicao('vendas', { id: (editingItem.lista === 'vendas' ? editingItem.id : Date.now()), num: oldNum, data, produto: produtoNome, pgto, asaas: isAsaas, qtd, desconto, valorBruto, valorTaxa, valorLiquido: valorCobradoMaq - valorTaxa, entrega }, 'btn-submit-vendas', 'Adicionar Venda', 'Venda Adicionada com Sucesso!');
+            document.getElementById('v-qtd').value = '1'; document.getElementById('v-desconto').value = '0'; document.getElementById('v-entrega').value = '0'; document.getElementById('v-asaas').checked = false;
         }
 
         function addAtacado() {
-            const data = document.getElementById('a-data').value; const cliente = document.getElementById('a-cliente').value; const qtd = parseInt(document.getElementById('a-qtd').value); const unitario = parseFloat(document.getElementById('a-valor').value);
-            const coposDevolvidos = parseInt(document.getElementById('a-copos').value) || 0; const desconto = parseFloat(document.getElementById('a-desconto').value) || 0; const status = document.getElementById('a-status').value;
-            if(!data || !cliente || !qtd || !unitario) return alert('Preencha os campos obrigatórios');
-            
-            const totalBruto = qtd * unitario;
-            finalizarEdicao('atacado', { id: (editingItem.lista==='atacado'?editingItem.id:Date.now()), data, cliente, qtd, unitario, coposDevolvidos, desconto, totalBruto: totalBruto, totalLiquido: totalBruto - desconto, status }, 'btn-submit-atacado', 'Adicionar Venda Atacado', 'Atacado registrado!');
+            const data = document.getElementById('a-data').value; const cliente = document.getElementById('a-cliente').value; const qtd = parseInt(document.getElementById('a-qtd').value); const unitario = parseFloat(document.getElementById('a-valor').value); const coposDevolvidos = parseInt(document.getElementById('a-copos').value) || 0; const desconto = parseFloat(document.getElementById('a-desconto').value) || 0; const status = document.getElementById('a-status').value;
+            if(!data || !cliente || !qtd || !unitario || isNaN(unitario)) return alert('Preencha os campos obrigatórios corretamente.');
+            const totalBruto = qtd * unitario; let oldNum = getNextNum(db.atacado); if(editingItem.lista === 'atacado') { const old = db.atacado.find(i=>i.id===editingItem.id); if(old) oldNum = old.num; }
+            finalizarEdicao('atacado', { id: (editingItem.lista==='atacado'?editingItem.id:Date.now()), num: oldNum, data, cliente, qtd, unitario, coposDevolvidos, desconto, totalBruto: totalBruto, totalLiquido: totalBruto - desconto, status }, 'btn-submit-atacado', 'Adicionar Venda Atacado', 'Pedido Atacado Salvo!');
             document.getElementById('a-cliente').value = ''; document.getElementById('a-qtd').value = ''; document.getElementById('a-valor').value = ''; document.getElementById('a-copos').value = '0'; document.getElementById('a-desconto').value = '0';
         }
 
         function addDespesa() {
             const data = document.getElementById('d-data').value; const item = document.getElementById('d-item').value; const qtd = parseFloat(document.getElementById('d-qtd').value); const unitario = parseFloat(document.getElementById('d-valor').value); const categoria = document.getElementById('d-categoria').value;
-            if(!data || !item || !qtd || !unitario) return alert('Preencha tudo');
-            finalizarEdicao('despesas', { id: (editingItem.lista==='despesas'?editingItem.id:Date.now()), data, item, qtd, unitario, total: qtd * unitario, categoria }, 'btn-submit-despesas', 'Adicionar Despesa', 'Despesa registrada!');
+            if(!data || !item || !qtd || !unitario || isNaN(unitario)) return alert('Preencha os campos corretamente.');
+            let oldNum = getNextNum(db.despesas); if(editingItem.lista === 'despesas') { const old = db.despesas.find(i=>i.id===editingItem.id); if(old) oldNum = old.num; }
+            finalizarEdicao('despesas', { id: (editingItem.lista==='despesas'?editingItem.id:Date.now()), num: oldNum, data, item, qtd, unitario, total: qtd * unitario, categoria }, 'btn-submit-despesas', 'Adicionar Despesa', 'Despesa Lançada!');
             document.getElementById('d-item').value = ''; document.getElementById('d-qtd').value = ''; document.getElementById('d-valor').value = '';
         }
 
         function addInvestimento() {
             const data = document.getElementById('i-data').value; const item = document.getElementById('i-item').value; const valor = parseFloat(document.getElementById('i-valor').value);
-            if(!data || !item || !valor) return alert('Preencha tudo');
-            finalizarEdicao('investimentos', { id: (editingItem.lista==='investimentos'?editingItem.id:Date.now()), data, item, valor }, 'btn-submit-investimentos', 'Adicionar Investimento', 'Investimento salvo!');
+            if(!data || !item || !valor || isNaN(valor)) return alert('Preencha os campos corretamente.');
+            finalizarEdicao('investimentos', { id: (editingItem.lista==='investimentos'?editingItem.id:Date.now()), data, item, valor }, 'btn-submit-investimentos', 'Adicionar Investimento', 'Investimento Salvo!');
             document.getElementById('i-item').value = ''; document.getElementById('i-valor').value = '';
         }
 
         function addPagamento() {
             const data = document.getElementById('p-data').value; const valor = parseFloat(document.getElementById('p-valor').value); const tipo = document.getElementById('p-tipo').value;
-            if(!data || !valor) return alert('Preencha tudo');
-            finalizarEdicao('pagamentos', { id: (editingItem.lista==='pagamentos'?editingItem.id:Date.now()), data, valor, tipo }, 'btn-submit-pagamentos', 'Registrar Retirada Manual', 'Saque registrado!');
+            if(!data || !valor || isNaN(valor)) return alert('Preencha os campos corretamente.');
+            finalizarEdicao('pagamentos', { id: (editingItem.lista==='pagamentos'?editingItem.id:Date.now()), data, valor, tipo }, 'btn-submit-pagamentos', 'Registrar Retirada Manual', 'Saque Registrado!');
             document.getElementById('p-valor').value = '';
-        }
-
-        function addProducao() {
-            const data = document.getElementById('prod-data').value; const qtd = parseInt(document.getElementById('prod-qtd').value);
-            if(!data || !qtd) return alert("Preencha a data e a quantidade de receitas!");
-            finalizarEdicao('producoes', { id: (editingItem.lista==='producoes'?editingItem.id:Date.now()), data, qtd }, 'btn-submit-producao', 'Registrar Produção', 'Receita registrada!');
-            document.getElementById('prod-qtd').value = '1';
-        }
-
-        function addEstoqueMov() {
-            const data = document.getElementById('mov-data').value; const tipo = document.getElementById('mov-tipo').value; const item = document.getElementById('mov-item').value; const qtd = parseFloat(document.getElementById('mov-qtd').value);
-            const desc = document.getElementById('mov-desc').value || (tipo === 'entrada' ? 'Entrada Manual' : 'Saída Manual');
-            if(!data || !qtd) return alert("Preencha a data e a quantidade!");
-            finalizarEdicao('estoqueMov', { id: (editingItem.lista==='estoqueMov'?editingItem.id:Date.now()), data, tipo, item, qtd, desc }, 'btn-submit-mov', 'Lançar Ajuste', 'Ajuste salvo!');
-            document.getElementById('mov-qtd').value = ''; document.getElementById('mov-desc').value = '';
         }
 
         function realizarSaque(tipoRequest) {
             let saldo = parseFloat(document.querySelector(`.global-${tipoRequest.toLowerCase().replace('maoobra', 'mo')}`).innerText.replace('R$','').replace('.','').replace(',','.').trim());
             if(tipoRequest === 'Divida') saldo = parseFloat(document.querySelector('.global-giro').innerText.replace('R$','').replace('.','').replace(',','.').trim());
+            let nomeCaixa = descTipoMap[tipoRequest] || tipoRequest; let valor = prompt(`Seu Saldo Livre Atual na caixa [${nomeCaixa}] é de: ${formatMoney(saldo)}\n\nDigite o valor EXATO que deseja retirar/abater agora:`);
+            if(!valor) return; valor = parseFloat(valor.replace(',', '.')); if(isNaN(valor) || valor <= 0) return alert("Valor inválido.");
+            db.pagamentos.push({ id: Date.now(), data: new Date().toISOString().split('T')[0], valor: valor, tipo: tipoRequest }); saveData(); showToast(`Saque de ${formatMoney(valor)} registrado!`);
+        }
 
-            let valor = prompt(`Seu Saldo Livre Atual na caixa [${descTipoMap[tipoRequest] || tipoRequest}] é de: ${formatMoney(saldo)}\n\nDigite o valor EXATO que deseja retirar/abater agora:`);
-            if(!valor) return; valor = parseFloat(valor.replace(',', '.'));
-            if(isNaN(valor) || valor <= 0) return alert("Valor inválido.");
+        function addProducao() {
+            const data = document.getElementById('prod-data').value; const qtd = parseInt(document.getElementById('prod-qtd').value);
+            if(!data || !qtd || isNaN(qtd)) return alert("Preencha a data e a quantidade de receitas!");
+            let oldNum = getNextNum(db.producoes); if(editingItem.lista === 'producoes') { const old = db.producoes.find(i=>i.id===editingItem.id); if(old) oldNum = old.num; }
+            finalizarEdicao('producoes', { id: (editingItem.lista==='producoes'?editingItem.id:Date.now()), num: oldNum, data, qtd }, 'btn-submit-producao', 'Registrar Produção', 'Receita Registrada!');
+            document.getElementById('prod-qtd').value = '1';
+        }
 
-            db.pagamentos.push({ id: Date.now(), data: new Date().toISOString().split('T')[0], valor: valor, tipo: tipoRequest });
-            saveData(); showToast("Retirada registrada!");
+        function addEstoqueMov() {
+            const data = document.getElementById('mov-data').value; const tipo = document.getElementById('mov-tipo').value; const item = document.getElementById('mov-item').value; const qtd = parseFloat(document.getElementById('mov-qtd').value); const desc = document.getElementById('mov-desc').value || (tipo === 'entrada' ? 'Entrada Manual' : 'Saída Manual');
+            if(!data || !qtd || isNaN(qtd)) return alert("Preencha a data e a quantidade corretamente!");
+            finalizarEdicao('estoqueMov', { id: (editingItem.lista==='estoqueMov'?editingItem.id:Date.now()), data, tipo, item, qtd, desc }, 'btn-submit-mov', 'Lançar Ajuste', 'Ajuste Manual Salvo!');
+            document.getElementById('mov-qtd').value = ''; document.getElementById('mov-desc').value = '';
         }
 
         function ajustarEstoqueRapido(itemKey, nomeItem) {
-            let atual = calcularSaldosEstoque()[itemKey];
-            let novo = prompt(`Estoque atual de ${nomeItem}: ${atual}\n\nDigite a quantidade REAL que você tem agora:`, atual);
-            if(novo === null || novo === "") return; novo = parseFloat(novo.replace(',', '.'));
-            if(isNaN(novo)) return alert("Valor inválido.");
+            let atual = calcularSaldosEstoque()[itemKey]; let novo = prompt(`Estoque atual de ${nomeItem}: ${atual}\n\nDigite a quantidade REAL que você tem agora:`, atual);
+            if(novo === null || novo === "") return; novo = parseFloat(novo.replace(',', '.')); if(isNaN(novo)) return alert("Valor inválido.");
             let diferenca = novo - atual; if(diferenca === 0) return;
-            
             db.estoqueMov.push({ id: Date.now(), data: new Date().toISOString().split('T')[0], tipo: diferenca > 0 ? 'entrada' : 'saida', item: itemKey, qtd: Math.abs(diferenca), desc: 'Ajuste Rápido' });
-            saveData(); showToast("Estoque ajustado!");
+            saveData(); showToast("Estoque Ajustado e Sincronizado!");
         }
 
-        function deletarItem(lista, id) { 
-            if(confirm("Certeza que deseja apagar este registro?")) { 
-                db[lista] = db[lista].filter(item => item.id !== id); 
-                saveData(); showToast("Apagado!", true);
-            } 
+        function marcarComoPago(id) {
+            if(currentUserRole !== 'admin') return alert("Sem permissão.");
+            const item = db.atacado.find(a => a.id === id);
+            if(item) { if(confirm(`Confirmar o recebimento de ${item.cliente}?`)) { item.status = 'PAGO'; editingItem = { lista: null, id: null }; saveData(); showToast('Recebimento Confirmado!'); } }
         }
 
-        // ================= UPDATE UI E MATEMÁTICA =================
+        function deletarItem(lista, id) {
+            if(confirm("Tem certeza que deseja apagar este registro?")) { db[lista] = db[lista].filter(item => item.id !== id); saveData(); showToast("Registro Apagado!", true); }
+        }
+
+        function updateAll() {
+            try { renderEstoque(); renderTabelas(); renderReceber(); renderRateio(); updateDashboard(); } catch(e) { console.error("Erro renderizando interface: ", e); }
+        }
+
         function calcularSaldosEstoque() {
             let saldos = { pudim: 0, leite_condensado: 0, leite_integral: 0, ovos: 0, acucar: 0, copo: 0, tampa: 0, sacola: 0, adesivo: 0, colher: 0 };
             db.estoqueMov.forEach(m => { if(m.tipo === 'entrada') saldos[m.item] += (m.qtd||0); else saldos[m.item] -= (m.qtd||0); });
-            db.producoes.forEach(p => { 
-                const q = p.qtd||0; saldos.pudim += q*6; saldos.leite_condensado -= q*1; saldos.leite_integral -= q*400; saldos.ovos -= q*3; saldos.acucar -= q*200; 
-                saldos.copo -= q*6; saldos.tampa -= q*6; saldos.adesivo -= q*6;
-            });
-            db.vendas.forEach(v => { const pStr = v.produto||''; const p = (pStr.includes('Combo')?3:1)*(v.qtd||1); saldos.pudim -= p; saldos.colher -= p; saldos.sacola -= 1; });
+            db.producoes.forEach(p => { const pq = p.qtd || 0; saldos.pudim += pq*6; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*400; saldos.ovos -= pq*3; saldos.acucar -= pq*200; saldos.copo -= pq*6; saldos.tampa -= pq*6; saldos.adesivo -= pq*6; });
+            db.vendas.forEach(v => { const pStr = v.produto || ''; const p = (pStr.includes('Combo')?3:1)*(v.qtd||1); saldos.pudim -= p; saldos.colher -= p; saldos.sacola -= 1; });
             db.atacado.forEach(a => { saldos.pudim -= (a.qtd||0); if(a.coposDevolvidos) saldos.copo += a.coposDevolvidos; });
             return saldos;
         }
 
-        function updateAll() {
-            loadConfigUI();
-            
-            // ESTOQUE
+        function renderEstoque() {
             let saldos = calcularSaldosEstoque();
             const mapKeys = ['pudim', 'leite_condensado', 'leite_integral', 'ovos', 'acucar', 'copo', 'tampa', 'sacola', 'adesivo', 'colher'];
             mapKeys.forEach(k => {
                 let el = document.getElementById('est-' + k);
                 if(el) {
-                    let v = saldos[k], suf = (k==='leite_integral') ? ' ml' : (k==='acucar' ? ' g' : ' un');
-                    el.innerText = v + suf; el.className = 'status-green';
-                    if (k === 'pudim') { if(v<=0)el.className='status-red'; else if(v<10)el.className='status-yellow'; }
-                    else if (k === 'leite_condensado') { if(v<=0)el.className='status-red'; else if(v<=2)el.className='status-yellow'; }
-                    else if (k === 'leite_integral') { if(v<=0)el.className='status-red'; else if(v<=800)el.className='status-yellow'; }
-                    else if (k === 'ovos') { if(v<=0)el.className='status-red'; else if(v<=6)el.className='status-yellow'; }
-                    else if (k === 'acucar') { if(v<=0)el.className='status-red'; else if(v<=400)el.className='status-yellow'; }
-                    else if (k === 'copo') { if(v<=0)el.className='status-red'; else if(v<24)el.className='status-yellow'; }
-                    else if (k === 'tampa' || k === 'adesivo' || k === 'colher') { if(v<70)el.className='status-red'; else if(v<150)el.className='status-yellow'; }
-                    else if (k === 'sacola') { if(v<=0)el.className='status-red'; else if(v<50)el.className='status-yellow'; }
+                    let val = saldos[k]; let suffix = (k==='leite_integral') ? ' ml' : (k==='acucar' ? ' g' : ' un');
+                    el.innerText = val + suffix; el.classList.remove('status-red', 'status-yellow', 'status-green', 'status-blink');
+                    let status = 'status-green';
+                    if (k === 'pudim') { if (val <= 0) status = 'status-red'; else if (val < 10) status = 'status-yellow'; }
+                    else if (k === 'leite_condensado') { if (val <= 0) status = 'status-red'; else if (val <= 2) status = 'status-yellow'; }
+                    else if (k === 'leite_integral') { if (val <= 0) status = 'status-red'; else if (val <= 800) status = 'status-yellow'; }
+                    else if (k === 'ovos') { if (val <= 0) status = 'status-red'; else if (val <= 6) status = 'status-yellow'; }
+                    else if (k === 'acucar') { if (val <= 0) status = 'status-red'; else if (val <= 400) status = 'status-yellow'; }
+                    else if (k === 'copo') { if (val <= 0) status = 'status-red'; else if (val < 24) status = 'status-yellow'; }
+                    else if (k === 'tampa' || k === 'adesivo' || k === 'colher') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
+                    else if (k === 'sacola') { if (val <= 0) status = 'status-red'; else if (val < 50) status = 'status-yellow'; }
+                    el.classList.add(status); if (val < 0) el.classList.add('status-blink');
                 }
             });
 
-            // TABELAS ESTOQUE
-            document.getElementById('tbody-producoes').innerHTML = db.producoes.sort(sortByDateDesc).map(p => `<tr><td>${formatData(p.data)}</td><td>${p.qtd} Rec</td><td style="color:var(--success)">+${(p.qtd||0)*6} Pudins</td><td><button class="btn-edit" onclick="prepararEdicao('producoes', ${p.id})">✏️</button><button class="btn-delete" onclick="deletarItem('producoes', ${p.id})">🗑️</button></td></tr>`).join('');
-            document.getElementById('tbody-estoquemov').innerHTML = db.estoqueMov.sort(sortByDateDesc).map(m => `<tr><td>${formatData(m.data)}</td><td>${m.item}</td><td style="color:${m.tipo==='entrada'?'var(--success)':'var(--danger)'}">${m.tipo==='entrada'?'+':'-'}${m.qtd}</td><td>${m.desc}</td><td><button class="btn-edit" onclick="prepararEdicao('estoqueMov', ${m.id})">✏️</button><button class="btn-delete" onclick="deletarItem('estoqueMov', ${m.id})">🗑️</button></td></tr>`).join('');
-            
-            // TABELAS VENDAS E ATACADO
-            document.getElementById('tbody-vendas').innerHTML = db.vendas.sort(sortByDateDesc).map(v => `<tr><td>${formatData(v.data)}</td><td>${v.produto}</td><td>${v.qtd||1}</td><td style="color:var(--primary)">${(v.desconto||0)>0?'-'+formatMoney(v.desconto):'-'}</td><td>${v.pgto}</td><td>${formatMoney(v.valorBruto||0)}</td><td style="color:red">-${formatMoney(v.valorTaxa||0)}</td><td style="color:#059669">+${formatMoney(v.entrega||0)}</td><td style="font-weight:bold">${formatMoney(v.valorLiquido||0)}</td><td><button class="btn-edit" onclick="prepararEdicao('vendas', ${v.id})">✏️</button><button class="btn-delete" onclick="deletarItem('vendas', ${v.id})">🗑️</button></td></tr>`).join('');
-            document.getElementById('tbody-atacado').innerHTML = db.atacado.sort(sortByDateDesc).map(v => `<tr><td>${formatData(v.data)}</td><td>${v.cliente}</td><td>${v.qtd}</td><td>${formatMoney(v.unitario||0)}</td><td>${formatMoney(v.totalBruto||((v.qtd||0)*(v.unitario||0)))}</td><td style="color:red">-${formatMoney(v.desconto||0)}<br><small>(${v.coposDevolvidos||0} un)</small></td><td style="font-weight:bold">${formatMoney(v.totalLiquido||v.total||0)}</td><td style="color:${v.status==='PAGO'?'green':'red'}; font-weight:bold">${v.status}</td><td><button class="btn-edit" onclick="prepararEdicao('atacado', ${v.id})">✏️</button><button class="btn-delete" onclick="deletarItem('atacado', ${v.id})">🗑️</button></td></tr>`).join('');
-            
-            // DESPESAS E INV
-            document.getElementById('tbody-despesas').innerHTML = db.despesas.sort(sortByDateDesc).map(d => `<tr><td>${formatData(d.data)}</td><td>${d.item}</td><td>${d.qtd}</td><td>${formatMoney(d.unitario||0)}</td><td style="color:red; font-weight:bold">${formatMoney(d.total||0)}</td><td>${d.categoria}</td><td><button class="btn-edit" onclick="prepararEdicao('despesas', ${d.id})">✏️</button><button class="btn-delete" onclick="deletarItem('despesas', ${d.id})">🗑️</button></td></tr>`).join('');
-            document.getElementById('tbody-investimentos').innerHTML = db.investimentos.sort(sortByDateDesc).map(i => `<tr><td>${formatData(i.data)}</td><td>${i.item}</td><td style="color:red; font-weight:bold">${formatMoney(i.valor||0)}</td><td><button class="btn-edit" onclick="prepararEdicao('investimentos', ${i.id})">✏️</button><button class="btn-delete" onclick="deletarItem('investimentos', ${i.id})">🗑️</button></td></tr>`).join('');
+            document.getElementById('tbody-producoes').innerHTML = db.producoes.sort(sortByDateDesc).map(p => `<tr><td style="font-weight:bold; color:var(--secondary)">#${p.num||'-'}</td><td>${formatData(p.data)}</td><td>${p.qtd} Receitas</td><td style="color:var(--success); font-weight:bold">+${(p.qtd||0)*6} Pudins</td><td style="white-space:nowrap;"><button class="btn-edit" onclick="prepararEdicao('producoes', ${p.id})">✏️</button><button class="btn-delete" onclick="deletarItem('producoes', ${p.id})">🗑️</button></td></tr>`).join('');
+            const mapItemNames = { leite_condensado: "Leite Condensado", leite_integral: "Leite Integral", ovos: "Ovos", acucar: "Açúcar", copo: "Copo Americano", tampa: "Tampas", sacola: "Sacolas", adesivo: "Adesivos", colher: "Colheres", pudim: "Pudins Prontos" };
+            document.getElementById('tbody-estoquemov').innerHTML = db.estoqueMov.sort(sortByDateDesc).map(m => `<tr><td>${formatData(m.data)}</td><td>${mapItemNames[m.item]}</td><td style="color:${m.tipo==='entrada'?'var(--success)':'var(--danger)'}; font-weight:bold">${m.tipo==='entrada'?'+':'-'}${m.qtd}</td><td>${m.desc}</td><td style="white-space:nowrap;"><button class="btn-edit" onclick="prepararEdicao('estoqueMov', ${m.id})">✏️</button><button class="btn-delete" onclick="deletarItem('estoqueMov', ${m.id})">🗑️</button></td></tr>`).join('');
+        }
 
-            // LINHA DO TEMPO
+        function renderTabelas() {
+            document.getElementById('tbody-vendas').innerHTML = db.vendas.sort(sortByDateDesc).map(v => `<tr><td style="font-weight:bold; color:var(--secondary)">#${v.num||'-'}</td><td>${formatData(v.data)}</td><td>${v.produto}</td><td>${v.qtd||1}</td><td style="color:var(--primary)">${(v.desconto||0) > 0 ? '-'+formatMoney(v.desconto) : '-'}</td><td>${v.pgto}${v.asaas ? ' <span style="font-size:0.7rem;color:#D97706">(Asaas)</span>' : ''}</td><td>${formatMoney(v.valorBruto||0)}</td><td style="color:red">-${formatMoney(v.valorTaxa||0)}</td><td style="color:#059669">+${formatMoney(v.entrega||0)}</td><td style="font-weight:bold">${formatMoney(v.valorLiquido||0)}</td><td style="white-space:nowrap;"><button class="btn-edit" onclick="prepararEdicao('vendas', ${v.id})">✏️</button><button class="btn-delete" onclick="deletarItem('vendas', ${v.id})">🗑️</button></td></tr>`).join('');
+            document.getElementById('tbody-atacado').innerHTML = db.atacado.sort(sortByDateDesc).map(v => `<tr><td style="font-weight:bold; color:var(--secondary)">#${v.num||'-'}</td><td>${formatData(v.data)}</td><td>${v.cliente}</td><td>${v.qtd}</td><td>${formatMoney(v.unitario||0)}</td><td>${formatMoney(v.totalBruto!==undefined?v.totalBruto:((v.qtd||0)*(v.unitario||0)))}</td><td style="color:red">-${formatMoney(v.desconto||0)}<br><small>(${v.coposDevolvidos||0} un)</small></td><td style="font-weight:bold">${formatMoney(v.totalLiquido!==undefined?v.totalLiquido:(v.total!==undefined?v.total:((v.qtd||0)*(v.unitario||0))-(v.desconto||0)))}</td><td style="color:${v.status==='PAGO'?'green':'red'}; font-weight:bold">${v.status}</td><td style="white-space:nowrap;"><button class="btn-edit" onclick="prepararEdicao('atacado', ${v.id})">✏️</button><button class="btn-delete" onclick="deletarItem('atacado', ${v.id})">🗑️</button></td></tr>`).join('');
+            document.getElementById('tbody-despesas').innerHTML = db.despesas.sort(sortByDateDesc).map(d => `<tr><td style="font-weight:bold; color:var(--secondary)">#${d.num||'-'}</td><td>${formatData(d.data)}</td><td>${d.item}</td><td>${d.qtd}</td><td>${formatMoney(d.unitario||0)}</td><td style="color:red; font-weight:bold">${formatMoney(d.total||0)}</td><td>${d.categoria}</td><td style="white-space:nowrap;"><button class="btn-edit" onclick="prepararEdicao('despesas', ${d.id})">✏️</button><button class="btn-delete" onclick="deletarItem('despesas', ${d.id})">🗑️</button></td></tr>`).join('');
+            document.getElementById('tbody-investimentos').innerHTML = db.investimentos.sort(sortByDateDesc).map(i => `<tr><td>${formatData(i.data)}</td><td>${i.item}</td><td style="color:red; font-weight:bold">${formatMoney(i.valor||0)}</td><td style="white-space:nowrap;"><button class="btn-edit" onclick="prepararEdicao('investimentos', ${i.id})">✏️</button><button class="btn-delete" onclick="deletarItem('investimentos', ${i.id})">🗑️</button></td></tr>`).join('');
+
+            const tbPag = document.getElementById('tbody-pagamentos'); tbPag.innerHTML = '';
             let timeline = [];
-            db.vendas.forEach(v => { const pStr = v.produto||''; const q = (pStr.includes('Combo')?3:1)*(v.qtd||1); const base = (v.valorLiquido||0) - (q*(db.config.custoInsumo||0)); const cg = base*0.15; const mo = base*0.20; const lucro = base-cg-mo; timeline.push({ id: v.id, data: v.data, tipoAcao: 'ganho', giro: lucro*0.50, mo: mo, luyan: lucro*0.175, beatriz: lucro*0.175 }); });
-            db.atacado.forEach(a => { if (a.status !== 'PAGO') return; const liq = a.totalLiquido||a.total||0; const insBase = (a.qtd||0)*(db.config.custoInsumo||0); const abatCopos = (a.coposDevolvidos||0)*(db.config.custoCopo||1.80); const ins = Math.max(0, insBase - abatCopos); const base = liq - ins; const cg = base*0.15; const mo = base*0.20; const lucro = base-cg-mo; timeline.push({ id: a.id, data: a.data, tipoAcao: 'ganho', giro: lucro*0.50, mo: mo, luyan: lucro*0.175, beatriz: lucro*0.175 }); });
+            db.vendas.forEach(v => { const pStr = v.produto || ''; const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1); const base = (v.valorLiquido||0) - (q * (db.config.custoInsumo||0)); const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo; timeline.push({ id: v.id, data: v.data, tipoAcao: 'ganho', giro: lucro * 0.50, mo: mo, luyan: lucro * 0.175, beatriz: lucro * 0.175 }); });
+            db.atacado.forEach(a => { if (a.status !== 'PAGO') return; const bruto = a.totalBruto !== undefined ? a.totalBruto : ((a.qtd||0) * (a.unitario||0)); const liq = a.totalLiquido !== undefined ? a.totalLiquido : (a.total !== undefined ? a.total : bruto - (a.desconto||0)); const insBase = (a.qtd||0) * (db.config.custoInsumo||0); const abatCopos = (a.coposDevolvidos || 0) * (db.config.custoCopo || 1.80); const ins = Math.max(0, insBase - abatCopos); const base = liq - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo; timeline.push({ id: a.id, data: a.data, tipoAcao: 'ganho', giro: lucro * 0.50, mo: mo, luyan: lucro * 0.175, beatriz: lucro * 0.175 }); });
             db.pagamentos.forEach(p => { timeline.push({ id: p.id, data: p.data, tipoAcao: 'saque', obj: p }); });
 
-            const sortByDateAsc = (a, b) => { let dA = (a && a.data) ? new Date(a.data).getTime() : 0; let dB = (b && b.data) ? new Date(b.data).getTime() : 0; if(isNaN(dA)) dA=0; if(isNaN(dB)) dB=0; return dA === dB ? (a.id||0) - (b.id||0) : dA - dB; };
             timeline.sort(sortByDateAsc);
-            
-            let saldosCx = { Divida: 0, MaoObra: 0, Luyan: 0, Beatriz: 0 };
-            let arrPags = [];
+
+            let saldos = { Divida: 0, MaoObra: 0, Luyan: 0, Beatriz: 0 };
+            let renderListaPagamentos = [];
+
             timeline.forEach(t => {
-                if(t.tipoAcao === 'ganho') { saldosCx.Divida+=t.giro; saldosCx.MaoObra+=t.mo; saldosCx.Luyan+=t.luyan; saldosCx.Beatriz+=t.beatriz; } 
-                else { let cType = t.obj.tipo||'Divida'; let ant = saldosCx[cType]||0; saldosCx[cType]-=(t.obj.valor||0); arrPags.push({ ...t.obj, saldoAnterior: ant, saldoAtual: saldosCx[cType]}); }
+                if(t.tipoAcao === 'ganho') { saldos.Divida += t.giro; saldos.MaoObra += t.mo; saldos.Luyan += t.luyan; saldos.Beatriz += t.beatriz; } 
+                else if(t.tipoAcao === 'saque') { let caixaType = t.obj.tipo || 'Divida'; let saldoAnterior = saldos[caixaType] || 0; saldos[caixaType] -= (t.obj.valor||0); renderListaPagamentos.push({ ...t.obj, saldoAnterior: saldoAnterior, saldoAtual: saldos[caixaType] }); }
             });
-            document.getElementById('tbody-pagamentos').innerHTML = arrPags.sort(sortByDateDesc).map(p => `<tr><td>${formatData(p.data)}</td><td style="font-weight:bold; color:var(--secondary)">${descTipoMap[p.tipo||'Divida']}</td><td style="color:#6B7280">${formatMoney(p.saldoAnterior)}</td><td style="color:var(--danger); font-weight:bold">-${formatMoney(p.valor||0)}</td><td style="color:${(p.saldoAtual||0)<0?'var(--danger)':'var(--success)'}; font-weight:bold">${formatMoney(p.saldoAtual)}</td><td style="white-space:nowrap;"><button class="btn-edit" onclick="prepararEdicao('pagamentos', ${p.id})">✏️</button><button class="btn-delete" onclick="deletarItem('pagamentos', ${p.id})">🗑️</button></td></tr>`).join('');
 
-            // RATEIO
-            document.getElementById('tbody-rateio-varejo').innerHTML = db.vendas.sort(sortByDateDesc).map(v => { const pStr = v.produto||''; const q = (pStr.includes('Combo')?3:1)*(v.qtd||1); const ins = q*(db.config.custoInsumo||0); const base = (v.valorLiquido||0)-ins; const cg=base*0.15; const mo=base*0.20; const lucro=base-cg-mo; return `<tr><td>${formatData(v.data)}</td><td>${pStr} (${v.qtd||1}x)</td><td style="font-weight:bold">${formatMoney(v.valorLiquido||0)}</td><td style="color:red">-${formatMoney(ins)}</td><td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td><td style="color:green; font-weight:bold">${formatMoney(lucro)}</td><td>${formatMoney(lucro*0.50)}</td><td>${formatMoney(lucro*0.15)}</td><td>${formatMoney(lucro*0.175)}</td><td>${formatMoney(lucro*0.175)}</td></tr>`; }).join('');
-            document.getElementById('tbody-rateio-atacado').innerHTML = db.atacado.sort(sortByDateDesc).map(a => { if(a.status!=='PAGO')return''; const liq = a.totalLiquido||a.total||0; const insBase = (a.qtd||0)*(db.config.custoInsumo||0); const abatCopos = (a.coposDevolvidos||0)*(db.config.custoCopo||1.80); const ins = Math.max(0, insBase-abatCopos); const base=liq-ins; const cg=base*0.15; const mo=base*0.20; const lucro=base-cg-mo; return `<tr><td>${formatData(a.data)}</td><td>${a.cliente} (${a.qtd||0}x)</td><td style="font-weight:bold">${formatMoney(liq)}</td><td style="color:red">-${formatMoney(ins)} <br><small style="color:green">${abatCopos>0?'(Eco: '+formatMoney(abatCopos)+')':''}</small></td><td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td><td style="color:green; font-weight:bold">${formatMoney(lucro)}</td><td>${formatMoney(lucro*0.50)}</td><td>${formatMoney(lucro*0.15)}</td><td>${formatMoney(lucro*0.175)}</td><td>${formatMoney(lucro*0.175)}</td></tr>`; }).join('');
+            renderListaPagamentos.sort(sortByDateDesc);
+            tbPag.innerHTML = renderListaPagamentos.map(p => `<tr><td>${formatData(p.data)}</td><td style="font-weight:bold; color:var(--secondary)">${descTipoMap[p.tipo || 'Divida']}</td><td style="color:#6B7280">${formatMoney(p.saldoAnterior)}</td><td style="color:var(--danger); font-weight:bold">-${formatMoney(p.valor||0)}</td><td style="color:${(p.saldoAtual||0) < 0 ? 'var(--danger)' : 'var(--success)'}; font-weight:bold">${formatMoney(p.saldoAtual)}</td><td style="white-space: nowrap;"><button class="btn-edit" onclick="prepararEdicao('pagamentos', ${p.id})">✏️</button><button class="btn-delete" onclick="deletarItem('pagamentos', ${p.id})">🗑️</button></td></tr>`).join('');
+        }
 
-            // DASHBOARDS
-            let vBruto=0, vLiquido=0, vQtd=0, vEntrega=0, vInsumo=0, vCG=0, vMO=0, vLucro=0, vGiro=0, vFundo=0, vLuyan=0, vBeatriz=0;
-            db.vendas.forEach(v => { vBruto+=(v.valorBruto||0); vLiquido+=(v.valorLiquido||0); vEntrega+=(v.entrega||0); const pStr=v.produto||''; const q = (pStr.includes('Combo')?3:1)*(v.qtd||1); vQtd+=q; const ins=q*(db.config.custoInsumo||0); const base=(v.valorLiquido||0)-ins; const cg=base*0.15; const mo=base*0.20; const lucro=base-cg-mo; vInsumo+=ins; vCG+=cg; vMO+=mo; vLucro+=lucro; vGiro+=lucro*0.50; vFundo+=lucro*0.15; vLuyan+=lucro*0.175; vBeatriz+=lucro*0.175; });
+        function renderReceber() {
+            const pendentes = db.atacado.filter(a => a.status === 'NÃO PAGO').sort(sortByDateDesc);
+            let total = 0; let html = '';
+            pendentes.forEach(a => {
+                const liq = a.totalLiquido !== undefined ? a.totalLiquido : (a.total !== undefined ? a.total : ((a.qtd||0)*(a.unitario||0)) - (a.desconto||0));
+                total += liq;
+                html += `<tr><td style="font-weight:bold; color:var(--secondary)">#${a.num||'-'}</td><td>${formatData(a.data)}</td><td>${a.cliente}</td><td>${a.qtd}</td><td style="color:var(--danger); font-weight:bold">${formatMoney(liq)}</td><td style="color:red; font-weight:bold">${a.status}</td><td><button class="btn-action-small" style="margin:0; background:var(--success);" onclick="marcarComoPago(${a.id})">💰 Pagar</button></td></tr>`;
+            });
+            document.getElementById('tbody-receber').innerHTML = html; document.getElementById('total-receber').innerText = formatMoney(total);
+        }
+
+        function renderRateio() {
+            let htmlVar = ''; let vLiq=0, vIns=0, vCg=0, vMo=0, vLucro=0, vGiro=0, vFundo=0, vLu=0, vBea=0;
+            db.vendas.sort(sortByDateDesc).forEach(v => {
+                const pStr = v.produto || ''; const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1);
+                const ins = q * (db.config.custoInsumo||0); const base = (v.valorLiquido||0) - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
+                const giro = lucro * 0.50, fundo = lucro * 0.15, luyan = lucro * 0.175, beatriz = lucro * 0.175;
+                vLiq+=(v.valorLiquido||0); vIns+=ins; vCg+=cg; vMo+=mo; vLucro+=lucro; vGiro+=giro; vFundo+=fundo; vLu+=luyan; vBea+=beatriz;
+
+                htmlVar += `<tr><td style="font-weight:bold; color:var(--secondary)">#${v.num||'-'}</td><td>${formatData(v.data)}</td><td>${pStr} (${v.qtd||1}x)</td><td style="font-weight:bold">${formatMoney(v.valorLiquido||0)}</td><td style="color:red">-${formatMoney(ins)}</td><td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td><td style="color:green; font-weight:bold">${formatMoney(lucro)}</td><td>${formatMoney(giro)}</td><td>${formatMoney(fundo)}</td><td>${formatMoney(luyan)}</td><td>${formatMoney(beatriz)}</td></tr>`;
+            });
+            if(db.vendas.length > 0) { htmlVar += `<tr class="tr-totais"><td colspan="3" style="text-align: right;">SOMA VAREJO:</td><td>${formatMoney(vLiq)}</td><td style="color:#FCA5A5">-${formatMoney(vIns)}</td><td style="color:#FCA5A5">-${formatMoney(vCg)}</td><td style="color:#FCA5A5">-${formatMoney(vMo)}</td><td style="color:#34D399">${formatMoney(vLucro)}</td><td>${formatMoney(vGiro)}</td><td>${formatMoney(vFundo)}</td><td>${formatMoney(vLu)}</td><td>${formatMoney(vBea)}</td></tr>`; }
+            document.getElementById('tbody-rateio-varejo').innerHTML = htmlVar;
+
+            let htmlAta = ''; let aLiq=0, aIns=0, aCg=0, aMo=0, aLucro=0, aGiro=0, aFundo=0, aLu=0, aBea=0;
+            db.atacado.filter(a=>a.status === 'PAGO').sort(sortByDateDesc).forEach(a => {
+                const bruto = a.totalBruto !== undefined ? a.totalBruto : ((a.qtd||0) * (a.unitario||0)); const liq = a.totalLiquido !== undefined ? a.totalLiquido : (a.total !== undefined ? a.total : bruto - (a.desconto||0));
+                const insBase = (a.qtd||0) * (db.config.custoInsumo||0); const abatCopos = (a.coposDevolvidos || 0) * (db.config.custoCopo || 1.80); const ins = Math.max(0, insBase - abatCopos); 
+                const base = liq - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
+                const giro = lucro * 0.50, fundo = lucro * 0.15, luyan = lucro * 0.175, beatriz = lucro * 0.175;
+                aLiq+=liq; aIns+=ins; aCg+=cg; aMo+=mo; aLucro+=lucro; aGiro+=giro; aFundo+=fundo; aLu+=luyan; aBea+=beatriz;
+
+                htmlAta += `<tr><td style="font-weight:bold; color:var(--secondary)">#${a.num||'-'}</td><td>${formatData(a.data)}</td><td>${a.cliente} (${a.qtd||0}x)</td><td style="font-weight:bold">${formatMoney(liq)}</td><td style="color:red">-${formatMoney(ins)} <br><small style="color:green">${abatCopos>0?'(Eco: '+formatMoney(abatCopos)+')':''}</small></td><td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td><td style="color:green; font-weight:bold">${formatMoney(lucro)}</td><td>${formatMoney(giro)}</td><td>${formatMoney(fundo)}</td><td>${formatMoney(luyan)}</td><td>${formatMoney(beatriz)}</td></tr>`;
+            });
+            if(db.atacado.filter(a=>a.status === 'PAGO').length > 0) { htmlAta += `<tr class="tr-totais"><td colspan="3" style="text-align: right;">SOMA ATACADO:</td><td>${formatMoney(aLiq)}</td><td style="color:#FCA5A5">-${formatMoney(aIns)}</td><td style="color:#FCA5A5">-${formatMoney(aCg)}</td><td style="color:#FCA5A5">-${formatMoney(aMo)}</td><td style="color:#34D399">${formatMoney(aLucro)}</td><td>${formatMoney(aGiro)}</td><td>${formatMoney(aFundo)}</td><td>${formatMoney(aLu)}</td><td>${formatMoney(aBea)}</td></tr>`; }
+            document.getElementById('tbody-rateio-atacado').innerHTML = htmlAta;
+        }
+
+        function updateDashboard() {
+            // 1. CALCULOS ABSOLUTOS (SALDOS GLOBAIS)
+            let abs_vIns=0, abs_vCg=0, abs_vMo=0, abs_vGiro=0, abs_vFundo=0, abs_vLu=0, abs_vBea=0;
+            db.vendas.forEach(v => { const pStr = v.produto || ''; const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1); const ins = q * (db.config.custoInsumo||0); const base = (v.valorLiquido||0) - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo; abs_vIns+=ins; abs_vCg+=cg; abs_vMo+=mo; abs_vGiro+=lucro*0.50; abs_vFundo+=lucro*0.15; abs_vLu+=lucro*0.175; abs_vBea+=lucro*0.175; });
             
-            let aBruto=0, aDesc=0, aLiquido=0, aQtd=0, aInsumo=0, aCG=0, aMO=0, aLucro=0, aGiro=0, aFundo=0, aLuyan=0, aBeatriz=0;
-            db.atacado.forEach(a => { if(a.status!=='PAGO')return; const bruto=a.totalBruto||((a.qtd||0)*(a.unitario||0)); const desc=a.desconto||0; const liq=a.totalLiquido||a.total||(bruto-desc); aBruto+=bruto; aDesc+=desc; aLiquido+=liq; aQtd+=(a.qtd||0); const insBase=(a.qtd||0)*(db.config.custoInsumo||0); const abatCopos=(a.coposDevolvidos||0)*(db.config.custoCopo||1.80); const ins=Math.max(0,insBase-abatCopos); const base=liq-ins; const cg=base*0.15; const mo=base*0.20; const lucro=base-cg-mo; aInsumo+=ins; aCG+=cg; aMO+=mo; aLucro+=lucro; aGiro+=lucro*0.50; aFundo+=lucro*0.15; aLuyan+=lucro*0.175; aBeatriz+=lucro*0.175; });
-            
-            let tInsumos=0, tEmbalagem=0, tGerais=0, tMarketing=0;
-            db.despesas.forEach(d => { if(d.categoria==='INSUMOS') tInsumos+=(d.total||0); else if(d.categoria==='EMBALAGEM') tEmbalagem+=(d.total||0); else if(d.categoria==='GASTOS GERAIS') tGerais+=(d.total||0); else if(d.categoria==='MARKETING') tMarketing+=(d.total||0); });
-            
-            let saquesGiro=0, saquesMO=0, saquesLuyan=0, saquesBeat=0;
-            db.pagamentos.forEach(p => { const t = p.tipo||'Divida'; if(t==='Divida') saquesGiro+=(p.valor||0); else if(t==='MaoObra') saquesMO+=(p.valor||0); else if(t==='Luyan') saquesLuyan+=(p.valor||0); else if(t==='Beatriz') saquesBeat+=(p.valor||0); });
+            let abs_aIns=0, abs_aCg=0, abs_aMo=0, abs_aGiro=0, abs_aFundo=0, abs_aLu=0, abs_aBea=0;
+            db.atacado.forEach(a => { if (a.status !== 'PAGO') return; const bruto = a.totalBruto !== undefined ? a.totalBruto : ((a.qtd||0) * (a.unitario||0)); const desc = a.desconto || 0; const liq = a.totalLiquido !== undefined ? a.totalLiquido : (a.total !== undefined ? a.total : bruto - desc); const insBase = (a.qtd||0) * (db.config.custoInsumo||0); const abatCopos = (a.coposDevolvidos || 0) * (db.config.custoCopo || 1.80); const ins = Math.max(0, insBase - abatCopos); const base = liq - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo; abs_aIns+=ins; abs_aCg+=cg; abs_aMo+=mo; abs_aGiro+=lucro*0.50; abs_aFundo+=lucro*0.15; abs_aLu+=lucro*0.175; abs_aBea+=lucro*0.175; });
 
-            document.getElementById('v-dash-bruto').innerText = formatMoney(vBruto); document.getElementById('v-dash-liquido').innerText = formatMoney(vLiquido); document.getElementById('v-dash-entrega').innerText = formatMoney(vEntrega); document.getElementById('v-dash-qtd').innerText = vQtd; document.getElementById('v-dash-insumos').innerText = formatMoney(vInsumo); document.getElementById('v-dash-cg').innerText = formatMoney(vCG); document.getElementById('v-dash-mo').innerText = formatMoney(vMO); document.getElementById('v-dash-lucro-restante').innerText = formatMoney(vLucro); document.getElementById('v-dash-giro').innerText = formatMoney(vGiro); document.getElementById('v-dash-fundo').innerText = formatMoney(vFundo); document.getElementById('v-dash-luyan').innerText = formatMoney(vLuyan); document.getElementById('v-dash-beatriz').innerText = formatMoney(vBeatriz);
-            document.getElementById('a-dash-bruto').innerText = formatMoney(aBruto); document.getElementById('a-dash-desconto').innerText = "- " + formatMoney(aDesc); document.getElementById('a-dash-liquido').innerText = formatMoney(aLiquido); document.getElementById('a-dash-qtd').innerText = aQtd; document.getElementById('a-dash-insumos').innerText = formatMoney(aInsumo); document.getElementById('a-dash-cg').innerText = formatMoney(aCG); document.getElementById('a-dash-mo').innerText = formatMoney(aMO); document.getElementById('a-dash-lucro-restante').innerText = formatMoney(aLucro); document.getElementById('a-dash-giro').innerText = formatMoney(aGiro); document.getElementById('a-dash-fundo').innerText = formatMoney(aFundo); document.getElementById('a-dash-luyan').innerText = formatMoney(aLuyan); document.getElementById('a-dash-beatriz').innerText = formatMoney(aBeatriz);
+            let tAbsInsumos=0, tAbsEmbalagem=0, tAbsGerais=0, tAbsMarketing=0; db.despesas.forEach(d => { if(d.categoria === 'INSUMOS') tAbsInsumos += (d.total||0); else if(d.categoria === 'EMBALAGEM') tAbsEmbalagem += (d.total||0); else if(d.categoria === 'GASTOS GERAIS') tAbsGerais += (d.total||0); else if(d.categoria === 'MARKETING') tAbsMarketing += (d.total||0); });
 
-            document.querySelectorAll('.global-faturamento').forEach(el => { el.innerText = formatMoney(vLiquido + aBruto); });
-            document.querySelectorAll('.global-pudins').forEach(el => { el.innerText = vQtd + aQtd; });
+            let sqGiro=0, sqMO=0, sqLu=0, sqBea=0; db.pagamentos.forEach(p => { if(p.tipo === 'Divida') sqGiro += (p.valor||0); else if(p.tipo === 'MaoObra') sqMO += (p.valor||0); else if(p.tipo === 'Luyan') sqLu += (p.valor||0); else if(p.tipo === 'Beatriz') sqBea += (p.valor||0); });
 
-            let saldoInsumo = (vInsumo + aInsumo) - (tInsumos + tEmbalagem);
-            let saldoCG = (vCG + aCG) - tGerais;
-            let saldoFundo = (vFundo + aFundo) - tMarketing;
-            let saldoMO = (vMO + aMO) - saquesMO;
-            let saldoLuyan = (vLuyan + aLuyan) - saquesLuyan;
-            let saldoBeatriz = (vBeatriz + aBeatriz) - saquesBeat;
-            let saldoGiro = (vGiro + aGiro) - saquesGiro;
-
-            const totalInvestimento = db.investimentos.reduce((a, c) => a + (c.valor||0), 0);
-            const roi = totalInvestimento - saquesGiro;
+            let saldoInsumo = (abs_vIns + abs_aIns) - (tAbsInsumos + tAbsEmbalagem); let saldoCG = (abs_vCg + abs_aCg) - tAbsGerais; let saldoFundo = (abs_vFundo + abs_aFundo) - tAbsMarketing; let saldoMO = (abs_vMo + abs_aMo) - sqMO; let saldoLuyan = (abs_vLu + abs_aLu) - sqLu; let saldoBeatriz = (abs_vBea + abs_aBea) - sqBea; let saldoGiro = (abs_vGiro + abs_aGiro) - sqGiro;
+            let totalNaContaFisica = saldoInsumo + saldoCG + saldoFundo + saldoMO + saldoLuyan + saldoBeatriz + saldoGiro;
+            const totalInvestimento = db.investimentos.reduce((acc, curr) => acc + (curr.valor||0), 0); const roi = totalInvestimento - sqGiro;
 
             const ap = (sel, val) => document.querySelectorAll(sel).forEach(el => { el.innerText = formatMoney(val); if(val<0) el.classList.add('alerta-negativo'); else el.classList.remove('alerta-negativo'); });
             ap('.global-insumos', saldoInsumo); ap('.global-cg', saldoCG); ap('.global-fundo', saldoFundo); ap('.global-mo', saldoMO); ap('.global-luyan', saldoLuyan); ap('.global-beatriz', saldoBeatriz); ap('.global-giro', saldoGiro);
             document.querySelectorAll('.global-roi').forEach(el => { el.innerText = roi > 0 ? "Falta " + formatMoney(roi) : "PAGO! Sobra: " + formatMoney(Math.abs(roi)); el.style.color = roi > 0 ? 'var(--danger)' : 'var(--success)'; });
+            
+            const elTotalConta = document.getElementById('global-total-conta');
+            if(elTotalConta) { elTotalConta.innerText = formatMoney(totalNaContaFisica); if(totalNaContaFisica < 0) elTotalConta.classList.add('alerta-negativo'); else elTotalConta.classList.remove('alerta-negativo'); }
 
-            document.getElementById('dash-desp-insumos').innerText = formatMoney(tInsumos); document.getElementById('dash-desp-embalagem').innerText = formatMoney(tEmbalagem); document.getElementById('dash-desp-gerais').innerText = formatMoney(tGerais); document.getElementById('dash-desp-marketing').innerText = formatMoney(tMarketing);
+            // 2. CALCULOS FILTRADOS (PARA OS CARDS DE RESUMO DE DESEMPENHO)
+            const filterMonth = document.getElementById('dash-filter-month') ? document.getElementById('dash-filter-month').value : '';
+            const filterFn = (item) => { if(!filterMonth) return true; return (item && item.data) ? item.data.startsWith(filterMonth) : false; };
+
+            const fVendas = db.vendas.filter(filterFn); const fAtacado = db.atacado.filter(filterFn); const fDespesas = db.despesas.filter(filterFn);
+
+            let vBruto = 0, vLiquido = 0, vQtd = 0, vEntrega = 0, vInsumo = 0, vCG = 0, vMO = 0, vLucro = 0, vGiro = 0, vFundo = 0, vLuyan = 0, vBeatriz = 0;
+            fVendas.forEach(v => { vBruto += (v.valorBruto||0); vLiquido += (v.valorLiquido||0); vEntrega += (v.entrega||0); const pStr = v.produto || ''; const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1); vQtd += q; const ins = q * (db.config.custoInsumo||0); const base = (v.valorLiquido||0) - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo; vInsumo += ins; vCG += cg; vMO += mo; vLucro += lucro; vGiro += lucro * 0.50; vFundo += lucro * 0.15; vLuyan += lucro * 0.175; vBeatriz += lucro * 0.175; });
+
+            let aBruto = 0, aDescCopos = 0, aLiquido = 0, aQtd = 0, aInsumo = 0, aCG = 0, aMO = 0, aLucro = 0, aGiro = 0, aFundo = 0, aLuyan = 0, aBeatriz = 0;
+            fAtacado.forEach(a => { if (a.status !== 'PAGO') return; const bruto = a.totalBruto !== undefined ? a.totalBruto : ((a.qtd||0) * (a.unitario||0)); const desc = a.desconto || 0; const liq = a.totalLiquido !== undefined ? a.totalLiquido : (a.total !== undefined ? a.total : bruto - desc); aBruto += bruto; aDescCopos += desc; aLiquido += liq; aQtd += (a.qtd||0); const insBase = (a.qtd||0) * (db.config.custoInsumo||0); const abatCopos = (a.coposDevolvidos || 0) * (db.config.custoCopo || 1.80); const ins = Math.max(0, insBase - abatCopos); const base = liq - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo; aInsumo += ins; aCG += cg; aMO += mo; aLucro += lucro; aGiro += lucro * 0.50; aFundo += lucro * 0.15; aLuyan += lucro * 0.175; aBeatriz += lucro * 0.175; });
+
+            let tDespesasFiltradas = 0; fDespesas.forEach(d => tDespesasFiltradas += (d.total||0));
+
+            document.getElementById('v-dash-bruto').innerText = formatMoney(vBruto); document.getElementById('v-dash-liquido').innerText = formatMoney(vLiquido); document.getElementById('v-dash-entrega').innerText = formatMoney(vEntrega); document.getElementById('v-dash-qtd').innerText = vQtd; document.getElementById('v-dash-insumos').innerText = formatMoney(vInsumo); document.getElementById('v-dash-cg').innerText = formatMoney(vCG); document.getElementById('v-dash-mo').innerText = formatMoney(vMO); document.getElementById('v-dash-lucro-restante').innerText = formatMoney(vLucro); document.getElementById('v-dash-giro').innerText = formatMoney(vGiro); document.getElementById('v-dash-fundo').innerText = formatMoney(vFundo); document.getElementById('v-dash-luyan').innerText = formatMoney(vLuyan); document.getElementById('v-dash-beatriz').innerText = formatMoney(vBeatriz);
+            document.getElementById('a-dash-bruto').innerText = formatMoney(aBruto); document.getElementById('a-dash-desconto').innerText = "- " + formatMoney(aDescCopos); document.getElementById('a-dash-liquido').innerText = formatMoney(aLiquido); document.getElementById('a-dash-qtd').innerText = aQtd; document.getElementById('a-dash-insumos').innerText = formatMoney(aInsumo); document.getElementById('a-dash-cg').innerText = formatMoney(aCG); document.getElementById('a-dash-mo').innerText = formatMoney(aMO); document.getElementById('a-dash-lucro-restante').innerText = formatMoney(aLucro); document.getElementById('a-dash-giro').innerText = formatMoney(aGiro); document.getElementById('a-dash-fundo').innerText = formatMoney(aFundo); document.getElementById('a-dash-luyan').innerText = formatMoney(aLuyan); document.getElementById('a-dash-beatriz').innerText = formatMoney(aBeatriz);
+            if(document.getElementById('dash-desp-total')) document.getElementById('dash-desp-total').innerText = formatMoney(tDespesasFiltradas);
         }
 
         init();
