@@ -128,8 +128,8 @@
             <p style="margin-bottom: 1.5rem; color: #666; font-size: 0.9rem;">Acesso Restrito ao Sistema</p>
             <input type="email" id="login-email" placeholder="E-mail" autocomplete="off">
             <input type="password" id="login-password" placeholder="Senha">
-            <button onclick="fazerLogin()">Entrar no Sistema</button>
-            <p id="login-error" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; display: none;">Email ou senha incorretos!</p>
+            <button id="btn-login-action" onclick="fazerLogin()">Entrar no Sistema</button>
+            <p id="login-error" style="color: var(--danger); font-size: 0.8rem; margin-top: 15px; display: none; font-weight: 600; padding: 10px; background: #FEE2E2; border-radius: 5px;"></p>
         </div>
     </div>
 
@@ -159,7 +159,6 @@
         </div>
 
         <div id="dashboard-geral" class="content active">
-            
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; background: var(--card-bg); padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                 <div style="display: flex; flex-direction: column;">
                     <label style="font-size: 0.8rem; color: var(--secondary);">Filtrar Resultados por Mês:</label>
@@ -171,7 +170,6 @@
 
             <h2 class="section-title" style="color: #10B981; border-color:#10B981;">💰 VISÃO GERAL: TOTAL NA CONTA (FÍSICO)</h2>
             <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">O Dinheiro Real e os Saldos Globais <b>NÃO</b> sofrem interferência do filtro de mês, pois representam o valor absoluto acumulado na carteira.</p>
-            
             <div class="dashboard-grid">
                 <div class="card destaque" style="grid-column: 1 / -1; display: flex; flex-direction: row; justify-content: space-between; align-items: center; border-left-color: #10B981; background: #111827; color: white;">
                     <div><h3 style="margin-bottom: 0; color: #9CA3AF;">Dinheiro Real em Caixa</h3>
@@ -189,12 +187,10 @@
                 <div class="card"><h3>Faturamento Líquido</h3><p id="v-dash-liquido">R$ 0,00</p></div>
                 <div class="card"><h3>Receita de Entrega</h3><p id="v-dash-entrega">R$ 0,00</p></div>
                 <div class="card"><h3>Pudins Vendidos</h3><p id="v-dash-qtd">0</p></div>
-                
                 <div class="card" style="border-left-color: #EF4444;"><h3>Insumo Fixo Gerado</h3><p id="v-dash-insumos" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #EF4444;"><h3>Custos Gerais (15%)</h3><p id="v-dash-cg" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #EF4444;"><h3>Mão de Obra (20%)</h3><p id="v-dash-mo" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #10B981;"><h3>Lucro Restante</h3><p id="v-dash-lucro-restante" style="color: #10B981;">R$ 0,00</p></div>
-                
                 <div class="card" style="border-left-color: #8B5CF6;"><h3>Giro Gerado (50%)</h3><p id="v-dash-giro">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo Gerado (15%)</h3><p id="v-dash-fundo">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #F59E0B;"><h3>Luyan Gerado (17.5%)</h3><p id="v-dash-luyan">R$ 0,00</p></div>
@@ -207,12 +203,10 @@
                 <div class="card"><h3>Desc. Logística Reversa</h3><p id="a-dash-desconto" style="color: var(--danger)">R$ 0,00</p></div>
                 <div class="card"><h3>Faturamento Líquido</h3><p id="a-dash-liquido">R$ 0,00</p></div>
                 <div class="card"><h3>Pudins Vendidos</h3><p id="a-dash-qtd">0</p></div>
-                
                 <div class="card" style="border-left-color: #EF4444;"><h3>Insumo Fixo Gerado</h3><p id="a-dash-insumos" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #EF4444;"><h3>Custos Gerais (15%)</h3><p id="a-dash-cg" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #EF4444;"><h3>Mão de Obra (20%)</h3><p id="a-dash-mo" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #10B981;"><h3>Lucro Restante</h3><p id="a-dash-lucro-restante" style="color: #10B981;">R$ 0,00</p></div>
-                
                 <div class="card" style="border-left-color: #8B5CF6;"><h3>Giro Gerado (50%)</h3><p id="a-dash-giro">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo Gerado (15%)</h3><p id="a-dash-fundo">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #F59E0B;"><h3>Luyan Gerado (17.5%)</h3><p id="a-dash-luyan">R$ 0,00</p></div>
@@ -220,9 +214,7 @@
             </div>
 
             <div class="dashboard-grid mt-2">
-                <div class="card" style="border-left-color: #3B82F6;">
-                    <h3>Total Despesas (Filtro)</h3><p id="dash-desp-total" style="color: #EF4444;">R$ 0,00</p>
-                </div>
+                <div class="card" style="border-left-color: #3B82F6;"><h3>Total Despesas (Filtro)</h3><p id="dash-desp-total" style="color: #EF4444;">R$ 0,00</p></div>
             </div>
         </div>
 
@@ -265,7 +257,6 @@
                     <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('acucar', 'Açúcar (g)')">✏️</button>
                     <h3>Açúcar</h3><p id="est-acucar" class="status-green">0 g</p>
                 </div>
-                
                 <div class="card estoque-card" style="border-left-color: #8B5CF6;">
                     <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('copo', 'Copo Americano (Vazio)')">✏️</button>
                     <h3>Copo Americano<br><small>(Vazios)</small></h3><p id="est-copo" class="status-green">0 un</p>
@@ -333,7 +324,7 @@
             <div style="display:flex; gap:10px; margin-top: 2rem; flex-wrap: wrap;">
                 <div style="flex:1; min-width:300px;" class="table-container">
                     <h3 class="section-title">Histórico de Receitas</h3>
-                    <table><thead><tr><th>Nº</th><th>Data</th><th>Receitas</th><th>Ação</th></tr></thead><tbody id="tbody-producoes"></tbody></table>
+                    <table><thead><tr><th>Nº</th><th>Data</th><th>Receitas</th><th>Qtd</th><th>Ação</th></tr></thead><tbody id="tbody-producoes"></tbody></table>
                 </div>
                 <div style="flex:2; min-width:300px;" class="table-container">
                     <h3 class="section-title">Histórico de Ajustes Manuais</h3>
@@ -455,6 +446,18 @@
         </div>
 
         <div id="despesas" class="content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; flex-wrap: wrap;">
+                <h2 class="section-title" style="margin:0; border:none;">Dashboard de Despesas</h2>
+                <button class="btn-excel" onclick="exportarExcel()">📊 Exportar para Excel</button>
+            </div>
+            
+            <div class="dashboard-grid" style="margin-bottom: 2rem;">
+                <div class="card" style="border-left-color: #3B82F6;"><h3>Total Insumos</h3><p id="dash-desp-insumos">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #F59E0B;"><h3>Total Embalagem</h3><p id="dash-desp-embalagem">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #EF4444;"><h3>Total Gastos Gerais</h3><p id="dash-desp-gerais">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #8B5CF6;"><h3>Total Marketing</h3><p id="dash-desp-marketing">R$ 0,00</p></div>
+            </div>
+
             <h2 class="section-title">Registrar Despesas/Compras</h2>
             <div class="card">
                 <div class="form-grid">
@@ -545,9 +548,6 @@
         let isOnline = firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLE_SUA_API_KEY_AQUI";
         if(isOnline) { firebase.initializeApp(firebaseConfig); }
 
-        // =========================================================
-        // DADOS LOCAIS
-        // =========================================================
         let db = { config: { precoUnd: 15, precoCombo: 40, custoInsumo: 5.95, taxaCredIns: 4.98, taxaCredApr: 3.09, taxaDebIns: 1.99, taxaDebApr: 0.89, custoCopo: 1.5, taxaCartaoOnline: 2.99 }, vendas: [], atacado: [], despesas: [], investimentos: [], pagamentos: [], producoes: [], estoqueMov: [] };
         
         let currentUserRole = 'viewer';
@@ -639,11 +639,30 @@
             }
         }
 
+        // ================= NOVO MOTOR DE ERRO DE LOGIN =================
         function fazerLogin() {
             const e = document.getElementById('login-email').value;
             const p = document.getElementById('login-password').value;
-            firebase.auth().signInWithEmailAndPassword(e, p).catch(err => {
-                document.getElementById('login-error').style.display = 'block';
+            const errorEl = document.getElementById('login-error');
+            
+            if(!e || !p) {
+                errorEl.innerText = "Por favor, preencha e-mail e senha.";
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            errorEl.style.display = 'none';
+            
+            firebase.auth().signInWithEmailAndPassword(e, p)
+            .catch(err => {
+                let msg = "Erro: " + err.message;
+                if(err.code === 'auth/invalid-email') msg = "O formato do e-mail é inválido.";
+                else if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') msg = "E-mail não cadastrado ou senha incorreta.";
+                else if(err.code === 'auth/too-many-requests') msg = "Muitas tentativas falhas. Conta bloqueada temporariamente.";
+                else if(err.code === 'auth/network-request-failed') msg = "Sem conexão com a internet.";
+                
+                errorEl.innerText = msg;
+                errorEl.style.display = 'block';
             });
         }
 
@@ -961,12 +980,32 @@
             db.estoqueMov.forEach(m => { if(m.tipo === 'entrada') saldos[m.item] += m.qtd; else saldos[m.item] -= m.qtd; });
             
             db.producoes.forEach(p => { 
-                saldos.pudim += p.qtd*6; saldos.leite_condensado -= p.qtd*1; saldos.leite_integral -= p.qtd*400; saldos.ovos -= p.qtd*3; saldos.acucar -= p.qtd*200; 
-                saldos.copo -= p.qtd*6; saldos.tampa -= p.qtd*6; saldos.adesivo -= p.qtd*6;
+                saldos.pudim += p.qtd*6; 
+                saldos.leite_condensado -= p.qtd*1; 
+                saldos.leite_integral -= p.qtd*400; 
+                saldos.ovos -= p.qtd*3; 
+                saldos.acucar -= p.qtd*200; 
+                
+                // Embalagens usadas na produção para guardar o pudim na geladeira
+                saldos.copo -= p.qtd*6;
+                saldos.tampa -= p.qtd*6;
+                saldos.adesivo -= p.qtd*6;
             });
             
-            db.vendas.forEach(v => { const p = (v.produto.includes('Combo')?3:1)*(v.qtd||1); saldos.pudim -= p; saldos.colher -= p; saldos.sacola -= 1; });
-            db.atacado.forEach(a => { saldos.pudim -= a.qtd; if(a.coposDevolvidos) saldos.copo += a.coposDevolvidos; });
+            db.vendas.forEach(v => { 
+                const p = (v.produto.includes('Combo')?3:1)*(v.qtd||1); 
+                saldos.pudim -= p; 
+                
+                // Embalagens exclusivas da entrega no varejo
+                saldos.colher -= p; 
+                saldos.sacola -= 1; 
+            });
+            
+            db.atacado.forEach(a => { 
+                saldos.pudim -= a.qtd; 
+                if(a.coposDevolvidos) saldos.copo += a.coposDevolvidos; 
+            });
+            
             return saldos;
         }
 
@@ -985,13 +1024,15 @@
                     else if (k === 'ovos') { if (val <= 0) status = 'status-red'; else if (val <= 6) status = 'status-yellow'; }
                     else if (k === 'acucar') { if (val <= 0) status = 'status-red'; else if (val <= 400) status = 'status-yellow'; }
                     else if (k === 'copo') { if (val <= 0) status = 'status-red'; else if (val < 24) status = 'status-yellow'; }
-                    else if (k === 'tampa' || k === 'adesivo' || k === 'colher') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
+                    else if (k === 'tampa') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
                     else if (k === 'sacola') { if (val <= 0) status = 'status-red'; else if (val < 50) status = 'status-yellow'; }
+                    else if (k === 'adesivo') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
+                    else if (k === 'colher') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
                     el.classList.add(status); if (val < 0) el.classList.add('status-blink');
                 }
             });
 
-            document.getElementById('tbody-producoes').innerHTML = db.producoes.sort((a,b)=>new Date(b.data)-new Date(a.data)).map(p => `<tr><td>#${p.num||'-'}</td><td>${formatData(p.data)}</td><td>${p.qtd} Receitas</td><td style="color:var(--success); font-weight:bold">+${p.qtd*6} Pudins</td><td style="white-space:nowrap;"><button class="btn-edit" onclick="prepararEdicao('producoes', ${p.id})">✏️</button><button class="btn-delete" onclick="deletarItem('producoes', ${p.id})">🗑️</button></td></tr>`).join('');
+            document.getElementById('tbody-producoes').innerHTML = db.producoes.sort((a,b)=>new Date(b.data)-new Date(a.data)).map(p => `<tr><td style="font-weight:bold; color:var(--secondary)">#${p.num||'-'}</td><td>${formatData(p.data)}</td><td>${p.qtd} Receitas</td><td style="color:var(--success); font-weight:bold">+${p.qtd*6} Pudins</td><td style="white-space:nowrap;"><button class="btn-edit" onclick="prepararEdicao('producoes', ${p.id})">✏️</button><button class="btn-delete" onclick="deletarItem('producoes', ${p.id})">🗑️</button></td></tr>`).join('');
             const mapItemNames = { leite_condensado: "Leite Condensado", leite_integral: "Leite Integral", ovos: "Ovos", acucar: "Açúcar", copo: "Copo Americano", tampa: "Tampas", sacola: "Sacolas", adesivo: "Adesivos", colher: "Colheres", pudim: "Pudins Prontos" };
             document.getElementById('tbody-estoquemov').innerHTML = db.estoqueMov.sort((a,b)=>new Date(b.data)-new Date(a.data)).map(m => `<tr><td>${formatData(m.data)}</td><td>${mapItemNames[m.item]}</td><td style="color:${m.tipo==='entrada'?'var(--success)':'var(--danger)'}; font-weight:bold">${m.tipo==='entrada'?'+':'-'}${m.qtd}</td><td>${m.desc}</td><td style="white-space:nowrap;"><button class="btn-edit" onclick="prepararEdicao('estoqueMov', ${m.id})">✏️</button><button class="btn-delete" onclick="deletarItem('estoqueMov', ${m.id})">🗑️</button></td></tr>`).join('');
         }
@@ -1090,7 +1131,7 @@
         }
 
         function updateDashboard() {
-            // 1. CALCULOS ABSOLUTOS (TODOS OS TEMPOS - PARA OS SALDOS GLOBAIS)
+            // 1. CALCULOS ABSOLUTOS (TODOS OS TEMPOS - PARA OS SALDOS GLOBAIS E DINHEIRO NA CONTA)
             let abs_vIns=0, abs_vCg=0, abs_vMo=0, abs_vGiro=0, abs_vFundo=0, abs_vLu=0, abs_vBea=0;
             db.vendas.forEach(v => {
                 const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
