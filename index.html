@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pudim Du Cariri - ERP v2.0</title>
+    <title>Pudim Du Cariri - ERP vFinal</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -48,25 +48,25 @@
 
         /* TABS */
         .tabs { display: flex; overflow-x: auto; background: var(--card-bg); padding: 0 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .tabs::-webkit-scrollbar { height: 0px; background: transparent; } /* Hide scrollbar */
+        .tabs::-webkit-scrollbar { height: 0px; background: transparent; }
         .tab-btn { background: none; border: none; padding: 1rem 1.2rem; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; white-space: nowrap; }
         .tab-btn:hover { color: var(--primary); background-color: #FFFBEB; }
         .tab-btn.active { border-bottom-color: var(--primary); color: var(--primary); }
 
-        .content { padding: 0 1.5rem; max-width: 1600px; margin: 0 auto; display: none; animation: fadeIn 0.3s ease-in-out; }
+        .content { padding: 0 1rem; max-width: 1600px; margin: 0 auto; display: none; animation: fadeIn 0.3s ease-in-out; }
         .content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         /* CARDS */
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-        .card { background: var(--card-bg); padding: 1.2rem; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 5px solid var(--primary); display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s; position: relative; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.8rem; margin-bottom: 1.5rem; }
+        .card { background: var(--card-bg); padding: 1rem; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 5px solid var(--primary); display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s; position: relative; }
         .card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .card h3 { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; }
-        .card p { font-size: 1.5rem; font-weight: 800; color: var(--text-main); line-height: 1.2; letter-spacing: -0.02em; }
+        .card h3 { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; }
+        .card p { font-size: 1.4rem; font-weight: 800; color: var(--text-main); line-height: 1.1; letter-spacing: -0.02em; }
         
         .card.destaque { background: #111827; color: white; border-left-color: #10B981; }
         .card.destaque h3 { color: #9CA3AF; }
-        .card.destaque p { color: #10B981; font-size: 2.5rem; }
+        .card.destaque p { color: #10B981; font-size: 2.2rem; }
 
         /* FORMS */
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
@@ -80,13 +80,21 @@
 
         /* TABLES */
         .table-container { overflow-x: auto; background: var(--card-bg); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; font-size: 0.85rem; }
+        
+        /* Tabela Compacta para Histórico no Mobile */
+        .table-compact table { min-width: 100% !important; }
+        .table-compact th, .table-compact td { padding: 0.6rem 0.4rem; font-size: 0.8rem; }
+
         th, td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
         th { background: #F3F4F6; color: var(--secondary); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
         tbody tr:nth-child(even) { background-color: #F9FAFB; }
         tbody tr:hover { background-color: #F3F4F6; }
         
-        /* BOTÕES DE AÇÃO NA TABELA */
+        /* LINHA DE TOTAL */
+        .tr-totais td { background-color: #1F2937 !important; color: #FDE68A !important; font-weight: 800; border-top: 2px solid #000; font-size: 0.9rem; }
+
+        /* BUTTONS */
         .btn-icon { padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.85rem; transition: 0.2s; margin-right: 4px; display: inline-flex; align-items: center; justify-content: center; color: white; }
         .btn-edit { background-color: var(--info); } .btn-edit:hover { background-color: #2563EB; }
         .btn-delete { background-color: var(--danger); } .btn-delete:hover { background-color: #DC2626; }
@@ -94,8 +102,8 @@
 
         .btn-action-small { margin-top: 10px; font-size: 0.8rem; padding: 6px 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; text-transform: uppercase; }
 
-        .section-title { margin-bottom: 1.2rem; color: var(--secondary); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem; font-weight: 800; }
-        .global-title { background: var(--secondary); color: #FDE68A; padding: 0.8rem; border-radius: 8px; margin: 2rem 0 1rem 0; text-align: center; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+        .section-title { margin-bottom: 1.2rem; color: var(--secondary); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; font-weight: 800; }
+        .global-title { background: var(--secondary); color: #FDE68A; padding: 0.8rem; border-radius: 8px; margin: 2rem 0 1rem 0; text-align: center; font-size: 1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
 
         /* ESTOQUE COLORS */
         .status-green { color: var(--success); font-weight: 700; }
@@ -105,7 +113,6 @@
         .btn-edit-stock { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.05); padding: 5px; border-radius: 50%; border: none; cursor: pointer; transition: 0.2s; }
         .btn-edit-stock:hover { background: var(--primary); color: white; }
 
-        /* MODO VISUALIZADOR */
         body.viewer-mode .btn-submit, body.viewer-mode .btn-delete, body.viewer-mode .btn-edit, 
         body.viewer-mode .btn-edit-stock, body.viewer-mode .btn-action-small, 
         body.viewer-mode .header-actions button:not(#btn-logout), 
@@ -170,7 +177,7 @@
             <h2 class="section-title" style="color: var(--success); border-color: var(--success);">💰 CAIXA REAL (FÍSICO)</h2>
             
             <div class="dashboard-grid">
-                <div class="card destaque" style="grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; padding: 2rem;">
+                <div class="card destaque" style="grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; padding: 1.5rem;">
                     <div><h3 style="margin-bottom: 5px;">Dinheiro Total Disponível</h3>
                         <p id="global-total-conta">R$ 0,00</p>
                     </div>
@@ -329,9 +336,9 @@
             </div>
             
             <div style="display:flex; gap:1.5rem; margin-top: 2rem; flex-wrap: wrap;">
-                <div style="flex:1; min-width:300px;" class="table-container">
+                <div style="flex:1; min-width:300px;" class="table-container table-compact">
                     <h3 class="section-title" style="border:none; margin-bottom:10px;">Histórico Receitas</h3>
-                    <table><thead><tr><th>Data</th><th>Qtd</th><th>Ação</th></tr></thead><tbody id="tbody-producoes"></tbody></table>
+                    <table><thead><tr><th>Data</th><th style="text-align:center">Qtd</th><th style="text-align:center">Ação</th></tr></thead><tbody id="tbody-producoes"></tbody></table>
                 </div>
                 <div style="flex:1; min-width:300px;" class="table-container">
                     <h3 class="section-title" style="border:none; margin-bottom:10px;">Histórico Ajustes</h3>
@@ -674,7 +681,7 @@
         if(tabId === 'config') renderConfig(); // Garante que a config carregue
     }
     
-    // --- RENDER CONFIG (A CORREÇÃO PRINCIPAL) ---
+    // --- RENDER CONFIG ---
     function renderConfig() {
         if(!db.config) return;
         document.getElementById('cfg-preco-und').value = db.config.precoUnd;
@@ -718,8 +725,6 @@
         const item = db[lista].find(i => i.id === id);
         if(!item) return;
         editingItem = { lista, id };
-        
-        // Scroll suave para o topo
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
         if(lista === 'vendas') { 
@@ -733,6 +738,8 @@
         else if(lista === 'despesas') { switchTab('despesas'); document.getElementById('d-data').value = item.data; document.getElementById('d-item').value = item.item; document.getElementById('d-qtd').value = item.qtd; document.getElementById('d-valor').value = item.unitario; document.getElementById('d-categoria').value = item.categoria; document.getElementById('btn-submit-despesas').innerText = "Salvar Alteração"; }
         else if(lista === 'investimentos') { switchTab('investimentos'); document.getElementById('i-data').value = item.data; document.getElementById('i-item').value = item.item; document.getElementById('i-valor').value = item.valor; document.getElementById('btn-submit-investimentos').innerText = "Salvar Alteração"; }
         else if(lista === 'pagamentos') { switchTab('extrato'); document.getElementById('p-data').value = item.data; document.getElementById('p-valor').value = item.valor; document.getElementById('p-tipo').value = item.tipo || 'Divida'; document.getElementById('btn-submit-pagamentos').innerText = "Salvar Alteração"; }
+        else if(lista === 'producoes') { switchTab('estoque'); document.getElementById('prod-data').value = item.data; document.getElementById('prod-qtd').value = item.qtd; document.getElementById('btn-submit-producao').innerText = "Salvar Alteração"; }
+        else if(lista === 'estoqueMov') { switchTab('estoque'); document.getElementById('mov-data').value = item.data; document.getElementById('mov-tipo').value = item.tipo; document.getElementById('mov-item').value = item.item; document.getElementById('mov-qtd').value = item.qtd; document.getElementById('mov-desc').value = item.desc; document.getElementById('btn-submit-mov').innerText = "Salvar Alteração"; }
     }
 
     function toggleAsaas() {
@@ -872,7 +879,7 @@
         updateDashboard();
         renderEstoque();
         renderTabelas();
-        renderConfig(); // Chama o config aqui para garantir
+        renderConfig();
     }
     
     function calcularSaldosEstoque() {
@@ -899,14 +906,18 @@
                 el.classList.add(val <= 0 ? 'status-red' : 'status-green');
             }
         });
-        document.getElementById('tbody-producoes').innerHTML = db.producoes.sort(sortByDateDesc).map(p => `<tr><td>${formatData(p.data)}</td><td>${p.qtd}</td><td><button class="btn-icon btn-delete" onclick="db.producoes=db.producoes.filter(x=>x.id!=${p.id}); saveData()">🗑️</button></td></tr>`).join('');
+        document.getElementById('tbody-producoes').innerHTML = db.producoes.sort(sortByDateDesc).map(p => 
+            `<tr><td style="font-size:0.85rem">${formatData(p.data)}</td><td style="text-align:center; font-weight:bold">${p.qtd}</td>
+            <td style="display:flex; justify-content:center; gap:5px;">
+                <button class="btn-icon btn-edit" onclick="prepararEdicao('producoes', ${p.id})">✏️</button>
+                <button class="btn-icon btn-delete" onclick="db.producoes=db.producoes.filter(x=>x.id!=${p.id}); saveData()">🗑️</button>
+            </td></tr>`
+        ).join('');
         const mapItemNames = { leite_condensado: "L. Cond", leite_integral: "Leite", ovos: "Ovos", acucar: "Açúcar", copo: "Copos", tampa: "Tampas", sacola: "Sacolas", adesivo: "Adesivos", colher: "Colheres", pudim: "Pudim" };
         document.getElementById('tbody-estoquemov').innerHTML = db.estoqueMov.sort(sortByDateDesc).map(m => `<tr><td>${formatData(m.data)}</td><td>${mapItemNames[m.item]}</td><td style="color:${m.tipo==='entrada'?'green':'red'}; font-weight:bold">${m.tipo==='entrada'?'+':'-'}${m.qtd}</td><td><button class="btn-icon btn-delete" onclick="db.estoqueMov=db.estoqueMov.filter(x=>x.id!=${m.id}); saveData()">🗑️</button></td></tr>`).join('');
     }
 
     function updateDashboard() {
-        // ... (Cálculos matemáticos mantidos da versão anterior para brevidade, mas o Number() está implícito nas somas abaixo)
-        // Recalculando Globais (Sem Filtro)
         let abs_vIns=0, abs_vCg=0, abs_vMo=0, abs_vGiro=0, abs_vFundo=0, abs_vLu=0, abs_vBea=0;
         db.vendas.forEach(v => {
             const q = (v.produto && v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
@@ -949,7 +960,6 @@
         // Filtrados (Dashboards)
         const filterMonth = document.getElementById('dash-filter-month').value;
         const filterFn = (d) => !filterMonth || (d.data && d.data.startsWith(filterMonth));
-        // ... (Lógica de filtro igual a anterior, apenas atualizando UI)
         let vBruto=0, vLiq=0, vQtd=0, vIns=0, vCG=0, vMO=0, vLucro=0, vGiro=0, vFundo=0, vLu=0, vBea=0, vEnt=0;
         db.vendas.filter(filterFn).forEach(v => {
             vBruto += Number(v.valorBruto||0); vLiq += Number(v.valorLiquido||0); vEnt += Number(v.entrega||0);
@@ -1007,22 +1017,28 @@
 
         document.getElementById('tbody-investimentos').innerHTML = db.investimentos.sort(sortByDateDesc).map(i => `<tr><td>${formatData(i.data)}</td><td>${i.item}</td><td style="color:red; font-weight:bold">${formatMoney(i.valor||0)}</td><td style="white-space:nowrap;"><button class="btn-icon btn-edit" onclick="prepararEdicao('investimentos', ${i.id})">✏️</button><button class="btn-icon btn-delete" onclick="db.investimentos=db.investimentos.filter(x=>x.id!=${i.id}); saveData()">🗑️</button></td></tr>`).join('');
 
-        // RATEIOS DETALHADOS
-        let htmlVar = '';
+        // RATEIOS DETALHADOS COM TOTAL
+        let htmlVar = '', tLiq=0, tIns=0, tGer=0, tMao=0, tLuc=0, tGiro=0, tFun=0, tLu=0, tBea=0;
         db.vendas.sort(sortByDateDesc).forEach(v => {
             const pStr = v.produto || ''; const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1);
             const ins = q * (db.config.custoInsumo||0); const base = Number(v.valorLiquido||0) - ins;
             const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
-            htmlVar += `<tr><td>${v.num}</td><td>${formatData(v.data)}</td><td>${formatMoney(v.valorLiquido)}</td><td style="color:red">-${formatMoney(ins)}</td><td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td><td style="color:green;font-weight:bold">${formatMoney(lucro)}</td><td>${formatMoney(lucro*0.5)}</td><td>${formatMoney(lucro*0.15)}</td><td>${formatMoney(lucro*0.175)}</td><td>${formatMoney(lucro*0.175)}</td></tr>`;
+            const g=lucro*0.5, f=lucro*0.15, l=lucro*0.175, b=lucro*0.175;
+            tLiq+=Number(v.valorLiquido); tIns+=ins; tGer+=cg; tMao+=mo; tLuc+=lucro; tGiro+=g; tFun+=f; tLu+=l; tBea+=b;
+            htmlVar += `<tr><td>${v.num}</td><td>${formatData(v.data)}</td><td>${formatMoney(v.valorLiquido)}</td><td style="color:red">-${formatMoney(ins)}</td><td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td><td style="color:green;font-weight:bold">${formatMoney(lucro)}</td><td>${formatMoney(g)}</td><td>${formatMoney(f)}</td><td>${formatMoney(l)}</td><td>${formatMoney(b)}</td></tr>`;
         });
+        if(db.vendas.length > 0) htmlVar += `<tr class="tr-totais"><td>TOTAL</td><td>-</td><td>${formatMoney(tLiq)}</td><td>-${formatMoney(tIns)}</td><td>-${formatMoney(tGer)}</td><td>-${formatMoney(tMao)}</td><td>${formatMoney(tLuc)}</td><td>${formatMoney(tGiro)}</td><td>${formatMoney(tFun)}</td><td>${formatMoney(tLu)}</td><td>${formatMoney(tBea)}</td></tr>`;
         document.getElementById('tbody-rateio-varejo').innerHTML = htmlVar;
         
-        let htmlAta = '';
+        let htmlAta = '', atLiq=0, atIns=0, atGer=0, atMao=0, atLuc=0, atGiro=0, atFun=0, atLu=0, atBea=0;
         db.atacado.filter(a=>a.status === 'PAGO').sort(sortByDateDesc).forEach(a => {
             const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - (a.coposDevolvidos*db.config.custoCopo));
             const base = Number(a.totalLiquido||0) - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
-            htmlAta += `<tr><td>${a.num}</td><td>${formatData(a.data)}</td><td>${formatMoney(a.totalLiquido)}</td><td style="color:red">-${formatMoney(ins)}</td><td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td><td style="color:green;font-weight:bold">${formatMoney(lucro)}</td><td>${formatMoney(lucro*0.5)}</td><td>${formatMoney(lucro*0.15)}</td><td>${formatMoney(lucro*0.175)}</td><td>${formatMoney(lucro*0.175)}</td></tr>`;
+            const g=lucro*0.5, f=lucro*0.15, l=lucro*0.175, b=lucro*0.175;
+            atLiq+=Number(a.totalLiquido); atIns+=ins; atGer+=cg; atMao+=mo; atLuc+=lucro; atGiro+=g; atFun+=f; atLu+=l; atBea+=b;
+            htmlAta += `<tr><td>${a.num}</td><td>${formatData(a.data)}</td><td>${formatMoney(a.totalLiquido)}</td><td style="color:red">-${formatMoney(ins)}</td><td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td><td style="color:green;font-weight:bold">${formatMoney(lucro)}</td><td>${formatMoney(g)}</td><td>${formatMoney(f)}</td><td>${formatMoney(l)}</td><td>${formatMoney(b)}</td></tr>`;
         });
+        if(db.atacado.filter(a=>a.status==='PAGO').length > 0) htmlAta += `<tr class="tr-totais"><td>TOTAL</td><td>-</td><td>${formatMoney(atLiq)}</td><td>-${formatMoney(atIns)}</td><td>-${formatMoney(atGer)}</td><td>-${formatMoney(atMao)}</td><td>${formatMoney(atLuc)}</td><td>${formatMoney(atGiro)}</td><td>${formatMoney(atFun)}</td><td>${formatMoney(atLu)}</td><td>${formatMoney(atBea)}</td></tr>`;
         document.getElementById('tbody-rateio-atacado').innerHTML = htmlAta;
     }
     
@@ -1063,10 +1079,24 @@
     function exportarExcel() {
         if (typeof XLSX === 'undefined') return alert("Erro lib Excel.");
         const wb = XLSX.utils.book_new();
-        const wsVarData = [["Nº", "Data", "Produto", "Líquido", "Insumo", "Gerais", "Mão", "Lucro", "Giro", "Fundo", "Lu", "Bea"]];
-        db.vendas.forEach(v => { /* ... logica simplificada para excel ... */ }); 
-        // (A lógica completa de Excel está na versão anterior, aqui simplifiquei para caber, mas o botão funciona se a lib carregar)
-        showToast("Gerando Excel...");
+        
+        // Rateio Varejo
+        const wsVar = [["ID", "Data", "Produto", "Líquido", "Insumo", "Custos Gerais", "Mão de Obra", "Lucro", "Giro (50%)", "Fundo (15%)", "Luyan (17.5%)", "Beatriz (17.5%)"]];
+        db.vendas.forEach(v => {
+            const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
+            const ins = q * db.config.custoInsumo; const base = Number(v.valorLiquido||0) - ins;
+            const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
+            wsVar.push([v.num, v.data, v.produto, v.valorLiquido, ins, cg, mo, lucro, lucro*0.5, lucro*0.15, lucro*0.175, lucro*0.175]);
+        });
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsVar), "Rateio Varejo");
+
+        // Despesas
+        const wsDesp = [["Data", "Item", "Qtd", "Valor Un", "Total", "Categoria"]];
+        db.despesas.forEach(d => wsDesp.push([d.data, d.item, d.qtd, d.unitario, d.total, d.categoria]));
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsDesp), "Despesas");
+
+        XLSX.writeFile(wb, "PudimDuCariri_Relatorio.xlsx");
+        showToast("Excel Gerado!");
     }
 
     init();
