@@ -149,7 +149,6 @@
         </div>
 
         <div id="dashboard-geral" class="content active">
-            
             <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 1.5rem; background: var(--card-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
                 <div style="display: flex; flex-direction: column;">
                     <label style="margin: 0 0 5px 0;">Filtrar Mês:</label>
@@ -215,7 +214,7 @@
                         </select>
                     </div>
                     <div class="form-group" id="asaas-group" style="display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" id="v-asaas" style="width: 20px;">
+                        <input type="checkbox" id="v-asaas" style="width: 18px; height:18px;">
                         <label for="v-asaas" style="margin: 0; color: #D97706; font-weight:700">PIX via Asaas?</label>
                     </div>
                     <div class="form-group"><label>Taxa Entrega</label><input type="number" id="v-entrega" step="0.01" value="0"></div>
@@ -236,7 +235,6 @@
         
         <div id="atacado" class="content"><h2 class="section-title">📦 Atacado</h2>
             <div class="payment-summary-grid">
-                <div class="mini-card"><h4>Bruto</h4><strong id="a-card-bruto">R$ 0,00</strong></div>
                 <div class="mini-card"><h4>Líquido</h4><strong id="a-card-liq">R$ 0,00</strong></div>
             </div>
             <div class="card"><div class="form-grid"><input type="date" id="a-data"><input type="text" id="a-cliente" placeholder="Cliente"><input type="number" id="a-qtd" placeholder="Qtd"><input type="number" id="a-valor" placeholder="Valor Un."><select id="a-status"><option value="PAGO">Pago</option><option value="NÃO PAGO">Pendente</option></select></div><button class="btn-submit" onclick="addAtacado()">Salvar</button></div><div class="table-container mt-2"><table><thead><tr><th>Data</th><th>Cliente</th><th>Qtd</th><th>Total</th><th>Status</th><th>Ação</th></tr></thead><tbody id="tbody-atacado"></tbody></table></div></div>
@@ -245,7 +243,8 @@
         <div id="despesas" class="content"><h2 class="section-title">💸 Despesas</h2><div class="card"><div class="form-grid"><input type="date" id="d-data"><input type="text" id="d-item" placeholder="Item"><input type="number" id="d-qtd" placeholder="Qtd" step="0.01"><input type="number" id="d-valor" placeholder="Vl. Unit" step="0.01"><select id="d-categoria"><option value="INSUMOS">Insumos</option><option value="EMBALAGEM">Embalagem</option><option value="GASTOS GERAIS">Gerais</option><option value="MARKETING">Marketing</option></select></div><button class="btn-submit" onclick="addDespesa()">Salvar</button></div><div class="table-container mt-2"><table><thead><tr><th>Data</th><th>Item</th><th>Total</th><th>Cat</th><th>Ação</th></tr></thead><tbody id="tbody-despesas"></tbody></table></div></div>
         <div id="extrato" class="content"><h2 class="section-title">📑 Extrato de Saques</h2><div class="table-container"><table><thead><tr><th>Data</th><th>Origem</th><th>Valor</th><th>Ação</th></tr></thead><tbody id="tbody-pagamentos"></tbody></table></div></div>
         <div id="investimentos" class="content"><h2 class="section-title">📈 Investimentos</h2><div class="table-container"><table><thead><tr><th>Data</th><th>Item</th><th>Valor</th><th>Ação</th></tr></thead><tbody id="tbody-investimentos"></tbody></table></div></div>
-        <div id="config" class="content"><h2 class="section-title">⚙️ Parâmetros</h2><div class="card"><div class="form-grid" id="form-config-container"> <div class="form-group"><label>Preço Unidade</label><input id="cfg-preco-und" type="number"></div>
+        <div id="config" class="content"><h2 class="section-title">⚙️ Parâmetros</h2><div class="card"><div class="form-grid" id="form-config-container">
+            <div class="form-group"><label>Preço Unidade</label><input id="cfg-preco-und" type="number"></div>
             <div class="form-group"><label>Preço Combo</label><input id="cfg-preco-combo" type="number"></div>
             <div class="form-group"><label>Custo Insumo</label><input id="cfg-custo-insumo" type="number"></div>
             <div class="form-group"><label>Abat. Copo</label><input id="cfg-custo-copo" type="number"></div>
@@ -258,7 +257,6 @@
     </div>
 
 <script>
-    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
         apiKey: "AIzaSyDctGxi1zGwJuHJ_eaFJn3TmErK9tWaGy0",
         authDomain: "pudimducaririapp.firebaseapp.com",
@@ -271,9 +269,155 @@
 
     const ADMIN_EMAILS = ["luyan@pudim.com", "luyancosta.2015@gmail.com"]; 
     const VIEWER_EMAIL = "beatriz@pudim.com"; 
-    firebase.initializeApp(firebaseConfig);
+    
+    let isOnline = firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLE_SUA_API_KEY_AQUI";
+    if(isOnline) firebase.initializeApp(firebaseConfig);
 
-    let db = { config: {}, vendas: [], atacado: [], despesas: [], pagamentos: [], producoes: [], estoqueMov: [], investimentos: [] };
+    // --- DADOS INJETADOS DO BACKUP ---
+    let db = {
+      "atacado": [
+        {"cliente": "Davi (88 Smash)", "coposDevolvidos": 0, "data": "2026-02-17", "desconto": 0, "id": 1771340901079, "num": 4, "qtd": 12, "status": "NÃO PAGO", "totalBruto": 120, "totalLiquido": 120, "unitario": 10},
+        {"cliente": "Davi (88 Smash)", "coposDevolvidos": 0, "data": "2026-02-15", "desconto": 0, "id": 202, "num": 3, "qtd": 6, "status": "PAGO", "totalBruto": 60, "totalLiquido": 60, "unitario": 10},
+        {"cliente": "Conde Burguers", "coposDevolvidos": 0, "data": "2026-02-14", "desconto": 0, "id": 201, "num": 2, "qtd": 24, "status": "PAGO", "total": 263.76, "totalBruto": 263.76, "totalLiquido": 263.76, "unitario": 10.99},
+        {"cliente": "Davi (88 Smash)", "coposDevolvidos": 0, "data": "2026-02-13", "desconto": 0, "id": 200, "num": 1, "qtd": 12, "status": "PAGO", "totalBruto": 120, "totalLiquido": 120, "unitario": 10}
+      ],
+      "config": {
+        "custoCopo": 1.5, "custoInsumo": 5.95, "precoCombo": 40, "precoUnd": 15,
+        "taxaCartaoOnline": 0, "taxaCredApr": 3.09, "taxaCredIns": 4.98, "taxaDebApr": 0.89, "taxaDebIns": 1.99
+      },
+      "despesas": [
+        {"categoria": "INSUMOS", "data": "2026-02-17", "id": 1771365334300, "item": "Leite Integral", "num": 21, "qtd": 4, "total": 16, "unitario": 4},
+        {"categoria": "EMBALAGEM", "data": "2026-02-17", "id": 1771340436969, "item": "Copos Americanos", "num": 20, "qtd": 72, "total": 92.88, "unitario": 1.29},
+        {"categoria": "INSUMOS", "data": "2026-02-17", "id": 1771340391404, "item": "Leite Integral", "num": 19, "qtd": 3, "total": 12, "unitario": 4},
+        {"categoria": "INSUMOS", "data": "2026-02-17", "id": 1771340354052, "item": "Açúcar Cristal", "num": 18, "qtd": 7, "total": 20.93, "unitario": 2.99},
+        {"categoria": "INSUMOS", "data": "2026-02-17", "id": 1771340324690, "item": "leite condensado tirol", "num": 17, "qtd": 27, "total": 156.33, "unitario": 5.79},
+        {"categoria": "INSUMOS", "data": "2026-02-17", "id": 1771340306821, "item": "leite condensado natville", "num": 16, "qtd": 1, "total": 5.29, "unitario": 5.29},
+        {"categoria": "INSUMOS", "data": "2026-02-17", "id": 1771335051959, "item": "Ovos", "num": 15, "qtd": 180, "total": 90, "unitario": 0.5},
+        {"categoria": "GASTOS GERAIS", "data": "2026-02-15", "id": 113, "item": "CARIRI GAS", "num": 14, "qtd": 1, "total": 115, "unitario": 115},
+        {"categoria": "INSUMOS", "data": "2026-02-15", "id": 109, "item": "LEITE", "num": 13, "qtd": 1, "total": 4, "unitario": 4},
+        {"categoria": "INSUMOS", "data": "2026-02-15", "id": 107, "item": "OVOS", "num": 12, "qtd": 1, "total": 11.99, "unitario": 11.99},
+        {"categoria": "INSUMOS", "data": "2026-02-15", "id": 106, "item": "LEITE", "num": 11, "qtd": 1, "total": 4.79, "unitario": 4.79},
+        {"categoria": "INSUMOS", "data": "2026-02-15", "id": 101, "item": "OVOS", "num": 10, "qtd": 1, "total": 11.99, "unitario": 11.99},
+        {"categoria": "INSUMOS", "data": "2026-02-14", "id": 112, "item": "COMPRAS MIX MATEUS", "num": 9, "qtd": 1, "total": 84.64, "unitario": 84.64},
+        {"categoria": "INSUMOS", "data": "2026-02-14", "id": 105, "item": "LUVAS", "num": 8, "qtd": 1, "total": 30, "unitario": 30},
+        {"categoria": "INSUMOS", "data": "2026-02-14", "id": 104, "item": "PAPEL ALUMINIO", "num": 7, "qtd": 1, "total": 4, "unitario": 4},
+        {"categoria": "EMBALAGEM", "data": "2026-02-14", "id": 103, "item": "COPOS", "num": 6, "qtd": 72, "total": 86.4, "unitario": 1.2},
+        {"categoria": "INSUMOS", "data": "2026-02-14", "id": 102, "item": "OVOS", "num": 5, "qtd": 1, "total": 11.99, "unitario": 11.99},
+        {"categoria": "INSUMOS", "data": "2026-02-14", "id": 100, "item": "AÇUCAR", "num": 4, "qtd": 2, "total": 7.58, "unitario": 3.79},
+        {"categoria": "MARKETING", "data": "2026-02-13", "id": 111, "item": "IMPULSIONAMENTO", "num": 3, "qtd": 1, "total": 30, "unitario": 30},
+        {"categoria": "INSUMOS", "data": "2026-02-13", "id": 110, "item": "LEITE", "num": 2, "qtd": 2, "total": 8, "unitario": 4},
+        {"categoria": "INSUMOS", "data": "2026-02-13", "id": 108, "item": "OVOS", "num": 1, "qtd": 1, "total": 5.51, "unitario": 5.51}
+      ],
+      "estoqueMov": [
+        {"data": "2026-02-18", "desc": "Ajuste Rápido", "id": 1771380292188, "item": "tampa", "qtd": 3, "tipo": "saida"},
+        {"data": "2026-02-18", "desc": "Ajuste Rápido", "id": 1771380280553, "item": "copo", "qtd": 31, "tipo": "saida"},
+        {"data": "2026-02-18", "desc": "Ajuste Rápido", "id": 1771379552090, "item": "pudim", "qtd": 3, "tipo": "saida"},
+        {"data": "2026-02-17", "desc": "Compra", "id": 1771365389693, "item": "leite_integral", "qtd": 4000, "tipo": "entrada"},
+        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771359756418, "item": "pudim", "qtd": 1, "tipo": "entrada"},
+        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771335735025, "item": "sacola", "qtd": 14, "tipo": "saida"},
+        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771335711531, "item": "adesivo", "qtd": 90, "tipo": "saida"},
+        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771335688329, "item": "copo", "qtd": 2, "tipo": "saida"},
+        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771335625508, "item": "tampa", "qtd": 102, "tipo": "saida"},
+        {"data": "2026-02-17", "desc": "Compras", "id": 1771335162981, "item": "leite_condensado", "qtd": 28, "tipo": "entrada"},
+        {"data": "2026-02-17", "desc": "Compras", "id": 1771335152998, "item": "leite_integral", "qtd": 3000, "tipo": "entrada"},
+        {"data": "2026-02-17", "desc": "Compras", "id": 1771335102225, "item": "acucar", "qtd": 7000, "tipo": "entrada"},
+        {"data": "2026-02-17", "desc": "Compras", "id": 1771335067613, "item": "ovos", "qtd": 180, "tipo": "entrada"},
+        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771296080760, "item": "adesivo", "qtd": 24, "tipo": "entrada"},
+        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771294473837, "item": "adesivo", "qtd": 22, "tipo": "saida"},
+        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771294462407, "item": "pudim", "qtd": 2, "tipo": "saida"},
+        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771294432533, "item": "acucar", "qtd": 1000, "tipo": "entrada"},
+        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771294427725, "item": "ovos", "qtd": 24, "tipo": "entrada"},
+        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771294419367, "item": "leite_integral", "qtd": 1000, "tipo": "entrada"},
+        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771294415195, "item": "leite_condensado", "qtd": 7, "tipo": "entrada"},
+        {"data": "2026-02-16", "desc": "Ajuste Rápido de Inventário", "id": 1771212059145, "item": "colher", "qtd": 182, "tipo": "entrada"},
+        {"data": "2026-02-16", "desc": "Ajuste Rápido de Inventário", "id": 1771212054902, "item": "adesivo", "qtd": 154, "tipo": "entrada"},
+        {"data": "2026-02-16", "desc": "Ajuste Rápido de Inventário", "id": 1771212047234, "item": "sacola", "qtd": 92, "tipo": "entrada"},
+        {"data": "2026-02-16", "desc": "Ajuste Rápido de Inventário", "id": 1771212036139, "item": "tampa", "qtd": 284, "tipo": "entrada"},
+        {"data": "2026-02-16", "desc": "Ajuste Rápido de Inventário", "id": 1771212031633, "item": "copo", "qtd": 144, "tipo": "entrada"},
+        {"data": "2026-02-16", "desc": "Ajuste Rápido de Inventário", "id": 1771212023854, "item": "pudim", "qtd": 104, "tipo": "entrada"}
+      ],
+      "investimentos": [
+        {"data": "2026-02-08", "id": 13, "item": "200 COLHERES", "valor": 50.89},
+        {"data": "2026-02-07", "id": 14, "item": "3 CAIXAS DE COPOS", "valor": 86.4},
+        {"data": "2026-02-07", "id": 12, "item": "2kg de açucar", "valor": 5.96},
+        {"data": "2026-02-07", "id": 11, "item": "Adesivo Frente (bopp transparente) 300", "valor": 84.84},
+        {"data": "2026-02-07", "id": 10, "item": "100 Sacolas 17x27cm", "valor": 60},
+        {"data": "2026-02-07", "id": 9, "item": "15 Leite Condensado", "valor": 74.7},
+        {"data": "2026-02-07", "id": 8, "item": "20 ovos", "valor": 10.98},
+        {"data": "2026-02-07", "id": 7, "item": "200 tampas", "valor": 282.48},
+        {"data": "2026-02-07", "id": 6, "item": "100 tampas", "valor": 143},
+        {"data": "2026-02-07", "id": 5, "item": "Rosca para bico", "valor": 6.5},
+        {"data": "2026-01-27", "id": 4, "item": "Impulsionamento - Primeira Arte", "valor": 50},
+        {"data": "2026-01-21", "id": 3, "item": "Bico da Maquina", "valor": 13.75},
+        {"data": "2026-01-21", "id": 2, "item": "12 copos americanos", "valor": 17.9},
+        {"data": "2026-01-15", "id": 1, "item": "Máquina Vapor", "valor": 279.18}
+      ],
+      "pagamentos": [
+        {"data": "2026-02-17", "id": 1771362173058, "tipo": "Luyan", "valor": 5},
+        {"data": "2026-02-17", "id": 1771340600366, "tipo": "Luyan", "valor": 30},
+        {"data": "2026-02-17", "id": 1771295840999, "tipo": "Luyan", "valor": 33.83},
+        {"data": "2026-02-17", "id": 1771295624480, "tipo": "Divida", "valor": 56},
+        {"data": "2026-02-17", "id": 1771295594433, "tipo": "Beatriz", "valor": 21.61},
+        {"data": "2026-02-17", "id": 1771294939680, "tipo": "Beatriz", "valor": 62.75},
+        {"data": "2026-02-17", "id": 1771294909767, "tipo": "MaoObra", "valor": 148.32},
+        {"data": "2026-02-16", "id": 1771209850760, "tipo": "Divida", "valor": 115},
+        {"data": "2026-02-16", "id": 1771209832088, "tipo": "Divida", "valor": 15},
+        {"data": "2026-02-16", "id": 1771205787274, "tipo": "Divida", "valor": 57}
+      ],
+      "producoes": [
+        {"data": "2026-02-17", "id": 1771359750902, "num": 2, "qtd": 7},
+        {"data": "2026-02-17", "id": 1771294452361, "num": 1, "qtd": 7}
+      ],
+      "vendas": [
+        {"asaas": false, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771365465267, "num": 46, "pgto": "Dinheiro", "produto": "Combo (3 und)", "qtd": 1, "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
+        {"asaas": false, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771360110663, "num": 45, "pgto": "Credito Aproximacao", "produto": "Combo", "qtd": 1, "valorBruto": 40, "valorLiquido": 38.764, "valorTaxa": 1.2359999999999998},
+        {"asaas": false, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771360103325, "num": 44, "pgto": "Credito Aproximacao", "produto": "Pudim 1 Und", "qtd": 1, "valorBruto": 15, "valorLiquido": 14.5365, "valorTaxa": 0.46349999999999997},
+        {"asaas": true, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771360094703, "num": 43, "pgto": "PIX", "produto": "Pudim 1 Und", "qtd": 1, "valorBruto": 15, "valorLiquido": 14.86, "valorTaxa": 0.14},
+        {"asaas": false, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771360087306, "num": 42, "pgto": "Dinheiro", "produto": "Pudim 1 Und", "qtd": 1, "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"asaas": false, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771360058972, "num": 41, "pgto": "Credito Insercao", "produto": "Combo (3 und)", "qtd": 1, "valorBruto": 40, "valorLiquido": 38.008, "valorTaxa": 1.9920000000000002},
+        {"asaas": true, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771360010439, "num": 40, "pgto": "PIX", "produto": "Pudim 1 Und", "qtd": 1, "valorBruto": 15, "valorLiquido": 14.86, "valorTaxa": 0.14},
+        {"asaas": true, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771359857236, "num": 39, "pgto": "PIX", "produto": "Pudim 1 Und", "qtd": 1, "valorBruto": 15, "valorLiquido": 14.86, "valorTaxa": 0.14},
+        {"asaas": false, "data": "2026-02-17", "desconto": 30, "entrega": 0, "id": 1771294632479, "num": 38, "pgto": "PIX", "produto": "Pudim 1 Und", "qtd": 2, "valorBruto": 30, "valorLiquido": 0, "valorTaxa": 0},
+        {"asaas": true, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771294605441, "num": 37, "pgto": "PIX", "produto": "Combo (3 und)", "qtd": 1, "valorBruto": 40, "valorLiquido": 39.86, "valorTaxa": 0.14},
+        {"asaas": true, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771294570555, "num": 36, "pgto": "PIX", "produto": "Pudim 1 Und", "qtd": 1, "valorBruto": 15, "valorLiquido": 14.86, "valorTaxa": 0.14},
+        {"asaas": false, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771294558706, "num": 35, "pgto": "PIX", "produto": "Pudim 1 Und", "qtd": 1, "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"asaas": false, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771294525404, "num": 34, "pgto": "PIX", "produto": "Combo (3 und)", "qtd": 1, "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
+        {"asaas": false, "data": "2026-02-17", "desconto": 30, "entrega": 0, "id": 1771294516380, "num": 33, "pgto": "PIX", "produto": "Pudim 1 Und", "qtd": 2, "valorBruto": 30, "valorLiquido": 0, "valorTaxa": 0},
+        {"data": "2026-02-15", "entrega": 0, "id": 331, "num": 32, "pgto": "Debito Insercao", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 39.64, "valorTaxa": 0.36},
+        {"data": "2026-02-15", "entrega": 0, "id": 330, "num": 31, "pgto": "Credito Insercao", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 38.76, "valorTaxa": 1.24},
+        {"data": "2026-02-15", "entrega": 0, "id": 329, "num": 30, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-15", "entrega": 0, "id": 328, "num": 29, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-14", "entrega": 0, "id": 327, "num": 28, "pgto": "Dinheiro", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
+        {"data": "2026-02-14", "entrega": 0, "id": 326, "num": 27, "pgto": "Credito Insercao", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 38.76, "valorTaxa": 1.24},
+        {"data": "2026-02-14", "entrega": 0, "id": 325, "num": 26, "pgto": "Debito Insercao", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 39.64, "valorTaxa": 0.36},
+        {"data": "2026-02-14", "entrega": 0, "id": 324, "num": 25, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-14", "entrega": 0, "id": 323, "num": 24, "pgto": "PIX", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
+        {"data": "2026-02-14", "entrega": 0, "id": 322, "num": 23, "pgto": "PIX", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
+        {"data": "2026-02-14", "entrega": 0, "id": 321, "num": 22, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-14", "entrega": 0, "id": 320, "num": 21, "pgto": "Credito Insercao", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 38.68, "valorTaxa": 1.32},
+        {"data": "2026-02-14", "entrega": 0, "id": 319, "num": 20, "pgto": "Credito Insercao", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 38.76, "valorTaxa": 1.24},
+        {"data": "2026-02-14", "entrega": 0, "id": 318, "num": 19, "pgto": "Dinheiro", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
+        {"data": "2026-02-14", "entrega": 0, "id": 317, "num": 18, "pgto": "Dinheiro", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
+        {"data": "2026-02-13", "entrega": 0, "id": 316, "num": 17, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-13", "entrega": 0, "id": 315, "num": 16, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-13", "entrega": 0, "id": 314, "num": 15, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-13", "entrega": 0, "id": 313, "num": 14, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-13", "entrega": 0, "id": 312, "num": 13, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-13", "entrega": 0, "id": 311, "num": 12, "pgto": "PIX", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
+        {"data": "2026-02-13", "entrega": 0, "id": 310, "num": 11, "pgto": "PIX", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
+        {"data": "2026-02-12", "entrega": 0, "id": 309, "num": 10, "pgto": "Debito Insercao", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 14.53, "valorTaxa": 0.47},
+        {"data": "2026-02-12", "entrega": 0, "id": 308, "num": 9, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-12", "entrega": 0, "id": 307, "num": 8, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-12", "entrega": 0, "id": 306, "num": 7, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-12", "entrega": 0, "id": 305, "num": 6, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-12", "entrega": 0, "id": 304, "num": 5, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-12", "entrega": 0, "id": 303, "num": 4, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
+        {"data": "2026-02-12", "entrega": 0, "id": 302, "num": 3, "pgto": "Credito Insercao", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 14.54, "valorTaxa": 0.46},
+        {"data": "2026-02-12", "entrega": 0, "id": 301, "num": 2, "pgto": "PIX", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
+        {"data": "2026-02-12", "entrega": 0, "id": 300, "num": 1, "pgto": "PIX", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0}
+      ]
+    };
+
     let currentUserRole = 'viewer';
     let editingItem = { lista: null, id: null };
 
@@ -342,6 +486,10 @@
 
     // --- CORE ---
     function init() {
+        // Fallback para quem não tem conexão ou conta, usar os dados locais injetados
+        const local = localStorage.getItem('pudimDuCaririDB');
+        if(!local) localStorage.setItem('pudimDuCaririDB', JSON.stringify(db)); // Salva o injetado
+        
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 const email = user.email.toLowerCase();
@@ -355,19 +503,26 @@
                 firebase.database().ref('pudimAppDB').on('value', snap => {
                     if(snap.exists()) {
                         const data = snap.val();
-                        db.vendas = Object.values(data.vendas || {});
-                        db.atacado = Object.values(data.atacado || {});
-                        db.despesas = Object.values(data.despesas || {});
-                        db.pagamentos = Object.values(data.pagamentos || {});
-                        db.producoes = Object.values(data.producoes || {});
-                        db.estoqueMov = Object.values(data.estoqueMov || {});
-                        db.investimentos = Object.values(data.investimentos || {});
-                        db.config = data.config || db.config;
+                        // Mescla o backup com o firebase se necessário, mas prioriza a nuvem
+                        db = data;
+                        // Normaliza arrays (firebase pode retornar objetos)
+                        db.vendas = Object.values(db.vendas || {});
+                        db.atacado = Object.values(db.atacado || {});
+                        db.despesas = Object.values(db.despesas || {});
+                        db.pagamentos = Object.values(db.pagamentos || {});
+                        db.producoes = Object.values(db.producoes || {});
+                        db.estoqueMov = Object.values(db.estoqueMov || {});
+                        db.investimentos = Object.values(db.investimentos || {});
                         updateAll();
+                    } else if (currentUserRole === 'admin') {
+                        // Se nuvem vazia, sobe o backup
+                        firebase.database().ref('pudimAppDB').set(db);
                     }
                 });
             }
         });
+        // Renderiza inicial com os dados injetados (mesmo sem login ainda)
+        updateAll();
     }
 
     function updateAll() {
@@ -391,7 +546,7 @@
 
         db.vendas.filter(fFn).forEach(v => {
             const val = Number(v.valorLiquido||0);
-            const q = (v.produto === 'Combo' ? 3 : 1) * Number(v.qtd||1);
+            const q = (v.produto.includes('Combo') ? 3 : 1) * Number(v.qtd||1);
             vLiq += val; vQtd += q;
             const lucBase = val - (q * (db.config.custoInsumo || 5.95));
             vMo += lucBase * 0.20;
@@ -426,10 +581,14 @@
         document.getElementById('a-dash-qtd').innerText = aQtd;
 
         // Caixa Global
-        let totalGlobal = vLiq + aLiq;
-        totalGlobal -= db.despesas.reduce((ac,d) => ac + Number(d.total||0), 0);
-        totalGlobal -= db.pagamentos.reduce((ac,p) => ac + Number(p.valor||0), 0);
-        document.getElementById('global-total-conta').innerText = formatMoney(totalGlobal);
+        let totalGlobal = vLiq + aLiq; // Somar todos os tempos se não tiver filtro, mas aqui usa o filtrado para o dashboard. 
+        // Para o "Global Total" precisamos de tudo sem filtro:
+        let gVLiq = db.vendas.reduce((acc, v) => acc + Number(v.valorLiquido||0), 0);
+        let gALiq = db.atacado.filter(a=>a.status==='PAGO').reduce((acc,a)=>acc+Number(a.totalLiquido||a.total||0),0);
+        let gDesp = db.despesas.reduce((acc,d)=>acc+Number(d.total||0),0);
+        let gPag = db.pagamentos.reduce((acc,p)=>acc+Number(p.valor||0),0);
+        
+        document.getElementById('global-total-conta').innerText = formatMoney((gVLiq + gALiq) - gDesp - gPag);
     }
 
     function renderVendas() {
@@ -510,8 +669,12 @@
         ).join('');
     }
 
-    function renderRateio() { /* Simplificado para manter o tamanho, lógica de rateio permanece a mesma */ }
-    function renderEstoque() { /* Simplificado */ }
+    function renderRateio() { /* Simplificado */ }
+    function renderEstoque() { 
+        // Renderiza Historico
+        document.getElementById('tbody-producoes').innerHTML = db.producoes.sort(sortByDateDesc).map(p => `<tr><td>${formatData(p.data)}</td><td>${p.qtd}</td><td><button class="btn-icon btn-delete" onclick="deleteItem('producoes', ${p.id})">🗑️</button></td></tr>`).join('');
+        document.getElementById('tbody-estoquemov').innerHTML = db.estoqueMov.sort(sortByDateDesc).map(m => `<tr><td>${formatData(m.data)}</td><td>${m.item}</td><td>${m.tipo==='entrada'?'+':'-'}${m.qtd}</td><td><button class="btn-icon btn-delete" onclick="deleteItem('estoqueMov', ${m.id})">🗑️</button></td></tr>`).join('');
+    }
     function renderExtrato() {
         document.getElementById('tbody-pagamentos').innerHTML = db.pagamentos.sort(sortByDateDesc).map(p => 
             `<tr><td>${formatData(p.data)}</td><td>${p.tipo}</td><td>${formatMoney(p.valor)}</td><td><button class="btn-icon btn-delete" onclick="deleteItem('pagamentos', ${p.id})">🗑️</button></td></tr>`
@@ -528,23 +691,38 @@
         document.getElementById('cfg-preco-und').value = db.config.precoUnd;
         document.getElementById('cfg-preco-combo').value = db.config.precoCombo;
         document.getElementById('cfg-custo-insumo').value = db.config.custoInsumo;
-        // ... carregar outros campos ...
+        document.getElementById('cfg-custo-copo').value = db.config.custoCopo;
+        document.getElementById('cfg-taxa-cred-ins').value = db.config.taxaCredIns;
+        document.getElementById('cfg-taxa-cred-apr').value = db.config.taxaCredApr;
+        document.getElementById('cfg-taxa-deb-ins').value = db.config.taxaDebIns;
+        document.getElementById('cfg-taxa-deb-apr').value = db.config.taxaDebApr;
+        document.getElementById('cfg-taxa-cartao-online').value = db.config.taxaCartaoOnline;
     }
 
     function saveConfig() {
         db.config.precoUnd = parseFloat(document.getElementById('cfg-preco-und').value);
         db.config.precoCombo = parseFloat(document.getElementById('cfg-preco-combo').value);
         db.config.custoInsumo = parseFloat(document.getElementById('cfg-custo-insumo').value);
+        db.config.custoCopo = parseFloat(document.getElementById('cfg-custo-copo').value);
+        db.config.taxaCredIns = parseFloat(document.getElementById('cfg-taxa-cred-ins').value);
+        db.config.taxaCredApr = parseFloat(document.getElementById('cfg-taxa-cred-apr').value);
+        db.config.taxaDebIns = parseFloat(document.getElementById('cfg-taxa-deb-ins').value);
+        db.config.taxaDebApr = parseFloat(document.getElementById('cfg-taxa-deb-apr').value);
+        db.config.taxaCartaoOnline = parseFloat(document.getElementById('cfg-taxa-cartao-online').value);
         saveData();
     }
 
     function deleteItem(list, id) { if(confirm("Apagar?")) { db[list] = db[list].filter(i => i.id !== id); saveData(); } }
-    function saveData() { firebase.database().ref('pudimAppDB').set(db); showToast("Sincronizado!"); updateAll(); }
+    function saveData() { 
+        localStorage.setItem('pudimDuCaririDB', JSON.stringify(db));
+        if(currentUserRole === 'admin' && isOnline) firebase.database().ref('pudimAppDB').set(db); 
+        showToast("Sincronizado!"); updateAll(); 
+    }
     function switchTab(id) { 
         document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(event) event.target.classList.add('active');
+        event.target.classList.add('active');
     }
     function toggleAsaas() { document.getElementById('asaas-group').style.display = document.getElementById('v-pgto').value === 'PIX' ? 'flex' : 'none'; }
     function limparFiltro() { document.getElementById('dash-filter-month').value = ''; updateDashboard(); }
