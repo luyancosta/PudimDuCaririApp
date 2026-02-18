@@ -165,7 +165,7 @@
                     <input type="month" id="dash-filter-month" onchange="updateDashboard()" style="padding: 8px; width: 180px;">
                 </div>
                 <button class="btn-action-small" style="width: auto; margin-top: 18px; background: var(--secondary);" onclick="limparFiltro()">Limpar Filtro</button>
-                <button class="btn-action-small" style="width: auto; margin-top: 18px; margin-left: auto; background: #25D366; font-size: 0.95rem; padding: 10px 20px;" onclick="fechamentoWhatsApp()">📱 Fechamento do Dia (WhatsApp)</button>
+                <button class="btn-action-small" style="width: auto; margin-top: 18px; margin-left: auto; background: #25D366; font-size: 0.95rem; padding: 10px 20px;" onclick="fechamentoWhatsApp()">📱 Fechamento do Dia</button>
             </div>
 
             <h2 class="section-title" style="color: #10B981; border-color:#10B981;">💰 VISÃO GERAL: TOTAL NA CONTA (FÍSICO)</h2>
@@ -187,10 +187,12 @@
                 <div class="card"><h3>Faturamento Líquido</h3><p id="v-dash-liquido">R$ 0,00</p></div>
                 <div class="card"><h3>Receita de Entrega</h3><p id="v-dash-entrega">R$ 0,00</p></div>
                 <div class="card"><h3>Pudins Vendidos</h3><p id="v-dash-qtd">0</p></div>
+                
                 <div class="card" style="border-left-color: #EF4444;"><h3>Insumo Fixo Gerado</h3><p id="v-dash-insumos" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #EF4444;"><h3>Custos Gerais (15%)</h3><p id="v-dash-cg" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #EF4444;"><h3>Mão de Obra (20%)</h3><p id="v-dash-mo" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #10B981;"><h3>Lucro Restante</h3><p id="v-dash-lucro-restante" style="color: #10B981;">R$ 0,00</p></div>
+                
                 <div class="card" style="border-left-color: #8B5CF6;"><h3>Giro Gerado (50%)</h3><p id="v-dash-giro">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo Gerado (15%)</h3><p id="v-dash-fundo">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #F59E0B;"><h3>Luyan Gerado (17.5%)</h3><p id="v-dash-luyan">R$ 0,00</p></div>
@@ -203,10 +205,12 @@
                 <div class="card"><h3>Desc. Logística Reversa</h3><p id="a-dash-desconto" style="color: var(--danger)">R$ 0,00</p></div>
                 <div class="card"><h3>Faturamento Líquido</h3><p id="a-dash-liquido">R$ 0,00</p></div>
                 <div class="card"><h3>Pudins Vendidos</h3><p id="a-dash-qtd">0</p></div>
+                
                 <div class="card" style="border-left-color: #EF4444;"><h3>Insumo Fixo Gerado</h3><p id="a-dash-insumos" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #EF4444;"><h3>Custos Gerais (15%)</h3><p id="a-dash-cg" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #EF4444;"><h3>Mão de Obra (20%)</h3><p id="a-dash-mo" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #10B981;"><h3>Lucro Restante</h3><p id="a-dash-lucro-restante" style="color: #10B981;">R$ 0,00</p></div>
+                
                 <div class="card" style="border-left-color: #8B5CF6;"><h3>Giro Gerado (50%)</h3><p id="a-dash-giro">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo Gerado (15%)</h3><p id="a-dash-fundo">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #F59E0B;"><h3>Luyan Gerado (17.5%)</h3><p id="a-dash-luyan">R$ 0,00</p></div>
@@ -214,7 +218,9 @@
             </div>
 
             <div class="dashboard-grid mt-2">
-                <div class="card" style="border-left-color: #3B82F6;"><h3>Total Despesas (Filtro)</h3><p id="dash-desp-total" style="color: #EF4444;">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #3B82F6;">
+                    <h3>Total Despesas (Filtro)</h3><p id="dash-desp-total" style="color: #EF4444;">R$ 0,00</p>
+                </div>
             </div>
         </div>
 
@@ -257,6 +263,7 @@
                     <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('acucar', 'Açúcar (g)')">✏️</button>
                     <h3>Açúcar</h3><p id="est-acucar" class="status-green">0 g</p>
                 </div>
+                
                 <div class="card estoque-card" style="border-left-color: #8B5CF6;">
                     <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('copo', 'Copo Americano (Vazio)')">✏️</button>
                     <h3>Copo Americano<br><small>(Vazios)</small></h3><p id="est-copo" class="status-green">0 un</p>
@@ -604,7 +611,8 @@
             } else {
                 firebase.auth().onAuthStateChanged((user) => {
                     if(user) {
-                        if(user.email !== ADMIN_EMAIL && user.email !== VIEWER_EMAIL) {
+                        const userEmail = user.email.toLowerCase();
+                        if(userEmail !== ADMIN_EMAIL.toLowerCase() && userEmail !== VIEWER_EMAIL.toLowerCase()) {
                             alert("Usuário não autorizado!");
                             firebase.auth().signOut(); return;
                         }
@@ -612,7 +620,7 @@
                         document.getElementById('login-screen').style.display = 'none';
                         document.getElementById('app-container').style.display = 'block';
                         
-                        if(user.email === ADMIN_EMAIL) {
+                        if(userEmail === ADMIN_EMAIL.toLowerCase()) {
                             currentUserRole = 'admin';
                             document.body.classList.remove('viewer-mode');
                             document.getElementById('user-badge').innerText = "👑 ADMIN: " + user.email;
@@ -623,12 +631,16 @@
                         }
 
                         firebase.database().ref('pudimAppDB').on('value', (snapshot) => {
-                            if(snapshot.exists()) {
-                                db = loadDBData(snapshot.val());
-                                localStorage.setItem('pudimDuCaririDB', JSON.stringify(db)); 
-                                updateAll();
-                            } else {
-                                if(currentUserRole === 'admin') firebase.database().ref('pudimAppDB').set(db);
+                            try {
+                                if(snapshot.exists()) {
+                                    db = loadDBData(snapshot.val());
+                                    localStorage.setItem('pudimDuCaririDB', JSON.stringify(db)); 
+                                    updateAll();
+                                } else {
+                                    if(currentUserRole === 'admin') firebase.database().ref('pudimAppDB').set(db);
+                                }
+                            } catch(err) {
+                                alert("Erro ao carregar dados do banco: " + err.message);
                             }
                         });
                     } else {
@@ -641,9 +653,10 @@
 
         // ================= NOVO MOTOR DE ERRO DE LOGIN =================
         function fazerLogin() {
-            const e = document.getElementById('login-email').value;
+            const e = document.getElementById('login-email').value.trim();
             const p = document.getElementById('login-password').value;
             const errorEl = document.getElementById('login-error');
+            const btnLogin = document.getElementById('btn-login-action');
             
             if(!e || !p) {
                 errorEl.innerText = "Por favor, preencha e-mail e senha.";
@@ -652,9 +665,18 @@
             }
 
             errorEl.style.display = 'none';
+            btnLogin.innerText = "Verificando...";
+            btnLogin.style.opacity = "0.7";
             
             firebase.auth().signInWithEmailAndPassword(e, p)
+            .then(() => {
+                btnLogin.innerText = "Entrar no Sistema";
+                btnLogin.style.opacity = "1";
+            })
             .catch(err => {
+                btnLogin.innerText = "Entrar no Sistema";
+                btnLogin.style.opacity = "1";
+                
                 let msg = "Erro: " + err.message;
                 if(err.code === 'auth/invalid-email') msg = "O formato do e-mail é inválido.";
                 else if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') msg = "E-mail não cadastrado ou senha incorreta.";
@@ -671,12 +693,27 @@
         }
 
         function loadDBData(data) {
-            const addMissingNums = (arr) => { arr.sort((a,b)=>new Date(a.data)-new Date(b.data)).forEach((x,i)=>{ if(!x.num) x.num=i+1; }); };
-            if(!data.pagamentos) data.pagamentos = []; if(!data.producoes) data.producoes = [];
-            if(!data.estoqueMov) data.estoqueMov = []; if(!data.vendas) data.vendas = [];
-            if(!data.atacado) data.atacado = []; if(!data.despesas) data.despesas = [];
-            if(!data.investimentos) data.investimentos = [];
-            if(data.config === undefined) data.config = { precoUnd: 15, precoCombo: 40, custoInsumo: 5.95, taxaCredIns: 4.98, taxaCredApr: 3.09, taxaDebIns: 1.99, taxaDebApr: 0.89, custoCopo: 1.50, taxaCartaoOnline: 2.99 };
+            // O Firebase transforma Arrays em Objetos se você apagar itens do meio (Ex: Item 1, 2, 4).
+            // Essa função força a pureza dos dados transformando os objetos de volta em array antes de ler.
+            const toArray = (obj) => {
+                if(!obj) return [];
+                if(Array.isArray(obj)) return obj.filter(i => i !== null);
+                return Object.values(obj).filter(i => i !== null);
+            };
+
+            if(!data.config) data.config = { precoUnd: 15, precoCombo: 40, custoInsumo: 5.95, taxaCredIns: 4.98, taxaCredApr: 3.09, taxaDebIns: 1.99, taxaDebApr: 0.89, custoCopo: 1.50, taxaCartaoOnline: 2.99 };
+            
+            data.pagamentos = toArray(data.pagamentos); 
+            data.producoes = toArray(data.producoes);
+            data.estoqueMov = toArray(data.estoqueMov);
+            data.vendas = toArray(data.vendas);
+            data.atacado = toArray(data.atacado);
+            data.despesas = toArray(data.despesas);
+            data.investimentos = toArray(data.investimentos);
+
+            const addMissingNums = (arr) => { 
+                arr.sort((a,b)=>new Date(a.data)-new Date(b.data)).forEach((x,i)=>{ if(!x.num) x.num=i+1; }); 
+            };
             
             addMissingNums(data.vendas); addMissingNums(data.atacado); addMissingNums(data.despesas); addMissingNums(data.producoes);
             return data;
@@ -740,9 +777,10 @@
 
             const wsVarData = [["Nº Pedido", "Data", "Produto", "Líquido (R$)", "Insumo Fixo (R$)", "Custos Gerais 15% (R$)", "Mão Obra 20% (R$)", "Lucro Restante (R$)", "Giro 50% (R$)", "Fundo 15% (R$)", "Sócio Luyan 17.5% (R$)", "Sócia Beatriz 17.5% (R$)"]];
             db.vendas.sort((a,b)=>new Date(a.data)-new Date(b.data)).forEach(v => {
-                const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
+                const pStr = v.produto || '';
+                const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1);
                 const ins = q * db.config.custoInsumo; const base = v.valorLiquido - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
-                wsVarData.push([v.num, v.data, v.produto, v.valorLiquido, ins, cg, mo, lucro, lucro*0.50, lucro*0.15, lucro*0.175, lucro*0.175]);
+                wsVarData.push([v.num, v.data, pStr, v.valorLiquido, ins, cg, mo, lucro, lucro*0.50, lucro*0.15, lucro*0.175, lucro*0.175]);
             });
             XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsVarData), "Rateio Varejo");
 
@@ -772,7 +810,7 @@
             const aHoje = db.atacado.filter(a => a.data === hoje && a.status === 'PAGO');
             
             let vQtd=0, vLiq=0;
-            vHoje.forEach(v => { vQtd += (v.produto.includes('Combo')?3:1)*(v.qtd||1); vLiq += v.valorLiquido; });
+            vHoje.forEach(v => { const pStr = v.produto || ''; vQtd += (pStr.includes('Combo')?3:1)*(v.qtd||1); vLiq += v.valorLiquido; });
             
             let aQtd=0, aLiq=0;
             aHoje.forEach(a => { aQtd += a.qtd; aLiq += (a.totalLiquido !== undefined ? a.totalLiquido : (a.qtd*a.unitario - (a.desconto||0))); });
@@ -838,7 +876,8 @@
             editingItem = { lista, id };
 
             if(lista === 'vendas') { 
-                switchTab('vendas'); document.getElementById('v-data').value = item.data; document.getElementById('v-produto').value = item.produto.includes('Combo') ? 'Combo' : 'Unidade'; 
+                switchTab('vendas'); document.getElementById('v-data').value = item.data; 
+                const pStr = item.produto || ''; document.getElementById('v-produto').value = pStr.includes('Combo') ? 'Combo' : 'Unidade'; 
                 document.getElementById('v-pgto').value = item.pgto; document.getElementById('v-asaas').checked = item.asaas || false; toggleAsaas();
                 document.getElementById('v-entrega').value = item.entrega || 0; document.getElementById('v-qtd').value = item.qtd || 1; document.getElementById('v-desconto').value = item.desconto || 0; 
                 document.getElementById('btn-submit-vendas').innerText = "Atualizar Venda"; 
@@ -980,32 +1019,12 @@
             db.estoqueMov.forEach(m => { if(m.tipo === 'entrada') saldos[m.item] += m.qtd; else saldos[m.item] -= m.qtd; });
             
             db.producoes.forEach(p => { 
-                saldos.pudim += p.qtd*6; 
-                saldos.leite_condensado -= p.qtd*1; 
-                saldos.leite_integral -= p.qtd*400; 
-                saldos.ovos -= p.qtd*3; 
-                saldos.acucar -= p.qtd*200; 
-                
-                // Embalagens usadas na produção para guardar o pudim na geladeira
-                saldos.copo -= p.qtd*6;
-                saldos.tampa -= p.qtd*6;
-                saldos.adesivo -= p.qtd*6;
+                saldos.pudim += p.qtd*6; saldos.leite_condensado -= p.qtd*1; saldos.leite_integral -= p.qtd*400; saldos.ovos -= p.qtd*3; saldos.acucar -= p.qtd*200; 
+                saldos.copo -= p.qtd*6; saldos.tampa -= p.qtd*6; saldos.adesivo -= p.qtd*6;
             });
             
-            db.vendas.forEach(v => { 
-                const p = (v.produto.includes('Combo')?3:1)*(v.qtd||1); 
-                saldos.pudim -= p; 
-                
-                // Embalagens exclusivas da entrega no varejo
-                saldos.colher -= p; 
-                saldos.sacola -= 1; 
-            });
-            
-            db.atacado.forEach(a => { 
-                saldos.pudim -= a.qtd; 
-                if(a.coposDevolvidos) saldos.copo += a.coposDevolvidos; 
-            });
-            
+            db.vendas.forEach(v => { const pStr = v.produto || ''; const p = (pStr.includes('Combo')?3:1)*(v.qtd||1); saldos.pudim -= p; saldos.colher -= p; saldos.sacola -= 1; });
+            db.atacado.forEach(a => { saldos.pudim -= a.qtd; if(a.coposDevolvidos) saldos.copo += a.coposDevolvidos; });
             return saldos;
         }
 
@@ -1024,10 +1043,8 @@
                     else if (k === 'ovos') { if (val <= 0) status = 'status-red'; else if (val <= 6) status = 'status-yellow'; }
                     else if (k === 'acucar') { if (val <= 0) status = 'status-red'; else if (val <= 400) status = 'status-yellow'; }
                     else if (k === 'copo') { if (val <= 0) status = 'status-red'; else if (val < 24) status = 'status-yellow'; }
-                    else if (k === 'tampa') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
+                    else if (k === 'tampa' || k === 'adesivo' || k === 'colher') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
                     else if (k === 'sacola') { if (val <= 0) status = 'status-red'; else if (val < 50) status = 'status-yellow'; }
-                    else if (k === 'adesivo') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
-                    else if (k === 'colher') { if (val < 70) status = 'status-red'; else if (val < 150) status = 'status-yellow'; }
                     el.classList.add(status); if (val < 0) el.classList.add('status-blink');
                 }
             });
@@ -1046,7 +1063,7 @@
             const tbPag = document.getElementById('tbody-pagamentos');
             tbPag.innerHTML = '';
             let timeline = [];
-            db.vendas.forEach(v => { const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1); const base = v.valorLiquido - (q * db.config.custoInsumo); const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo; timeline.push({ id: v.id, data: v.data, tipoAcao: 'ganho', giro: lucro * 0.50, mo: mo, luyan: lucro * 0.175, beatriz: lucro * 0.175 }); });
+            db.vendas.forEach(v => { const pStr = v.produto || ''; const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1); const base = v.valorLiquido - (q * db.config.custoInsumo); const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo; timeline.push({ id: v.id, data: v.data, tipoAcao: 'ganho', giro: lucro * 0.50, mo: mo, luyan: lucro * 0.175, beatriz: lucro * 0.175 }); });
             db.atacado.forEach(a => { if (a.status !== 'PAGO') return; const bruto = a.totalBruto !== undefined ? a.totalBruto : (a.qtd * a.unitario); const liq = a.totalLiquido !== undefined ? a.totalLiquido : (a.total !== undefined ? a.total : bruto - (a.desconto||0)); const insBase = a.qtd * db.config.custoInsumo; const abatCopos = (a.coposDevolvidos || 0) * (db.config.custoCopo || 1.80); const ins = Math.max(0, insBase - abatCopos); const base = liq - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo; timeline.push({ id: a.id, data: a.data, tipoAcao: 'ganho', giro: lucro * 0.50, mo: mo, luyan: lucro * 0.175, beatriz: lucro * 0.175 }); });
             db.pagamentos.forEach(p => { timeline.push({ id: p.id, data: p.data, tipoAcao: 'saque', obj: p }); });
 
@@ -1083,7 +1100,7 @@
         function renderRateio() {
             let htmlVar = ''; let vLiq=0, vIns=0, vCg=0, vMo=0, vLucro=0, vGiro=0, vFundo=0, vLu=0, vBea=0;
             db.vendas.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(v => {
-                const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
+                const pStr = v.produto || ''; const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1);
                 const ins = q * db.config.custoInsumo; const base = v.valorLiquido - ins;
                 const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
                 const giro = lucro * 0.50, fundo = lucro * 0.15, luyan = lucro * 0.175, beatriz = lucro * 0.175;
@@ -1130,11 +1147,19 @@
             document.getElementById('tbody-rateio-atacado').innerHTML = htmlAta;
         }
 
+        function applyAlertClass(elementCollection, val) {
+            elementCollection.forEach(el => {
+                el.innerText = formatMoney(val);
+                if(val < 0) el.classList.add('alerta-negativo');
+                else el.classList.remove('alerta-negativo');
+            });
+        }
+
         function updateDashboard() {
             // 1. CALCULOS ABSOLUTOS (TODOS OS TEMPOS - PARA OS SALDOS GLOBAIS E DINHEIRO NA CONTA)
             let abs_vIns=0, abs_vCg=0, abs_vMo=0, abs_vGiro=0, abs_vFundo=0, abs_vLu=0, abs_vBea=0;
             db.vendas.forEach(v => {
-                const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
+                const pStr = v.produto || ''; const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1);
                 const ins = q * db.config.custoInsumo; const base = v.valorLiquido - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
                 abs_vIns+=ins; abs_vCg+=cg; abs_vMo+=mo; abs_vGiro+=lucro*0.50; abs_vFundo+=lucro*0.15; abs_vLu+=lucro*0.175; abs_vBea+=lucro*0.175;
             });
@@ -1182,7 +1207,7 @@
             let vBruto = 0, vLiquido = 0, vQtd = 0, vEntrega = 0, vInsumo = 0, vCG = 0, vMO = 0, vLucro = 0, vGiro = 0, vFundo = 0, vLuyan = 0, vBeatriz = 0;
             fVendas.forEach(v => {
                 vBruto += v.valorBruto; vLiquido += v.valorLiquido; vEntrega += v.entrega || 0;
-                const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1); vQtd += q;
+                const pStr = v.produto || ''; const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1); vQtd += q;
                 const ins = q * db.config.custoInsumo; const base = v.valorLiquido - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
                 vInsumo += ins; vCG += cg; vMO += mo; vLucro += lucro; vGiro += lucro * 0.50; vFundo += lucro * 0.15; vLuyan += lucro * 0.175; vBeatriz += lucro * 0.175;
             });
