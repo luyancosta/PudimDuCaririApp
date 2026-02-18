@@ -8,10 +8,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
         :root {
             --bg-color: #F3F4F6;
@@ -25,100 +26,115 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); font-size: 14px; padding-bottom: 60px; }
 
-        /* LOGIN */
+        /* --- TELA DE LOGIN --- */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #FDE68A; display: flex; align-items: center; justify-content: center; z-index: 9999; flex-direction: column;}
         .login-box { background: var(--card-bg); padding: 2.5rem; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 90%; border-top: 6px solid var(--primary);}
         .login-box h1 { color: var(--secondary); margin-bottom: 1.5rem; font-weight: 800; font-size: 1.8rem; letter-spacing: -0.05em; }
         .login-box input { margin-bottom: 1rem; width: 100%; padding: 0.8rem; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 1rem; transition: 0.2s;}
         .login-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(217,119,6,0.2); }
         .login-box button { width: 100%; background: var(--primary); color: white; padding: 0.9rem; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 1rem; transition: 0.3s;}
+        .login-box button:hover { background: var(--primary-hover); transform: translateY(-1px); }
         #login-error { color: #991B1B; font-size: 0.85rem; margin-top: 15px; display: none; padding: 12px; background: #FEE2E2; border-radius: 8px; text-align: left; border: 1px solid #F87171;}
 
-        /* LAYOUT */
+        /* --- LAYOUT GERAL --- */
         #app-container { display: none; }
-        header { background-color: var(--secondary); color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; position: sticky; top: 0; z-index: 50; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        header h1 { font-size: 1.2rem; font-weight: 700; color: #FDE68A; margin: 0; }
-        .header-actions button { background-color: rgba(255,255,255,0.1); color: white; border: none; padding: 0.5rem 0.8rem; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.8rem; }
+        
+        header { background-color: var(--secondary); color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 50; }
+        header h1 { font-size: 1.3rem; font-weight: 700; color: #FDE68A; margin: 0; letter-spacing: -0.5px;}
+        .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;}
+        .header-actions button { background-color: rgba(255,255,255,0.1); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.85rem; transition: 0.2s;}
+        .header-actions button:hover { background-color: var(--primary); }
         #btn-logout { background-color: var(--danger) !important; }
 
-        /* TABS */
-        .tabs { display: flex; overflow-x: auto; background: var(--card-bg); padding: 0 0.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
-        .tabs::-webkit-scrollbar { height: 0px; }
-        .tab-btn { background: none; border: none; padding: 1rem; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+        /* --- MENU DE ABAS --- */
+        .tabs { display: flex; overflow-x: auto; background: var(--card-bg); padding: 0 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .tabs::-webkit-scrollbar { height: 0px; background: transparent; }
+        .tab-btn { background: none; border: none; padding: 1rem 1.2rem; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; white-space: nowrap; }
+        .tab-btn:hover { color: var(--primary); background-color: #FFFBEB; }
         .tab-btn.active { border-bottom-color: var(--primary); color: var(--primary); }
 
         .content { padding: 0 1rem; max-width: 1600px; margin: 0 auto; display: none; animation: fadeIn 0.3s ease-in-out; }
         .content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* CARDS & GRIDS */
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.8rem; margin-bottom: 1.5rem; }
-        .card { background: var(--card-bg); padding: 1rem; border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border-left: 4px solid var(--primary); display: flex; flex-direction: column; justify-content: space-between; }
-        .card h3 { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase; font-weight: 700; }
-        .card p { font-size: 1.3rem; font-weight: 800; color: var(--text-main); line-height: 1.1; }
+        /* --- CARDS & DASHBOARD --- */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.8rem; margin-bottom: 1.5rem; }
+        .card { background: var(--card-bg); padding: 1rem; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 5px solid var(--primary); display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s; position: relative; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .card h3 { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; }
+        .card p { font-size: 1.4rem; font-weight: 800; color: var(--text-main); line-height: 1.1; letter-spacing: -0.02em; }
+        
         .card.destaque { background: #111827; color: white; border-left-color: #10B981; }
         .card.destaque h3 { color: #9CA3AF; }
-        .card.destaque p { color: #10B981; font-size: 2rem; }
+        .card.destaque p { color: #10B981; font-size: 2.2rem; }
 
-        /* PAGAMENTO MINI CARDS (Horizontal Scroll) */
-        .payment-summary-grid { display: flex; gap: 10px; margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 10px; scroll-behavior: smooth; }
-        .payment-summary-grid::-webkit-scrollbar { height: 4px; }
-        .payment-summary-grid::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 4px; }
-        .mini-card { min-width: 130px; background: white; padding: 12px; border-radius: 10px; border: 1px solid var(--border); border-top: 4px solid var(--primary); text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .mini-card span { display: block; font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 5px; }
-        .mini-card strong { display: block; font-size: 1.1rem; color: var(--secondary); font-weight: 800; }
-
-        /* FORMS */
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.8rem; }
-        .form-group { margin-bottom: 0.5rem; }
-        label { display: block; font-weight: 600; margin-bottom: 0.2rem; font-size: 0.75rem; color: var(--text-muted); }
-        input, select { width: 100%; padding: 0.6rem; border: 1px solid var(--border); border-radius: 6px; outline: none; font-size: 0.9rem; background: #F9FAFB; }
-        input:focus, select:focus { border-color: var(--primary); background: #FFF; }
-        .btn-submit { background: var(--primary); color: white; padding: 0.8rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.95rem; margin-top: 1rem; width: 100%; text-transform: uppercase; }
-
-        /* TABLES */
-        .table-container { overflow-x: auto; background: var(--card-bg); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; min-width: 700px; font-size: 0.85rem; }
-        .table-compact table { min-width: 100% !important; } 
-        th, td { padding: 0.7rem 0.8rem; text-align: left; border-bottom: 1px solid var(--border); }
-        th { background: #F3F4F6; color: var(--secondary); font-weight: 700; text-transform: uppercase; font-size: 0.7rem; }
-        tbody tr:nth-child(even) { background-color: #F9FAFB; }
-        .tr-totais td { background-color: #1F2937 !important; color: #FDE68A !important; font-weight: 800; border-top: 2px solid #000; }
-
-        /* BUTTONS & ICONS */
-        .btn-icon { width: 30px; height: 30px; border-radius: 5px; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: white; margin-right: 3px; font-size: 0.9rem; }
-        .btn-edit { background: var(--info); }
-        .btn-delete { background: var(--danger); }
-        .btn-pay { background: var(--success); width: auto; padding: 0 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; height: 26px; }
-        .btn-action-small { margin-top: 5px; padding: 8px 12px; background: var(--primary); color: white; border: none; border-radius: 5px; font-weight: 600; width: 100%; text-transform: uppercase; font-size: 0.75rem; cursor: pointer; }
-
-        /* ESTOQUE */
+        /* --- ESTOQUE VISUAL --- */
+        .estoque-card { text-align: center; }
+        .estoque-card h3 { display: flex; align-items: center; justify-content: center; height: 40px; }
         .status-green { color: var(--success); font-weight: 700; }
         .status-red { color: var(--danger); font-weight: 700; }
-        .estoque-card h3 { display: flex; align-items: center; justify-content: center; height: 35px; text-align: center; }
-        .btn-edit-stock { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.05); padding: 4px; border-radius: 50%; border: none; cursor: pointer; }
+        .btn-edit-stock { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.05); padding: 5px; border-radius: 50%; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-edit-stock:hover { background: var(--primary); color: white; }
 
-        /* UTILS */
-        .section-title { margin-bottom: 1rem; color: var(--secondary); border-bottom: 2px solid var(--border); padding-bottom: 0.4rem; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; font-weight: 800; }
-        .global-title { background: var(--secondary); color: #FDE68A; padding: 0.6rem; border-radius: 6px; margin: 1.5rem 0 1rem 0; text-align: center; font-size: 0.95rem; font-weight: 700; text-transform: uppercase; }
-        .toast { visibility: hidden; min-width: 250px; background-color: var(--secondary); color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 10000; bottom: 20px; right: 20px; font-weight: 600; opacity: 0; transition: 0.3s; transform: translateY(20px); }
-        .toast.show { visibility: visible; opacity: 1; transform: translateY(0); }
+        /* --- FORMULÁRIOS --- */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+        .form-group { margin-bottom: 0.5rem; }
+        label { display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.8rem; color: var(--text-muted); }
+        input, select { width: 100%; padding: 0.7rem; border: 1px solid var(--border); border-radius: 8px; outline: none; transition: 0.2s; font-size: 0.95rem; background: #F9FAFB; color: #374151; }
+        input:focus, select:focus { border-color: var(--primary); background: #FFF; box-shadow: 0 0 0 2px rgba(217,119,6,0.1); }
+        
+        .btn-submit { background: var(--primary); color: white; padding: 0.8rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 1rem; margin-top: 1rem; width: 100%; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.05em; }
+        .btn-submit:hover { background: var(--primary-hover); transform: translateY(-1px); }
 
+        /* --- TABELAS --- */
+        .table-container { overflow-x: auto; background: var(--card-bg); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; font-size: 0.85rem; }
+        
+        /* Tabela Compacta (para Histórico/Receitas no Mobile) */
+        .table-compact table { min-width: 100% !important; }
+        .table-compact th, .table-compact td { padding: 0.6rem 0.4rem; font-size: 0.8rem; }
+
+        th, td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: #F3F4F6; color: var(--secondary); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+        tbody tr:nth-child(even) { background-color: #F9FAFB; }
+        tbody tr:hover { background-color: #F3F4F6; }
+        
+        /* Linha de Total do Rateio */
+        .tr-totais td { background-color: #1F2937 !important; color: #FDE68A !important; font-weight: 800; border-top: 2px solid #000; font-size: 0.9rem; }
+
+        /* Botões de Tabela */
+        .btn-icon { width: 32px; height: 32px; border-radius: 6px; border: none; cursor: pointer; font-size: 1rem; transition: 0.2s; margin-right: 4px; display: inline-flex; align-items: center; justify-content: center; color: white; }
+        .btn-edit { background-color: var(--info); } .btn-edit:hover { background-color: #2563EB; }
+        .btn-delete { background-color: var(--danger); } .btn-delete:hover { background-color: #DC2626; }
+        .btn-pay { background-color: var(--success); width: auto; padding: 0 10px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+
+        .btn-action-small { margin-top: 10px; font-size: 0.8rem; padding: 8px 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; text-transform: uppercase; }
+
+        .section-title { margin-bottom: 1.2rem; color: var(--secondary); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; font-weight: 800; }
+        .global-title { background: var(--secondary); color: #FDE68A; padding: 0.8rem; border-radius: 8px; margin: 2rem 0 1rem 0; text-align: center; font-size: 1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+
+        /* MODO VISUALIZADOR (ESCONDE BOTÕES) */
         body.viewer-mode .btn-submit, body.viewer-mode .btn-delete, body.viewer-mode .btn-edit, 
-        body.viewer-mode .btn-edit-stock, body.viewer-mode .btn-action-small, body.viewer-mode .btn-pay { display: none !important; }
+        body.viewer-mode .btn-edit-stock, body.viewer-mode .btn-action-small, 
+        body.viewer-mode .header-actions button:not(#btn-logout), 
+        body.viewer-mode .btn-pay { display: none !important; }
+        body.viewer-mode input, body.viewer-mode select { pointer-events: none !important; background: #E5E7EB !important; color: #6B7280; }
+
+        .toast { visibility: hidden; min-width: 250px; background-color: var(--secondary); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 10000; bottom: 30px; right: 30px; font-size: 0.95rem; font-weight: 600; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); opacity: 0; transition: 0.3s; transform: translateY(20px); }
+        .toast.show { visibility: visible; opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body>
 
-    <div id="toast" class="toast">Salvo com sucesso!</div>
+    <div id="toast" class="toast">Ação salva com sucesso!</div>
 
     <div id="login-screen">
         <div class="login-box">
             <h1>🍮 Pudim Du Cariri</h1>
-            <p style="margin-bottom: 1.5rem; color: var(--text-muted);">ERP de Gestão</p>
-            <input type="email" id="login-email" placeholder="E-mail">
+            <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Sistema Integrado de Gestão</p>
+            <input type="email" id="login-email" placeholder="E-mail" autocomplete="email">
             <input type="password" id="login-password" placeholder="Senha">
-            <button id="btn-login-action" onclick="fazerLogin()">ENTRAR</button>
+            <button id="btn-login-action" onclick="fazerLogin()">ENTRAR NO SISTEMA</button>
             <p id="login-error"></p>
         </div>
     </div>
@@ -149,114 +165,362 @@
         </div>
 
         <div id="dashboard-geral" class="content active">
+            
             <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 1.5rem; background: var(--card-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
                 <div style="display: flex; flex-direction: column;">
                     <label style="margin: 0 0 5px 0;">Filtrar Mês:</label>
                     <input type="month" id="dash-filter-month" onchange="updateDashboard()" style="width: 160px; margin: 0;">
                 </div>
                 <button class="btn-action-small" style="width: auto; background: var(--text-muted); margin: 0; padding: 10px;" onclick="limparFiltro()">Limpar</button>
-                <button class="btn-action-small" style="width: auto; margin: 0 0 0 auto; background: #25D366; padding: 10px 20px; font-size: 0.85rem;" onclick="enviarFechamentoWhatsApp()">📱 Enviar Fechamento (WhatsApp)</button>
+                <button class="btn-action-small" style="width: auto; margin: 0 0 0 auto; background: #25D366; padding: 10px 20px;" onclick="fechamentoWhatsApp()">📱 Enviar Fechamento</button>
             </div>
 
             <h2 class="section-title" style="color: var(--success); border-color: var(--success);">💰 CAIXA REAL (FÍSICO)</h2>
+            
             <div class="dashboard-grid">
                 <div class="card destaque" style="grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; padding: 1.5rem;">
-                    <div><h3>Dinheiro Total Disponível</h3><p id="global-total-conta">R$ 0,00</p></div>
+                    <div><h3 style="margin-bottom: 5px;">Dinheiro Total Disponível</h3>
+                        <p id="global-total-conta">R$ 0,00</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="global-title">🔒 DIVISÃO DOS SALDOS</div>
+            <div class="global-title">🔒 DIVISÃO DOS SALDOS (CAIXINHAS)</div>
             <div id="grid-saldos-globais"></div>
 
-            <h2 class="section-title" style="margin-top: 2.5rem;">🛒 Performance VAREJO</h2>
+            <h2 class="section-title" style="margin-top: 2.5rem;">🛒 Performance VAREJO (Mês/Filtro)</h2>
             <div class="dashboard-grid">
                 <div class="card"><h3>Fat. Bruto</h3><p id="v-dash-bruto">R$ 0,00</p></div>
                 <div class="card"><h3>Fat. Líquido</h3><p id="v-dash-liquido">R$ 0,00</p></div>
+                <div class="card"><h3>Taxa Entrega</h3><p id="v-dash-entrega">R$ 0,00</p></div>
                 <div class="card"><h3>Qtd. Vendida</h3><p id="v-dash-qtd">0</p></div>
+                
+                <div class="card" style="border-left-color: #EF4444;"><h3>Insumo Fixo</h3><p id="v-dash-insumos" style="color: #EF4444;">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #EF4444;"><h3>Custos Gerais</h3><p id="v-dash-cg" style="color: #EF4444;">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #EF4444;"><h3>Mão de Obra</h3><p id="v-dash-mo" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #10B981;"><h3>Lucro Líquido</h3><p id="v-dash-lucro-restante" style="color: #10B981;">R$ 0,00</p></div>
+                
+                <div class="card" style="border-left-color: #8B5CF6;"><h3>Giro (50%)</h3><p id="v-dash-giro">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo (15%)</h3><p id="v-dash-fundo">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #F59E0B;"><h3>Luyan</h3><p id="v-dash-luyan">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #F59E0B;"><h3>Beatriz</h3><p id="v-dash-beatriz">R$ 0,00</p></div>
             </div>
 
-            <h2 class="section-title" style="margin-top: 2rem;">📦 Performance ATACADO</h2>
+            <h2 class="section-title" style="margin-top: 2.5rem;">📦 Performance ATACADO (Pagos)</h2>
             <div class="dashboard-grid">
+                <div class="card"><h3>Fat. Bruto</h3><p id="a-dash-bruto">R$ 0,00</p></div>
+                <div class="card"><h3>Logística (Desc)</h3><p id="a-dash-desconto" style="color: var(--danger)">R$ 0,00</p></div>
                 <div class="card"><h3>Fat. Líquido</h3><p id="a-dash-liquido">R$ 0,00</p></div>
                 <div class="card"><h3>Qtd. Vendida</h3><p id="a-dash-qtd">0</p></div>
+                
+                <div class="card" style="border-left-color: #EF4444;"><h3>Insumo Fixo</h3><p id="a-dash-insumos" style="color: #EF4444;">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #EF4444;"><h3>Custos Gerais</h3><p id="a-dash-cg" style="color: #EF4444;">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #EF4444;"><h3>Mão de Obra</h3><p id="a-dash-mo" style="color: #EF4444;">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #10B981;"><h3>Lucro Líquido</h3><p id="a-dash-lucro-restante" style="color: #10B981;">R$ 0,00</p></div>
+                
+                <div class="card" style="border-left-color: #8B5CF6;"><h3>Giro (50%)</h3><p id="a-dash-giro">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo (15%)</h3><p id="a-dash-fundo">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #F59E0B;"><h3>Luyan</h3><p id="a-dash-luyan">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #F59E0B;"><h3>Beatriz</h3><p id="a-dash-beatriz">R$ 0,00</p></div>
+            </div>
+
+            <h2 class="section-title" style="margin-top: 2.5rem;">💸 Resumo Despesas (Saídas)</h2>
+            <div class="dashboard-grid">
+                <div class="card" style="border-left-color: #3B82F6;"><h3>Insumos</h3><p id="dash-desp-insumos">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #F59E0B;"><h3>Embalagem</h3><p id="dash-desp-embalagem">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #EF4444;"><h3>Gastos Gerais</h3><p id="dash-desp-gerais">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #8B5CF6;"><h3>Marketing</h3><p id="dash-desp-marketing">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #EF4444; grid-column: 1 / -1; display:flex; flex-direction:row; align-items:center; justify-content:space-between;">
+                    <h3 style="margin-bottom:0;">TOTAL GASTO</h3><p id="dash-desp-total" style="color: #EF4444; font-size:2rem;">R$ 0,00</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="receber" class="content">
+            <h2 class="section-title">⏳ Contas a Receber (Fiado/Atacado)</h2>
+            <div class="dashboard-grid">
+                <div class="card" style="border-left-color: var(--danger);">
+                    <h3>Total na Rua</h3>
+                    <p id="total-receber" style="color: var(--danger); font-size: 2.2rem;">R$ 0,00</p>
+                </div>
+            </div>
+            <div class="table-container mt-2">
+                <table>
+                    <thead><tr><th>Data</th><th>Cliente</th><th>Qtd</th><th>Valor</th><th>Ação</th></tr></thead>
+                    <tbody id="tbody-receber"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="estoque" class="content">
+            <h2 class="section-title">📦 Controle de Estoque</h2>
+            <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+                <div class="card estoque-card" style="border-left-color: #10B981; background: #ECFDF5;">
+                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('pudim', 'Pudins Prontos')">✏️</button>
+                    <h3>PUDINS<br>PRONTOS</h3><p id="est-pudim" class="status-green">0 un</p>
+                </div>
+                <div class="card estoque-card">
+                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('leite_condensado', 'Leite Condensado')">✏️</button>
+                    <h3>Leite Cond.</h3><p id="est-leite_condensado" class="status-green">0 un</p>
+                </div>
+                <div class="card estoque-card">
+                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('leite_integral', 'Leite Integral')">✏️</button>
+                    <h3>Leite Int.</h3><p id="est-leite_integral" class="status-green">0 ml</p>
+                </div>
+                <div class="card estoque-card">
+                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('ovos', 'Ovos')">✏️</button>
+                    <h3>Ovos</h3><p id="est-ovos" class="status-green">0 un</p>
+                </div>
+                <div class="card estoque-card">
+                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('acucar', 'Açúcar')">✏️</button>
+                    <h3>Açúcar</h3><p id="est-acucar" class="status-green">0 g</p>
+                </div>
+                
+                <div class="card estoque-card" style="border-left-color: #8B5CF6;">
+                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('copo', 'Copo Vazio')">✏️</button>
+                    <h3>Copos Vazios</h3><p id="est-copo" class="status-green">0 un</p>
+                </div>
+                <div class="card estoque-card" style="border-left-color: #8B5CF6;">
+                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('tampa', 'Tampas')">✏️</button>
+                    <h3>Tampas</h3><p id="est-tampa" class="status-green">0 un</p>
+                </div>
+                <div class="card estoque-card" style="border-left-color: #8B5CF6;">
+                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('sacola', 'Sacolas')">✏️</button>
+                    <h3>Sacolas</h3><p id="est-sacola" class="status-green">0 un</p>
+                </div>
+                <div class="card estoque-card" style="border-left-color: #8B5CF6;">
+                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('adesivo', 'Adesivos')">✏️</button>
+                    <h3>Adesivos</h3><p id="est-adesivo" class="status-green">0 un</p>
+                </div>
+                <div class="card estoque-card" style="border-left-color: #8B5CF6;">
+                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('colher', 'Colheres')">✏️</button>
+                    <h3>Colheres</h3><p id="est-colher" class="status-green">0 un</p>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px;">
+                    <h2 class="section-title">👩‍🍳 Produção (Bater Receita)</h2>
+                    <div class="card">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Data</label><input type="date" id="prod-data"></div>
+                            <div class="form-group"><label>Qtd. de Receitas</label><input type="number" id="prod-qtd" min="1" value="1"></div>
+                        </div>
+                        <button class="btn-submit" style="background:#10B981" id="btn-submit-producao" onclick="addProducao()">Registrar Produção</button>
+                    </div>
+                </div>
+
+                <div style="flex: 1; min-width: 300px;">
+                    <h2 class="section-title">📥 Ajuste Manual</h2>
+                    <div class="card">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Item</label>
+                                <select id="mov-item">
+                                    <option value="leite_condensado">Leite Condensado</option>
+                                    <option value="leite_integral">Leite Integral</option>
+                                    <option value="ovos">Ovos</option>
+                                    <option value="acucar">Açúcar</option>
+                                    <option value="copo">Copo Vazio</option>
+                                    <option value="tampa">Tampas</option>
+                                    <option value="sacola">Sacolas</option>
+                                    <option value="adesivo">Adesivos</option>
+                                    <option value="colher">Colheres</option>
+                                    <option value="pudim">Pudim Pronto</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Tipo</label><select id="mov-tipo"><option value="entrada">Entrada (+)</option><option value="saida">Saída (-)</option></select></div>
+                            <div class="form-group"><label>Qtd</label><input type="number" id="mov-qtd" min="1"></div>
+                        </div>
+                        <input type="date" id="mov-data" style="display:none"> <button class="btn-submit" id="btn-submit-mov" onclick="addEstoqueMov()">Lançar Ajuste</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display:flex; gap:1.5rem; margin-top: 2rem; flex-wrap: wrap;">
+                <div style="flex:1; min-width:300px;" class="table-container table-compact">
+                    <h3 class="section-title" style="border:none; margin-bottom:10px;">Histórico Receitas</h3>
+                    <table><thead><tr><th>Data</th><th style="text-align:center">Qtd</th><th style="text-align:center">Ação</th></tr></thead><tbody id="tbody-producoes"></tbody></table>
+                </div>
+                
+                <div style="flex:1; min-width:300px;" class="table-container">
+                    <h3 class="section-title" style="border:none; margin-bottom:10px;">Histórico Ajustes</h3>
+                    <table><thead><tr><th>Data</th><th>Item</th><th>Mov</th><th>Ação</th></tr></thead><tbody id="tbody-estoquemov"></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <div id="config" class="content">
+            <h2 class="section-title">⚙️ Parâmetros do Sistema</h2>
+            <div class="card">
+                <div class="form-grid">
+                    <div class="form-group"><label>Preço Venda (Unidade)</label><input type="number" id="cfg-preco-und" step="0.01"></div>
+                    <div class="form-group"><label>Preço Venda (Combo)</label><input type="number" id="cfg-preco-combo" step="0.01"></div>
+                    <div class="form-group"><label>Custo Insumos (Por Unidade)</label><input type="number" id="cfg-custo-insumo" step="0.01"></div>
+                    <div class="form-group"><label>Valor Abatimento Copo</label><input type="number" id="cfg-custo-copo" step="0.01"></div>
+                    <div class="form-group"><label>Taxa Crédito (Inserção) %</label><input type="number" id="cfg-taxa-cred-ins" step="0.01"></div>
+                    <div class="form-group"><label>Taxa Crédito (Aprox) %</label><input type="number" id="cfg-taxa-cred-apr" step="0.01"></div>
+                    <div class="form-group"><label>Taxa Débito (Inserção) %</label><input type="number" id="cfg-taxa-deb-ins" step="0.01"></div>
+                    <div class="form-group"><label>Taxa Débito (Aprox) %</label><input type="number" id="cfg-taxa-deb-apr" step="0.01"></div>
+                    <div class="form-group"><label>Taxa Link Pagamento %</label><input type="number" id="cfg-taxa-cartao-online" step="0.01"></div>
+                </div>
+                <button class="btn-submit" onclick="saveConfig()">Salvar Configurações</button>
             </div>
         </div>
 
         <div id="vendas" class="content">
-            <h2 class="section-title">🛒 Nova Venda Varejo</h2>
-            
-            <div class="payment-summary-grid">
-                <div class="mini-card" style="border-top-color: #3B82F6;"><span>PIX (Pessoal)</span><strong id="v-sum-pix-p">R$ 0,00</strong></div>
-                <div class="mini-card" style="border-top-color: #10B981;"><span>PIX (Asaas)</span><strong id="v-sum-pix-a">R$ 0,00</strong></div>
-                <div class="mini-card" style="border-top-color: #F59E0B;"><span>Dinheiro</span><strong id="v-sum-dinheiro">R$ 0,00</strong></div>
-                <div class="mini-card" style="border-top-color: #8B5CF6;"><span>Crédito</span><strong id="v-sum-credito">R$ 0,00</strong></div>
-                <div class="mini-card" style="border-top-color: #6B7280;"><span>Débito</span><strong id="v-sum-debito">R$ 0,00</strong></div>
-                <div class="mini-card" style="border-top-color: #6B7280;"><span>Online</span><strong id="v-sum-online">R$ 0,00</strong></div>
-            </div>
-
-            <div class="card" style="margin-bottom: 2rem;">
+            <h2 class="section-title">🛒 Nova Venda</h2>
+            <div class="card">
                 <div class="form-grid">
                     <div class="form-group"><label>Data</label><input type="date" id="v-data"></div>
-                    <div class="form-group"><label>Produto</label><select id="v-produto"><option value="Unidade">Unidade</option><option value="Combo">Combo (3 und)</option></select></div>
+                    <div class="form-group">
+                        <label>Produto</label>
+                        <select id="v-produto">
+                            <option value="Unidade">Pudim 1 Und</option>
+                            <option value="Combo">Combo (3 und)</option>
+                        </select>
+                    </div>
                     <div class="form-group"><label>Qtd</label><input type="number" id="v-qtd" value="1" min="1"></div>
                     <div class="form-group"><label>Desc. (R$)</label><input type="number" id="v-desconto" step="0.01" value="0"></div>
+                    
                     <div class="form-group">
                         <label>Pagamento</label>
                         <select id="v-pgto" onchange="toggleAsaas()">
                             <option value="PIX">PIX</option>
                             <option value="Dinheiro">Dinheiro</option>
                             <option value="Credito Insercao">Crédito (Ins)</option>
-                            <option value="Credito Aproximacao">Crédito (Apr)</option>
+                            <option value="Credito Aproximacao">Crédito (Aprox)</option>
                             <option value="Debito Insercao">Débito (Ins)</option>
-                            <option value="Debito Aproximacao">Débito (Apr)</option>
-                            <option value="Cartao Online">Link Online</option>
+                            <option value="Debito Aproximacao">Débito (Aprox)</option>
+                            <option value="Cartao Online">Link (Online)</option>
                         </select>
                     </div>
                     <div class="form-group" id="asaas-group" style="display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" id="v-asaas" style="width: 18px; height:18px;">
-                        <label for="v-asaas" style="margin: 0; color: #D97706; font-weight:700">PIX via Asaas?</label>
+                        <input type="checkbox" id="v-asaas" style="width: 20px;">
+                        <label for="v-asaas" style="margin: 0; color: #D97706;">Asaas (R$ 0,14)</label>
                     </div>
-                    <div class="form-group"><label>Taxa Entrega</label><input type="number" id="v-entrega" step="0.01" value="0"></div>
+                    <div class="form-group"><label>Taxa Entrega (R$)</label><input type="number" id="v-entrega" step="0.01" value="0"></div>
                 </div>
-                <button class="btn-submit" id="btn-submit-vendas" onclick="addVenda()">Lançar Venda</button>
+                <button class="btn-submit" id="btn-submit-vendas" onclick="addVenda()">Salvar Venda</button>
             </div>
-
+            <h3 class="section-title mt-2">Histórico (Mais Recentes)</h3>
             <div class="table-container">
                 <table>
-                    <thead><tr><th>#</th><th>Data</th><th>Produto</th><th>Pgto</th><th>Líquido</th><th>Ação</th></tr></thead>
+                    <thead><tr><th>#</th><th>Data</th><th>Prod</th><th>Liq</th><th>Ação</th></tr></thead>
                     <tbody id="tbody-vendas"></tbody>
                 </table>
             </div>
         </div>
 
-        <div id="receber" class="content"><h2 class="section-title">⏳ A Receber</h2><div class="table-container"><table><thead><tr><th>Data</th><th>Cliente</th><th>Valor</th><th>Ação</th></tr></thead><tbody id="tbody-receber"></tbody></table></div></div>
-        <div id="estoque" class="content"><h2 class="section-title">📦 Estoque</h2><div class="dashboard-grid" id="grid-estoque"></div><div style="display:flex; gap:1rem; flex-wrap:wrap;"><div class="card" style="flex:1"><h3>Receita</h3><input type="date" id="prod-data"><input type="number" id="prod-qtd" value="1"><button class="btn-submit" onclick="addProducao()">Bater</button></div></div><div class="table-container mt-2"><table><thead><tr><th>Data</th><th>Qtd</th><th>Ação</th></tr></thead><tbody id="tbody-producoes"></tbody></table></div></div>
-        
-        <div id="atacado" class="content"><h2 class="section-title">📦 Atacado</h2>
-            <div class="payment-summary-grid">
-                <div class="mini-card"><h4>Líquido</h4><strong id="a-card-liq">R$ 0,00</strong></div>
+        <div id="atacado" class="content">
+            <h2 class="section-title">📦 Novo Pedido Atacado</h2>
+            <div class="card">
+                <div class="form-grid">
+                    <div class="form-group"><label>Data</label><input type="date" id="a-data"></div>
+                    <div class="form-group"><label>Cliente</label><input type="text" id="a-cliente"></div>
+                    <div class="form-group"><label>Qtd</label><input type="number" id="a-qtd"></div>
+                    <div class="form-group"><label>Valor Un.</label><input type="number" id="a-valor" step="0.01"></div>
+                    <div class="form-group"><label>Copos Devolvidos</label><input type="number" id="a-copos" value="0" min="0" oninput="calcDescAtacado()"></div>
+                    <div class="form-group"><label>Desc. Logística</label><input type="number" id="a-desconto" step="0.01" value="0"></div>
+                    <div class="form-group"><label>Status</label><select id="a-status"><option value="PAGO">Pago</option><option value="NÃO PAGO">Pendente</option></select></div>
+                </div>
+                <button class="btn-submit" id="btn-submit-atacado" onclick="addAtacado()">Salvar Pedido</button>
             </div>
-            <div class="card"><div class="form-grid"><input type="date" id="a-data"><input type="text" id="a-cliente" placeholder="Cliente"><input type="number" id="a-qtd" placeholder="Qtd"><input type="number" id="a-valor" placeholder="Valor Un."><select id="a-status"><option value="PAGO">Pago</option><option value="NÃO PAGO">Pendente</option></select></div><button class="btn-submit" onclick="addAtacado()">Salvar</button></div><div class="table-container mt-2"><table><thead><tr><th>Data</th><th>Cliente</th><th>Qtd</th><th>Total</th><th>Status</th><th>Ação</th></tr></thead><tbody id="tbody-atacado"></tbody></table></div></div>
-        
-        <div id="rateio" class="content"><h2 class="section-title">📊 Rateio Detalhado</h2><div class="table-container"><table><thead><tr><th>#</th><th>Data</th><th>Liq</th><th>Ins</th><th>Gerais</th><th>Mão</th><th>Lucro</th><th>Giro</th><th>Fundo</th><th>Lu</th><th>Bea</th></tr></thead><tbody id="tbody-rateio-varejo"></tbody></table></div></div>
-        <div id="despesas" class="content"><h2 class="section-title">💸 Despesas</h2><div class="card"><div class="form-grid"><input type="date" id="d-data"><input type="text" id="d-item" placeholder="Item"><input type="number" id="d-qtd" placeholder="Qtd" step="0.01"><input type="number" id="d-valor" placeholder="Vl. Unit" step="0.01"><select id="d-categoria"><option value="INSUMOS">Insumos</option><option value="EMBALAGEM">Embalagem</option><option value="GASTOS GERAIS">Gerais</option><option value="MARKETING">Marketing</option></select></div><button class="btn-submit" onclick="addDespesa()">Salvar</button></div><div class="table-container mt-2"><table><thead><tr><th>Data</th><th>Item</th><th>Total</th><th>Cat</th><th>Ação</th></tr></thead><tbody id="tbody-despesas"></tbody></table></div></div>
-        <div id="extrato" class="content"><h2 class="section-title">📑 Extrato de Saques</h2><div class="table-container"><table><thead><tr><th>Data</th><th>Origem</th><th>Valor</th><th>Ação</th></tr></thead><tbody id="tbody-pagamentos"></tbody></table></div></div>
-        <div id="investimentos" class="content"><h2 class="section-title">📈 Investimentos</h2><div class="table-container"><table><thead><tr><th>Data</th><th>Item</th><th>Valor</th><th>Ação</th></tr></thead><tbody id="tbody-investimentos"></tbody></table></div></div>
-        <div id="config" class="content"><h2 class="section-title">⚙️ Parâmetros</h2><div class="card"><div class="form-grid" id="form-config-container">
-            <div class="form-group"><label>Preço Unidade</label><input id="cfg-preco-und" type="number"></div>
-            <div class="form-group"><label>Preço Combo</label><input id="cfg-preco-combo" type="number"></div>
-            <div class="form-group"><label>Custo Insumo</label><input id="cfg-custo-insumo" type="number"></div>
-            <div class="form-group"><label>Abat. Copo</label><input id="cfg-custo-copo" type="number"></div>
-            <div class="form-group"><label>Tx Crédito Ins</label><input id="cfg-taxa-cred-ins" type="number"></div>
-            <div class="form-group"><label>Tx Crédito Apr</label><input id="cfg-taxa-cred-apr" type="number"></div>
-            <div class="form-group"><label>Tx Débito Ins</label><input id="cfg-taxa-deb-ins" type="number"></div>
-            <div class="form-group"><label>Tx Débito Apr</label><input id="cfg-taxa-deb-apr" type="number"></div>
-            <div class="form-group"><label>Tx Online</label><input id="cfg-taxa-cartao-online" type="number"></div>
-        </div><button class="btn-submit" onclick="saveConfig()">Salvar</button></div></div>
+            <div class="table-container mt-2">
+                <table>
+                    <thead><tr><th>#</th><th>Data</th><th>Cliente</th><th>Qtd</th><th>Liq</th><th>Status</th><th>Ação</th></tr></thead>
+                    <tbody id="tbody-atacado"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="rateio" class="content">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom: 1rem;">
+                <h2 class="section-title" style="margin:0; border:none;">Detalhamento Financeiro</h2>
+                <button class="btn-action-small" style="width:auto; background:#10B981" onclick="exportarExcel()">📊 Baixar Excel</button>
+            </div>
+            
+            <h3 class="section-title">Varejo</h3>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>#</th><th>Data</th><th>Liq</th><th>Ins</th><th>Gerais</th><th>Mão</th><th>Lucro</th><th>Giro</th><th>Fundo</th><th>Lu</th><th>Bea</th></tr></thead>
+                    <tbody id="tbody-rateio-varejo"></tbody>
+                </table>
+            </div>
+
+            <h3 class="section-title mt-2">Atacado</h3>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>#</th><th>Data</th><th>Liq</th><th>Ins</th><th>Gerais</th><th>Mão</th><th>Lucro</th><th>Giro</th><th>Fundo</th><th>Lu</th><th>Bea</th></tr></thead>
+                    <tbody id="tbody-rateio-atacado"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="despesas" class="content">
+            <h2 class="section-title">💸 Lançar Despesa</h2>
+            <div class="card">
+                <div class="form-grid">
+                    <div class="form-group"><label>Data</label><input type="date" id="d-data"></div>
+                    <div class="form-group"><label>Item</label><input type="text" id="d-item"></div>
+                    <div class="form-group"><label>Qtd</label><input type="number" id="d-qtd" step="0.01"></div>
+                    <div class="form-group"><label>Valor Un.</label><input type="number" id="d-valor" step="0.01"></div>
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <select id="d-categoria"><option value="INSUMOS">Insumos</option><option value="EMBALAGEM">Embalagem</option><option value="GASTOS GERAIS">Gastos Gerais</option><option value="MARKETING">Marketing</option></select>
+                    </div>
+                </div>
+                <button class="btn-submit" id="btn-submit-despesas" onclick="addDespesa()">Salvar Despesa</button>
+            </div>
+            <div class="table-container mt-2">
+                <table>
+                    <thead><tr><th>#</th><th>Data</th><th>Item</th><th>Total</th><th>Cat</th><th>Ação</th></tr></thead>
+                    <tbody id="tbody-despesas"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="investimentos" class="content">
+            <h2 class="section-title">📈 Investimento Inicial</h2>
+            <div class="card">
+                <div class="form-grid">
+                    <div class="form-group"><label>Data</label><input type="date" id="i-data"></div>
+                    <div class="form-group"><label>Item</label><input type="text" id="i-item"></div>
+                    <div class="form-group"><label>Valor</label><input type="number" id="i-valor" step="0.01"></div>
+                </div>
+                <button class="btn-submit" id="btn-submit-investimentos" onclick="addInvestimento()">Salvar</button>
+            </div>
+            <div class="table-container mt-2">
+                <table><thead><tr><th>Data</th><th>Item</th><th>Valor</th><th>Ação</th></tr></thead><tbody id="tbody-investimentos"></tbody></table>
+            </div>
+        </div>
+
+        <div id="extrato" class="content">
+            <h2 class="section-title">📑 Saques / Retiradas</h2>
+            <div class="card">
+                <div class="form-grid">
+                    <div class="form-group"><label>Data</label><input type="date" id="p-data"></div>
+                    <div class="form-group">
+                        <label>Origem</label>
+                        <select id="p-tipo">
+                            <option value="Divida">Giro (Dívida)</option>
+                            <option value="MaoObra">Mão de Obra</option>
+                            <option value="Luyan">Luyan</option>
+                            <option value="Beatriz">Beatriz</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Valor</label><input type="number" id="p-valor" step="0.01"></div>
+                </div>
+                <button class="btn-submit" id="btn-submit-pagamentos" onclick="addPagamento()">Registrar Saque</button>
+            </div>
+            <div class="table-container mt-2">
+                <table><thead><tr><th>Data</th><th>Origem</th><th>Valor</th><th>Saldo</th><th>Ação</th></tr></thead><tbody id="tbody-pagamentos"></tbody></table>
+            </div>
+        </div>
+
     </div>
 
 <script>
+    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
         apiKey: "AIzaSyDctGxi1zGwJuHJ_eaFJn3TmErK9tWaGy0",
         authDomain: "pudimducaririapp.firebaseapp.com",
@@ -269,424 +533,165 @@
 
     const ADMIN_EMAILS = ["luyan@pudim.com", "luyancosta.2015@gmail.com"]; 
     const VIEWER_EMAIL = "beatriz@pudim.com"; 
-    
-    let isOnline = firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLE_SUA_API_KEY_AQUI";
-    if(isOnline) firebase.initializeApp(firebaseConfig);
 
-    // --- DADOS INJETADOS DO BACKUP ---
+    let isOnline = firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLE_SUA_API_KEY_AQUI";
+    if(isOnline) { firebase.initializeApp(firebaseConfig); }
+
+    // --- DB INIT ---
     let db = {
-      "atacado": [
-        {"cliente": "Davi (88 Smash)", "coposDevolvidos": 0, "data": "2026-02-17", "desconto": 0, "id": 1771340901079, "num": 4, "qtd": 12, "status": "NÃO PAGO", "totalBruto": 120, "totalLiquido": 120, "unitario": 10},
-        {"cliente": "Davi (88 Smash)", "coposDevolvidos": 0, "data": "2026-02-15", "desconto": 0, "id": 202, "num": 3, "qtd": 6, "status": "PAGO", "totalBruto": 60, "totalLiquido": 60, "unitario": 10},
-        {"cliente": "Conde Burguers", "coposDevolvidos": 0, "data": "2026-02-14", "desconto": 0, "id": 201, "num": 2, "qtd": 24, "status": "PAGO", "total": 263.76, "totalBruto": 263.76, "totalLiquido": 263.76, "unitario": 10.99},
-        {"cliente": "Davi (88 Smash)", "coposDevolvidos": 0, "data": "2026-02-13", "desconto": 0, "id": 200, "num": 1, "qtd": 12, "status": "PAGO", "totalBruto": 120, "totalLiquido": 120, "unitario": 10}
-      ],
-      "config": {
-        "custoCopo": 1.5, "custoInsumo": 5.95, "precoCombo": 40, "precoUnd": 15,
-        "taxaCartaoOnline": 0, "taxaCredApr": 3.09, "taxaCredIns": 4.98, "taxaDebApr": 0.89, "taxaDebIns": 1.99
-      },
-      "despesas": [
-        {"categoria": "INSUMOS", "data": "2026-02-17", "id": 1771365334300, "item": "Leite Integral", "num": 21, "qtd": 4, "total": 16, "unitario": 4},
-        {"categoria": "EMBALAGEM", "data": "2026-02-17", "id": 1771340436969, "item": "Copos Americanos", "num": 20, "qtd": 72, "total": 92.88, "unitario": 1.29},
-        {"categoria": "INSUMOS", "data": "2026-02-17", "id": 1771340391404, "item": "Leite Integral", "num": 19, "qtd": 3, "total": 12, "unitario": 4},
-        {"categoria": "INSUMOS", "data": "2026-02-17", "id": 1771340354052, "item": "Açúcar Cristal", "num": 18, "qtd": 7, "total": 20.93, "unitario": 2.99},
-        {"categoria": "INSUMOS", "data": "2026-02-17", "id": 1771340324690, "item": "leite condensado tirol", "num": 17, "qtd": 27, "total": 156.33, "unitario": 5.79},
-        {"categoria": "INSUMOS", "data": "2026-02-17", "id": 1771340306821, "item": "leite condensado natville", "num": 16, "qtd": 1, "total": 5.29, "unitario": 5.29},
-        {"categoria": "INSUMOS", "data": "2026-02-17", "id": 1771335051959, "item": "Ovos", "num": 15, "qtd": 180, "total": 90, "unitario": 0.5},
-        {"categoria": "GASTOS GERAIS", "data": "2026-02-15", "id": 113, "item": "CARIRI GAS", "num": 14, "qtd": 1, "total": 115, "unitario": 115},
-        {"categoria": "INSUMOS", "data": "2026-02-15", "id": 109, "item": "LEITE", "num": 13, "qtd": 1, "total": 4, "unitario": 4},
-        {"categoria": "INSUMOS", "data": "2026-02-15", "id": 107, "item": "OVOS", "num": 12, "qtd": 1, "total": 11.99, "unitario": 11.99},
-        {"categoria": "INSUMOS", "data": "2026-02-15", "id": 106, "item": "LEITE", "num": 11, "qtd": 1, "total": 4.79, "unitario": 4.79},
-        {"categoria": "INSUMOS", "data": "2026-02-15", "id": 101, "item": "OVOS", "num": 10, "qtd": 1, "total": 11.99, "unitario": 11.99},
-        {"categoria": "INSUMOS", "data": "2026-02-14", "id": 112, "item": "COMPRAS MIX MATEUS", "num": 9, "qtd": 1, "total": 84.64, "unitario": 84.64},
-        {"categoria": "INSUMOS", "data": "2026-02-14", "id": 105, "item": "LUVAS", "num": 8, "qtd": 1, "total": 30, "unitario": 30},
-        {"categoria": "INSUMOS", "data": "2026-02-14", "id": 104, "item": "PAPEL ALUMINIO", "num": 7, "qtd": 1, "total": 4, "unitario": 4},
-        {"categoria": "EMBALAGEM", "data": "2026-02-14", "id": 103, "item": "COPOS", "num": 6, "qtd": 72, "total": 86.4, "unitario": 1.2},
-        {"categoria": "INSUMOS", "data": "2026-02-14", "id": 102, "item": "OVOS", "num": 5, "qtd": 1, "total": 11.99, "unitario": 11.99},
-        {"categoria": "INSUMOS", "data": "2026-02-14", "id": 100, "item": "AÇUCAR", "num": 4, "qtd": 2, "total": 7.58, "unitario": 3.79},
-        {"categoria": "MARKETING", "data": "2026-02-13", "id": 111, "item": "IMPULSIONAMENTO", "num": 3, "qtd": 1, "total": 30, "unitario": 30},
-        {"categoria": "INSUMOS", "data": "2026-02-13", "id": 110, "item": "LEITE", "num": 2, "qtd": 2, "total": 8, "unitario": 4},
-        {"categoria": "INSUMOS", "data": "2026-02-13", "id": 108, "item": "OVOS", "num": 1, "qtd": 1, "total": 5.51, "unitario": 5.51}
-      ],
-      "estoqueMov": [
-        {"data": "2026-02-18", "desc": "Ajuste Rápido", "id": 1771380292188, "item": "tampa", "qtd": 3, "tipo": "saida"},
-        {"data": "2026-02-18", "desc": "Ajuste Rápido", "id": 1771380280553, "item": "copo", "qtd": 31, "tipo": "saida"},
-        {"data": "2026-02-18", "desc": "Ajuste Rápido", "id": 1771379552090, "item": "pudim", "qtd": 3, "tipo": "saida"},
-        {"data": "2026-02-17", "desc": "Compra", "id": 1771365389693, "item": "leite_integral", "qtd": 4000, "tipo": "entrada"},
-        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771359756418, "item": "pudim", "qtd": 1, "tipo": "entrada"},
-        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771335735025, "item": "sacola", "qtd": 14, "tipo": "saida"},
-        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771335711531, "item": "adesivo", "qtd": 90, "tipo": "saida"},
-        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771335688329, "item": "copo", "qtd": 2, "tipo": "saida"},
-        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771335625508, "item": "tampa", "qtd": 102, "tipo": "saida"},
-        {"data": "2026-02-17", "desc": "Compras", "id": 1771335162981, "item": "leite_condensado", "qtd": 28, "tipo": "entrada"},
-        {"data": "2026-02-17", "desc": "Compras", "id": 1771335152998, "item": "leite_integral", "qtd": 3000, "tipo": "entrada"},
-        {"data": "2026-02-17", "desc": "Compras", "id": 1771335102225, "item": "acucar", "qtd": 7000, "tipo": "entrada"},
-        {"data": "2026-02-17", "desc": "Compras", "id": 1771335067613, "item": "ovos", "qtd": 180, "tipo": "entrada"},
-        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771296080760, "item": "adesivo", "qtd": 24, "tipo": "entrada"},
-        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771294473837, "item": "adesivo", "qtd": 22, "tipo": "saida"},
-        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771294462407, "item": "pudim", "qtd": 2, "tipo": "saida"},
-        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771294432533, "item": "acucar", "qtd": 1000, "tipo": "entrada"},
-        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771294427725, "item": "ovos", "qtd": 24, "tipo": "entrada"},
-        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771294419367, "item": "leite_integral", "qtd": 1000, "tipo": "entrada"},
-        {"data": "2026-02-17", "desc": "Ajuste Rápido", "id": 1771294415195, "item": "leite_condensado", "qtd": 7, "tipo": "entrada"},
-        {"data": "2026-02-16", "desc": "Ajuste Rápido de Inventário", "id": 1771212059145, "item": "colher", "qtd": 182, "tipo": "entrada"},
-        {"data": "2026-02-16", "desc": "Ajuste Rápido de Inventário", "id": 1771212054902, "item": "adesivo", "qtd": 154, "tipo": "entrada"},
-        {"data": "2026-02-16", "desc": "Ajuste Rápido de Inventário", "id": 1771212047234, "item": "sacola", "qtd": 92, "tipo": "entrada"},
-        {"data": "2026-02-16", "desc": "Ajuste Rápido de Inventário", "id": 1771212036139, "item": "tampa", "qtd": 284, "tipo": "entrada"},
-        {"data": "2026-02-16", "desc": "Ajuste Rápido de Inventário", "id": 1771212031633, "item": "copo", "qtd": 144, "tipo": "entrada"},
-        {"data": "2026-02-16", "desc": "Ajuste Rápido de Inventário", "id": 1771212023854, "item": "pudim", "qtd": 104, "tipo": "entrada"}
-      ],
-      "investimentos": [
-        {"data": "2026-02-08", "id": 13, "item": "200 COLHERES", "valor": 50.89},
-        {"data": "2026-02-07", "id": 14, "item": "3 CAIXAS DE COPOS", "valor": 86.4},
-        {"data": "2026-02-07", "id": 12, "item": "2kg de açucar", "valor": 5.96},
-        {"data": "2026-02-07", "id": 11, "item": "Adesivo Frente (bopp transparente) 300", "valor": 84.84},
-        {"data": "2026-02-07", "id": 10, "item": "100 Sacolas 17x27cm", "valor": 60},
-        {"data": "2026-02-07", "id": 9, "item": "15 Leite Condensado", "valor": 74.7},
-        {"data": "2026-02-07", "id": 8, "item": "20 ovos", "valor": 10.98},
-        {"data": "2026-02-07", "id": 7, "item": "200 tampas", "valor": 282.48},
-        {"data": "2026-02-07", "id": 6, "item": "100 tampas", "valor": 143},
-        {"data": "2026-02-07", "id": 5, "item": "Rosca para bico", "valor": 6.5},
-        {"data": "2026-01-27", "id": 4, "item": "Impulsionamento - Primeira Arte", "valor": 50},
-        {"data": "2026-01-21", "id": 3, "item": "Bico da Maquina", "valor": 13.75},
-        {"data": "2026-01-21", "id": 2, "item": "12 copos americanos", "valor": 17.9},
-        {"data": "2026-01-15", "id": 1, "item": "Máquina Vapor", "valor": 279.18}
-      ],
-      "pagamentos": [
-        {"data": "2026-02-17", "id": 1771362173058, "tipo": "Luyan", "valor": 5},
-        {"data": "2026-02-17", "id": 1771340600366, "tipo": "Luyan", "valor": 30},
-        {"data": "2026-02-17", "id": 1771295840999, "tipo": "Luyan", "valor": 33.83},
-        {"data": "2026-02-17", "id": 1771295624480, "tipo": "Divida", "valor": 56},
-        {"data": "2026-02-17", "id": 1771295594433, "tipo": "Beatriz", "valor": 21.61},
-        {"data": "2026-02-17", "id": 1771294939680, "tipo": "Beatriz", "valor": 62.75},
-        {"data": "2026-02-17", "id": 1771294909767, "tipo": "MaoObra", "valor": 148.32},
-        {"data": "2026-02-16", "id": 1771209850760, "tipo": "Divida", "valor": 115},
-        {"data": "2026-02-16", "id": 1771209832088, "tipo": "Divida", "valor": 15},
-        {"data": "2026-02-16", "id": 1771205787274, "tipo": "Divida", "valor": 57}
-      ],
-      "producoes": [
-        {"data": "2026-02-17", "id": 1771359750902, "num": 2, "qtd": 7},
-        {"data": "2026-02-17", "id": 1771294452361, "num": 1, "qtd": 7}
-      ],
-      "vendas": [
-        {"asaas": false, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771365465267, "num": 46, "pgto": "Dinheiro", "produto": "Combo (3 und)", "qtd": 1, "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
-        {"asaas": false, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771360110663, "num": 45, "pgto": "Credito Aproximacao", "produto": "Combo", "qtd": 1, "valorBruto": 40, "valorLiquido": 38.764, "valorTaxa": 1.2359999999999998},
-        {"asaas": false, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771360103325, "num": 44, "pgto": "Credito Aproximacao", "produto": "Pudim 1 Und", "qtd": 1, "valorBruto": 15, "valorLiquido": 14.5365, "valorTaxa": 0.46349999999999997},
-        {"asaas": true, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771360094703, "num": 43, "pgto": "PIX", "produto": "Pudim 1 Und", "qtd": 1, "valorBruto": 15, "valorLiquido": 14.86, "valorTaxa": 0.14},
-        {"asaas": false, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771360087306, "num": 42, "pgto": "Dinheiro", "produto": "Pudim 1 Und", "qtd": 1, "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"asaas": false, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771360058972, "num": 41, "pgto": "Credito Insercao", "produto": "Combo (3 und)", "qtd": 1, "valorBruto": 40, "valorLiquido": 38.008, "valorTaxa": 1.9920000000000002},
-        {"asaas": true, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771360010439, "num": 40, "pgto": "PIX", "produto": "Pudim 1 Und", "qtd": 1, "valorBruto": 15, "valorLiquido": 14.86, "valorTaxa": 0.14},
-        {"asaas": true, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771359857236, "num": 39, "pgto": "PIX", "produto": "Pudim 1 Und", "qtd": 1, "valorBruto": 15, "valorLiquido": 14.86, "valorTaxa": 0.14},
-        {"asaas": false, "data": "2026-02-17", "desconto": 30, "entrega": 0, "id": 1771294632479, "num": 38, "pgto": "PIX", "produto": "Pudim 1 Und", "qtd": 2, "valorBruto": 30, "valorLiquido": 0, "valorTaxa": 0},
-        {"asaas": true, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771294605441, "num": 37, "pgto": "PIX", "produto": "Combo (3 und)", "qtd": 1, "valorBruto": 40, "valorLiquido": 39.86, "valorTaxa": 0.14},
-        {"asaas": true, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771294570555, "num": 36, "pgto": "PIX", "produto": "Pudim 1 Und", "qtd": 1, "valorBruto": 15, "valorLiquido": 14.86, "valorTaxa": 0.14},
-        {"asaas": false, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771294558706, "num": 35, "pgto": "PIX", "produto": "Pudim 1 Und", "qtd": 1, "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"asaas": false, "data": "2026-02-17", "desconto": 0, "entrega": 0, "id": 1771294525404, "num": 34, "pgto": "PIX", "produto": "Combo (3 und)", "qtd": 1, "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
-        {"asaas": false, "data": "2026-02-17", "desconto": 30, "entrega": 0, "id": 1771294516380, "num": 33, "pgto": "PIX", "produto": "Pudim 1 Und", "qtd": 2, "valorBruto": 30, "valorLiquido": 0, "valorTaxa": 0},
-        {"data": "2026-02-15", "entrega": 0, "id": 331, "num": 32, "pgto": "Debito Insercao", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 39.64, "valorTaxa": 0.36},
-        {"data": "2026-02-15", "entrega": 0, "id": 330, "num": 31, "pgto": "Credito Insercao", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 38.76, "valorTaxa": 1.24},
-        {"data": "2026-02-15", "entrega": 0, "id": 329, "num": 30, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-15", "entrega": 0, "id": 328, "num": 29, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-14", "entrega": 0, "id": 327, "num": 28, "pgto": "Dinheiro", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
-        {"data": "2026-02-14", "entrega": 0, "id": 326, "num": 27, "pgto": "Credito Insercao", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 38.76, "valorTaxa": 1.24},
-        {"data": "2026-02-14", "entrega": 0, "id": 325, "num": 26, "pgto": "Debito Insercao", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 39.64, "valorTaxa": 0.36},
-        {"data": "2026-02-14", "entrega": 0, "id": 324, "num": 25, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-14", "entrega": 0, "id": 323, "num": 24, "pgto": "PIX", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
-        {"data": "2026-02-14", "entrega": 0, "id": 322, "num": 23, "pgto": "PIX", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
-        {"data": "2026-02-14", "entrega": 0, "id": 321, "num": 22, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-14", "entrega": 0, "id": 320, "num": 21, "pgto": "Credito Insercao", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 38.68, "valorTaxa": 1.32},
-        {"data": "2026-02-14", "entrega": 0, "id": 319, "num": 20, "pgto": "Credito Insercao", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 38.76, "valorTaxa": 1.24},
-        {"data": "2026-02-14", "entrega": 0, "id": 318, "num": 19, "pgto": "Dinheiro", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
-        {"data": "2026-02-14", "entrega": 0, "id": 317, "num": 18, "pgto": "Dinheiro", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
-        {"data": "2026-02-13", "entrega": 0, "id": 316, "num": 17, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-13", "entrega": 0, "id": 315, "num": 16, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-13", "entrega": 0, "id": 314, "num": 15, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-13", "entrega": 0, "id": 313, "num": 14, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-13", "entrega": 0, "id": 312, "num": 13, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-13", "entrega": 0, "id": 311, "num": 12, "pgto": "PIX", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
-        {"data": "2026-02-13", "entrega": 0, "id": 310, "num": 11, "pgto": "PIX", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
-        {"data": "2026-02-12", "entrega": 0, "id": 309, "num": 10, "pgto": "Debito Insercao", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 14.53, "valorTaxa": 0.47},
-        {"data": "2026-02-12", "entrega": 0, "id": 308, "num": 9, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-12", "entrega": 0, "id": 307, "num": 8, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-12", "entrega": 0, "id": 306, "num": 7, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-12", "entrega": 0, "id": 305, "num": 6, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-12", "entrega": 0, "id": 304, "num": 5, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-12", "entrega": 0, "id": 303, "num": 4, "pgto": "PIX", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 15, "valorTaxa": 0},
-        {"data": "2026-02-12", "entrega": 0, "id": 302, "num": 3, "pgto": "Credito Insercao", "produto": "Pudim 1 Und", "valorBruto": 15, "valorLiquido": 14.54, "valorTaxa": 0.46},
-        {"data": "2026-02-12", "entrega": 0, "id": 301, "num": 2, "pgto": "PIX", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0},
-        {"data": "2026-02-12", "entrega": 0, "id": 300, "num": 1, "pgto": "PIX", "produto": "Combo (3 und)", "valorBruto": 40, "valorLiquido": 40, "valorTaxa": 0}
-      ]
+        "config": {
+            "precoUnd": 15, "precoCombo": 40, "custoInsumo": 5.95,
+            "taxaCredIns": 4.98, "taxaCredApr": 3.09, "taxaDebIns": 1.99, "taxaDebApr": 0.89,
+            "custoCopo": 1.5, "taxaCartaoOnline": 2.99
+        },
+        "vendas": [], "atacado": [], "despesas": [], 
+        "investimentos": [], "pagamentos": [], "producoes": [], "estoqueMov": []
     };
+    
+    const savedLocal = localStorage.getItem('pudimDuCaririDB');
+    if(savedLocal) { try { db = JSON.parse(savedLocal); } catch(e) {} }
 
     let currentUserRole = 'viewer';
     let editingItem = { lista: null, id: null };
-
+    
+    // --- UTILS (FORMAT & SORT) ---
     const formatMoney = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(val)||0);
     const formatData = (date) => date ? new Date(date + "T00:00:00").toLocaleDateString('pt-BR') : '';
-    const sortByDateDesc = (a, b) => new Date(b.data) - new Date(a.data) || (b.id - a.id);
-    const getNextNum = (arr) => arr.length > 0 ? Math.max(...arr.map(x => x.num || 0)) + 1 : 1;
+    const descTipoMap = { 'Divida': 'Giro', 'MaoObra': 'Mão Obra', 'Luyan': 'Luyan', 'Beatriz': 'Beatriz' };
+    
+    const forceArray = (obj) => {
+        if(!obj) return [];
+        if(Array.isArray(obj)) return obj.filter(i => i !== null && i !== undefined);
+        return Object.values(obj).filter(i => i !== null && i !== undefined);
+    };
+    const getNextNum = (arr) => forceArray(arr).length > 0 ? Math.max(...forceArray(arr).map(x => x.num || 0)) + 1 : 1;
+    
+    // ORDENAÇÃO: Data mais recente primeiro. Se data igual, ID maior (mais novo) primeiro.
+    const sortByDateDesc = (a, b) => { 
+        let dA = new Date(a.data||0).getTime(); 
+        let dB = new Date(b.data||0).getTime(); 
+        return dA === dB ? (b.id||0) - (a.id||0) : dB - dA; 
+    };
 
-    function showToast(msg) { const t = document.getElementById("toast"); t.innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 3000); }
+    function showToast(msg, isError = false) {
+        const toast = document.getElementById("toast"); toast.innerText = msg;
+        if(isError) toast.style.backgroundColor = "var(--danger)"; else toast.style.backgroundColor = "var(--secondary)";
+        toast.classList.add("show"); setTimeout(() => { toast.classList.remove("show"); }, 3000);
+    }
 
-    // --- LOGIN ---
+    // --- CARDS TEMPLATE ---
+    const globalCardsTemplate = `
+        <div class="dashboard-grid">
+            <div class="card" style="border-left-color: #EF4444;"><h3>Insumo Fixo</h3><p class="global-insumos" style="color: #EF4444;">R$ 0,00</p></div>
+            <div class="card" style="border-left-color: #EF4444;"><h3>Custos Gerais</h3><p class="global-cg" style="color: #EF4444;">R$ 0,00</p></div>
+            <div class="card" style="border-left-color: #EF4444;"><h3>Mão de Obra</h3><p class="global-mo" style="color: #EF4444;">R$ 0,00</p>
+                <button class="btn-action-small" style="background:#EF4444" onclick="realizarSaque('MaoObra')">💸 Sacar</button>
+            </div>
+            <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo 15%</h3><p class="global-fundo">R$ 0,00</p></div>
+            <div class="card" style="border-left-color: #F59E0B;"><h3>Luyan</h3><p class="global-luyan">R$ 0,00</p>
+                <button class="btn-action-small" style="background:#F59E0B" onclick="realizarSaque('Luyan')">💸 Sacar</button>
+            </div>
+            <div class="card" style="border-left-color: #F59E0B;"><h3>Beatriz</h3><p class="global-beatriz">R$ 0,00</p>
+                <button class="btn-action-small" style="background:#F59E0B" onclick="realizarSaque('Beatriz')">💸 Sacar</button>
+            </div>
+            <div class="card" style="border-left-color: #10B981; grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem;">
+                <div><h3 style="margin-bottom: 0;">Giro Disponível</h3><p class="global-giro" style="color: #10B981; font-size: 2.2rem;">R$ 0,00</p></div>
+                <button class="btn-action-small" style="width: auto; padding: 15px 30px; font-size: 1rem; background: #10B981;" onclick="realizarSaque('Divida')">💰 Abater Dívida</button>
+            </div>
+            <div class="card" style="grid-column: 1 / -1; text-align: center;"><h3>Investimento a Pagar</h3><p class="global-roi" style="color: var(--danger)">R$ 0,00</p></div>
+        </div>`;
+
+    // --- INIT ---
+    function init() {
+        try {
+            document.getElementById('grid-saldos-globais').innerHTML = globalCardsTemplate;
+            resetDateInputs();
+        } catch(e) {}
+
+        if(!isOnline) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            currentUserRole = 'admin'; updateAll();
+        } else {
+            firebase.auth().onAuthStateChanged((user) => {
+                if(user) {
+                    const email = user.email ? user.email.toLowerCase() : "";
+                    if(!ADMIN_EMAILS.includes(email) && email !== VIEWER_EMAIL) {
+                        alert("Acesso Negado."); firebase.auth().signOut(); return;
+                    }
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('app-container').style.display = 'block';
+                    currentUserRole = ADMIN_EMAILS.includes(email) ? 'admin' : 'viewer';
+                    if(currentUserRole === 'viewer') document.body.classList.add('viewer-mode');
+                    document.getElementById('user-badge').innerText = email;
+
+                    firebase.database().ref('pudimAppDB').on('value', (snapshot) => {
+                        if(snapshot.exists()) {
+                            db = loadDBData(snapshot.val());
+                            localStorage.setItem('pudimDuCaririDB', JSON.stringify(db)); 
+                            updateAll();
+                        } else if(currentUserRole === 'admin') {
+                            firebase.database().ref('pudimAppDB').set(db);
+                        }
+                    });
+                } else {
+                    document.getElementById('login-screen').style.display = 'flex';
+                    document.getElementById('app-container').style.display = 'none';
+                }
+            });
+        }
+    }
+
     function fazerLogin() {
-        const email = document.getElementById('login-email').value;
-        const pass = document.getElementById('login-password').value;
-        firebase.auth().signInWithEmailAndPassword(email, pass).catch(err => {
-            document.getElementById('login-error').innerText = "Erro no acesso.";
-            document.getElementById('login-error').style.display = 'block';
+        const e = document.getElementById('login-email').value;
+        const p = document.getElementById('login-password').value;
+        const errEl = document.getElementById('login-error');
+        if(!e || !p) return;
+        document.getElementById('btn-login-action').innerText = "...";
+        firebase.auth().signInWithEmailAndPassword(e, p).catch(err => {
+            document.getElementById('btn-login-action').innerText = "ENTRAR";
+            errEl.innerText = "Erro ao logar."; errEl.style.display = 'block';
         });
     }
 
     function fazerLogout() { firebase.auth().signOut(); window.location.reload(); }
 
-    // --- FECHAMENTO WHATSAPP ---
-    function enviarFechamentoWhatsApp() {
-        const hoje = new Date().toISOString().split('T')[0];
-        const vHoje = db.vendas.filter(v => v.data === hoje);
-        const aHoje = db.atacado.filter(a => a.data === hoje && a.status === 'PAGO');
-        const dHoje = db.despesas.filter(d => d.data === hoje);
-
-        let vQtd = 0, vLiq = 0;
-        let pPixP = 0, pPixA = 0, pDin = 0, pCard = 0;
-
-        vHoje.forEach(v => {
-            const q = (v.produto === 'Combo' ? 3 : 1) * Number(v.qtd || 1);
-            const val = Number(v.valorLiquido || 0);
-            vQtd += q; vLiq += val;
-            if(v.pgto === 'PIX') { if(v.asaas) pPixA += val; else pPixP += val; }
-            else if(v.pgto === 'Dinheiro') pDin += val;
-            else pCard += val;
-        });
-
-        let aQtd = 0, aLiq = 0;
-        aHoje.forEach(a => {
-            aQtd += Number(a.qtd || 0);
-            aLiq += Number(a.totalLiquido || 0);
-        });
-
-        let totalSair = 0;
-        dHoje.forEach(d => totalSair += Number(d.total || 0));
-
-        const saldoDia = (vLiq + aLiq) - totalSair;
-
-        let txt = `*📊 FECHAMENTO PUDIM DU CARIRI - ${hoje.split('-').reverse().join('/')}*\n\n`;
-        txt += `*🛒 VAREJO*\n- Pudins: ${vQtd} un\n- Total Líquido: ${formatMoney(vLiq)}\n\n`;
-        txt += `*📦 ATACADO*\n- Pudins: ${aQtd} un\n- Total Líquido: ${formatMoney(aLiq)}\n\n`;
-        txt += `*💸 DESPESAS DO DIA*\n- Total Saída: ${formatMoney(totalSair)}\n\n`;
-        txt += `*💰 RESUMO DE RECEBIMENTO*\n`;
-        txt += `• PIX (Pessoal): ${formatMoney(pPixP)}\n`;
-        txt += `• PIX (Asaas): ${formatMoney(pPixA)}\n`;
-        txt += `• Dinheiro: ${formatMoney(pDin)}\n`;
-        txt += `• Cartões/Link: ${formatMoney(pCard)}\n\n`;
-        txt += `*💎 SALDO FINAL (LUCRO HOJE)*\n👉 *${formatMoney(saldoDia)}*`;
-
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`, '_blank');
-    }
-
-    // --- CORE ---
-    function init() {
-        // Fallback para quem não tem conexão ou conta, usar os dados locais injetados
-        const local = localStorage.getItem('pudimDuCaririDB');
-        if(!local) localStorage.setItem('pudimDuCaririDB', JSON.stringify(db)); // Salva o injetado
-        
-        firebase.auth().onAuthStateChanged(user => {
-            if (user) {
-                const email = user.email.toLowerCase();
-                if(!ADMIN_EMAILS.includes(email) && email !== VIEWER_EMAIL) { firebase.auth().signOut(); return; }
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('app-container').style.display = 'block';
-                currentUserRole = ADMIN_EMAILS.includes(email) ? 'admin' : 'viewer';
-                if(currentUserRole === 'viewer') document.body.classList.add('viewer-mode');
-                document.getElementById('user-badge').innerText = email;
-
-                firebase.database().ref('pudimAppDB').on('value', snap => {
-                    if(snap.exists()) {
-                        const data = snap.val();
-                        // Mescla o backup com o firebase se necessário, mas prioriza a nuvem
-                        db = data;
-                        // Normaliza arrays (firebase pode retornar objetos)
-                        db.vendas = Object.values(db.vendas || {});
-                        db.atacado = Object.values(db.atacado || {});
-                        db.despesas = Object.values(db.despesas || {});
-                        db.pagamentos = Object.values(db.pagamentos || {});
-                        db.producoes = Object.values(db.producoes || {});
-                        db.estoqueMov = Object.values(db.estoqueMov || {});
-                        db.investimentos = Object.values(db.investimentos || {});
-                        updateAll();
-                    } else if (currentUserRole === 'admin') {
-                        // Se nuvem vazia, sobe o backup
-                        firebase.database().ref('pudimAppDB').set(db);
-                    }
-                });
-            }
-        });
-        // Renderiza inicial com os dados injetados (mesmo sem login ainda)
-        updateAll();
-    }
-
-    function updateAll() {
-        updateDashboard();
-        renderVendas();
-        renderAtacado();
-        renderDespesas();
-        renderRateio();
-        renderEstoque();
-        renderExtrato();
-        renderInvestimentos();
-        loadConfigUI();
-    }
-
-    function updateDashboard() {
-        const filter = document.getElementById('dash-filter-month').value;
-        const fFn = (d) => !filter || d.data.startsWith(filter);
-
-        let vLiq = 0, vQtd = 0, vMo = 0;
-        let sPixP = 0, sPixA = 0, sDin = 0, sCred = 0, sDeb = 0, sOn = 0;
-
-        db.vendas.filter(fFn).forEach(v => {
-            const val = Number(v.valorLiquido||0);
-            const q = (v.produto.includes('Combo') ? 3 : 1) * Number(v.qtd||1);
-            vLiq += val; vQtd += q;
-            const lucBase = val - (q * (db.config.custoInsumo || 5.95));
-            vMo += lucBase * 0.20;
-
-            if(v.pgto === 'PIX') { if(v.asaas) sPixA += val; else sPixP += val; }
-            else if(v.pgto === 'Dinheiro') sDin += val;
-            else if(v.pgto.includes('Credito')) sCred += val;
-            else if(v.pgto.includes('Debito')) sDeb += val;
-            else if(v.pgto.includes('Cartao Online')) sOn += val;
-        });
-
-        document.getElementById('v-dash-liquido').innerText = formatMoney(vLiq);
-        document.getElementById('v-dash-qtd').innerText = vQtd;
-        document.getElementById('v-dash-mo').innerText = formatMoney(vMo);
-        document.getElementById('v-dash-lucro-restante').innerText = formatMoney(vLiq * 0.30); 
-
-        // Atualiza Mini Cards da Aba Varejo
-        document.getElementById('v-sum-pix-p').innerText = formatMoney(sPixP);
-        document.getElementById('v-sum-pix-a').innerText = formatMoney(sPixA);
-        document.getElementById('v-sum-dinheiro').innerText = formatMoney(sDin);
-        document.getElementById('v-sum-credito').innerText = formatMoney(sCred);
-        document.getElementById('v-sum-debito').innerText = formatMoney(sDeb);
-        document.getElementById('v-sum-online').innerText = formatMoney(sOn);
-
-        // Cards Atacado
-        let aLiq = 0, aQtd = 0;
-        db.atacado.filter(fFn).filter(a => a.status === 'PAGO').forEach(a => {
-            aLiq += Number(a.totalLiquido || 0);
-            aQtd += Number(a.qtd || 0);
-        });
-        document.getElementById('a-dash-liquido').innerText = formatMoney(aLiq);
-        document.getElementById('a-dash-qtd').innerText = aQtd;
-
-        // Caixa Global
-        let totalGlobal = vLiq + aLiq; // Somar todos os tempos se não tiver filtro, mas aqui usa o filtrado para o dashboard. 
-        // Para o "Global Total" precisamos de tudo sem filtro:
-        let gVLiq = db.vendas.reduce((acc, v) => acc + Number(v.valorLiquido||0), 0);
-        let gALiq = db.atacado.filter(a=>a.status==='PAGO').reduce((acc,a)=>acc+Number(a.totalLiquido||a.total||0),0);
-        let gDesp = db.despesas.reduce((acc,d)=>acc+Number(d.total||0),0);
-        let gPag = db.pagamentos.reduce((acc,p)=>acc+Number(p.valor||0),0);
-        
-        document.getElementById('global-total-conta').innerText = formatMoney((gVLiq + gALiq) - gDesp - gPag);
-    }
-
-    function renderVendas() {
-        document.getElementById('tbody-vendas').innerHTML = (db.vendas || []).sort(sortByDateDesc).map(v => `
-            <tr><td>#${v.num||''}</td><td>${formatData(v.data)}</td><td>${v.produto} (${v.qtd})</td>
-            <td style="font-size:0.85rem">${v.pgto}${v.asaas ? ' (Asaas)' : ''}</td>
-            <td style="font-weight:bold">${formatMoney(v.valorLiquido)}</td>
-            <td><button class="btn-icon btn-delete" onclick="deleteItem('vendas', ${v.id})">🗑️</button></td></tr>
-        `).join('');
-    }
-
-    function renderAtacado() {
-        document.getElementById('tbody-atacado').innerHTML = (db.atacado || []).sort(sortByDateDesc).map(a => `
-            <tr><td>${formatData(a.data)}</td><td>${a.cliente}</td><td>${a.qtd}</td><td>${formatMoney(a.totalLiquido)}</td>
-            <td style="color:${a.status==='PAGO'?'green':'red'}">${a.status}</td>
-            <td><button class="btn-icon btn-delete" onclick="deleteItem('atacado', ${a.id})">🗑️</button></td></tr>
-        `).join('');
-    }
-
-    function addVenda() {
-        const data = document.getElementById('v-data').value;
-        const prod = document.getElementById('v-produto').value;
-        const qtd = parseInt(document.getElementById('v-qtd').value);
-        const pgto = document.getElementById('v-pgto').value;
-        const isAsaas = document.getElementById('v-asaas').checked;
-        const desc = parseFloat(document.getElementById('v-desconto').value);
-
-        if(!data) return alert("Preencha a data!");
-
-        const preco = prod === 'Combo' ? (db.config.precoCombo || 40) : (db.config.precoUnd || 15);
-        const bruto = preco * qtd;
-        
-        let taxaPerc = 0;
-        if(pgto.includes('Credito Insercao')) taxaPerc = db.config.taxaCredIns;
-        else if(pgto.includes('Credito Aproximacao')) taxaPerc = db.config.taxaCredApr;
-        else if(pgto.includes('Debito Insercao')) taxaPerc = db.config.taxaDebIns;
-        else if(pgto.includes('Debito Aproximacao')) taxaPerc = db.config.taxaDebApr;
-        else if(pgto.includes('Cartao Online')) taxaPerc = db.config.taxaCartaoOnline;
-
-        let taxaValor = (bruto - desc) * (taxaPerc / 100);
-        if(pgto === 'PIX' && isAsaas) taxaValor = 0.14;
-
-        const liq = (bruto - desc) - taxaValor;
-
-        const novo = { id: Date.now(), num: getNextNum(db.vendas), data, produto: prod, qtd, pgto, asaas: isAsaas, valorBruto: bruto, valorLiquido: liq };
-        db.vendas.push(novo); saveData();
-    }
-
-    function addAtacado() {
-        const novo = { 
-            id: Date.now(), 
-            data: document.getElementById('a-data').value, 
-            cliente: document.getElementById('a-cliente').value, 
-            qtd: document.getElementById('a-qtd').value, 
-            totalLiquido: Number(document.getElementById('a-qtd').value) * Number(document.getElementById('a-valor').value), 
-            status: document.getElementById('a-status').value 
+    function loadDBData(data) {
+        const toArray = (obj) => {
+            if(!obj) return [];
+            if(Array.isArray(obj)) return obj.filter(i => i !== null && i !== undefined);
+            return Object.values(obj).filter(i => i !== null && i !== undefined);
         };
-        db.atacado.push(novo); saveData();
+        if(!data.config) data.config = { precoUnd: 15, precoCombo: 40, custoInsumo: 5.95, taxaCredIns: 4.98, taxaCredApr: 3.09, taxaDebIns: 1.99, taxaDebApr: 0.89, custoCopo: 1.50, taxaCartaoOnline: 2.99 };
+        ['pagamentos','producoes','estoqueMov','vendas','atacado','despesas','investimentos'].forEach(k => data[k] = toArray(data[k]));
+        
+        // Garante numeração se não existir
+        const addMissingNums = (arr) => { arr.sort((a,b)=> new Date(a.data||0) - new Date(b.data||0)).forEach((x,i)=>{ if(!x.num) x.num=i+1; }); };
+        addMissingNums(data.vendas); addMissingNums(data.atacado); addMissingNums(data.despesas);
+        return data;
     }
 
-    function addDespesa() {
-        const d = { 
-            id: Date.now(), 
-            data: document.getElementById('d-data').value, 
-            item: document.getElementById('d-item').value, 
-            qtd: document.getElementById('d-qtd').value, 
-            unitario: document.getElementById('d-valor').value,
-            total: Number(document.getElementById('d-qtd').value) * Number(document.getElementById('d-valor').value), 
-            categoria: document.getElementById('d-categoria').value 
-        };
-        db.despesas.push(d); saveData();
+    function saveData() {
+        if(currentUserRole !== 'admin') return alert("Apenas Admin.");
+        localStorage.setItem('pudimDuCaririDB', JSON.stringify(db)); 
+        updateAll(); 
+        if(isOnline) firebase.database().ref('pudimAppDB').set(db);
     }
 
-    function renderDespesas() {
-        document.getElementById('tbody-despesas').innerHTML = db.despesas.sort(sortByDateDesc).map(d => 
-            `<tr><td>${formatData(d.data)}</td><td>${d.item}</td><td>${formatMoney(d.total)}</td><td>${d.categoria}</td>
-            <td><button class="btn-icon btn-delete" onclick="deleteItem('despesas', ${d.id})">🗑️</button></td></tr>`
-        ).join('');
+    // --- UI HELPERS ---
+    function resetDateInputs() { document.querySelectorAll('input[type="date"]').forEach(el => el.value = new Date().toISOString().split('T')[0]); document.getElementById('mov-data').value = new Date().toISOString().split('T')[0]; }
+    function limparFiltro() { document.getElementById('dash-filter-month').value = ''; updateDashboard(); }
+    function switchTab(tabId) {
+        document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        const btn = document.querySelector(`.tab-btn[onclick*="${tabId}"]`);
+        if(btn) btn.classList.add('active');
+        if(tabId === 'config') renderConfig(); 
     }
-
-    function renderRateio() { /* Simplificado */ }
-    function renderEstoque() { 
-        // Renderiza Historico
-        document.getElementById('tbody-producoes').innerHTML = db.producoes.sort(sortByDateDesc).map(p => `<tr><td>${formatData(p.data)}</td><td>${p.qtd}</td><td><button class="btn-icon btn-delete" onclick="deleteItem('producoes', ${p.id})">🗑️</button></td></tr>`).join('');
-        document.getElementById('tbody-estoquemov').innerHTML = db.estoqueMov.sort(sortByDateDesc).map(m => `<tr><td>${formatData(m.data)}</td><td>${m.item}</td><td>${m.tipo==='entrada'?'+':'-'}${m.qtd}</td><td><button class="btn-icon btn-delete" onclick="deleteItem('estoqueMov', ${m.id})">🗑️</button></td></tr>`).join('');
-    }
-    function renderExtrato() {
-        document.getElementById('tbody-pagamentos').innerHTML = db.pagamentos.sort(sortByDateDesc).map(p => 
-            `<tr><td>${formatData(p.data)}</td><td>${p.tipo}</td><td>${formatMoney(p.valor)}</td><td><button class="btn-icon btn-delete" onclick="deleteItem('pagamentos', ${p.id})">🗑️</button></td></tr>`
-        ).join('');
-    }
-    function renderInvestimentos() {
-        document.getElementById('tbody-investimentos').innerHTML = db.investimentos.sort(sortByDateDesc).map(i => 
-            `<tr><td>${formatData(i.data)}</td><td>${i.item}</td><td>${formatMoney(i.valor)}</td><td><button class="btn-icon btn-delete" onclick="deleteItem('investimentos', ${i.id})">🗑️</button></td></tr>`
-        ).join('');
-    }
-
-    function loadConfigUI() {
+    
+    // --- RENDER CONFIG ---
+    function renderConfig() {
         if(!db.config) return;
         document.getElementById('cfg-preco-und').value = db.config.precoUnd;
         document.getElementById('cfg-preco-combo').value = db.config.precoCombo;
@@ -700,32 +705,409 @@
     }
 
     function saveConfig() {
-        db.config.precoUnd = parseFloat(document.getElementById('cfg-preco-und').value);
-        db.config.precoCombo = parseFloat(document.getElementById('cfg-preco-combo').value);
-        db.config.custoInsumo = parseFloat(document.getElementById('cfg-custo-insumo').value);
-        db.config.custoCopo = parseFloat(document.getElementById('cfg-custo-copo').value);
-        db.config.taxaCredIns = parseFloat(document.getElementById('cfg-taxa-cred-ins').value);
-        db.config.taxaCredApr = parseFloat(document.getElementById('cfg-taxa-cred-apr').value);
-        db.config.taxaDebIns = parseFloat(document.getElementById('cfg-taxa-deb-ins').value);
-        db.config.taxaDebApr = parseFloat(document.getElementById('cfg-taxa-deb-apr').value);
-        db.config.taxaCartaoOnline = parseFloat(document.getElementById('cfg-taxa-cartao-online').value);
+        db.config = {
+            precoUnd: parseFloat(document.getElementById('cfg-preco-und').value)||0,
+            precoCombo: parseFloat(document.getElementById('cfg-preco-combo').value)||0,
+            custoInsumo: parseFloat(document.getElementById('cfg-custo-insumo').value)||0,
+            custoCopo: parseFloat(document.getElementById('cfg-custo-copo').value)||0,
+            taxaCredIns: parseFloat(document.getElementById('cfg-taxa-cred-ins').value)||0,
+            taxaCredApr: parseFloat(document.getElementById('cfg-taxa-cred-apr').value)||0,
+            taxaDebIns: parseFloat(document.getElementById('cfg-taxa-deb-ins').value)||0,
+            taxaDebApr: parseFloat(document.getElementById('cfg-taxa-deb-apr').value)||0,
+            taxaCartaoOnline: parseFloat(document.getElementById('cfg-taxa-cartao-online').value)||0
+        };
+        saveData(); showToast("Configurações Salvas");
+    }
+
+    // --- CRUD LOGIC ---
+    function finalizarEdicao(lista, novoItem, btnId, txtOriginal, msgToast) {
+        if(editingItem.lista === lista) {
+            const index = db[lista].findIndex(i => i.id === editingItem.id);
+            if(index > -1) db[lista][index] = { ...db[lista][index], ...novoItem };
+            editingItem = { lista: null, id: null };
+            document.getElementById(btnId).innerText = txtOriginal;
+        } else { db[lista].push(novoItem); }
+        saveData(); showToast(msgToast);
+    }
+    
+    function prepararEdicao(lista, id) {
+        const item = db[lista].find(i => i.id === id);
+        if(!item) return;
+        editingItem = { lista, id };
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        if(lista === 'vendas') { 
+            switchTab('vendas'); document.getElementById('v-data').value = item.data; 
+            const pStr = item.produto || ''; document.getElementById('v-produto').value = pStr.includes('Combo') ? 'Combo' : 'Unidade'; 
+            document.getElementById('v-pgto').value = item.pgto; document.getElementById('v-asaas').checked = item.asaas || false; toggleAsaas();
+            document.getElementById('v-entrega').value = item.entrega || 0; document.getElementById('v-qtd').value = item.qtd || 1; document.getElementById('v-desconto').value = item.desconto || 0; 
+            document.getElementById('btn-submit-vendas').innerText = "Salvar Alteração"; 
+        }
+        else if(lista === 'atacado') { switchTab('atacado'); document.getElementById('a-data').value = item.data; document.getElementById('a-cliente').value = item.cliente; document.getElementById('a-qtd').value = item.qtd; document.getElementById('a-valor').value = item.unitario; document.getElementById('a-copos').value = item.coposDevolvidos || 0; document.getElementById('a-desconto').value = item.desconto || 0; document.getElementById('a-status').value = item.status; document.getElementById('btn-submit-atacado').innerText = "Salvar Alteração"; }
+        else if(lista === 'despesas') { switchTab('despesas'); document.getElementById('d-data').value = item.data; document.getElementById('d-item').value = item.item; document.getElementById('d-qtd').value = item.qtd; document.getElementById('d-valor').value = item.unitario; document.getElementById('d-categoria').value = item.categoria; document.getElementById('btn-submit-despesas').innerText = "Salvar Alteração"; }
+        else if(lista === 'investimentos') { switchTab('investimentos'); document.getElementById('i-data').value = item.data; document.getElementById('i-item').value = item.item; document.getElementById('i-valor').value = item.valor; document.getElementById('btn-submit-investimentos').innerText = "Salvar Alteração"; }
+        else if(lista === 'pagamentos') { switchTab('extrato'); document.getElementById('p-data').value = item.data; document.getElementById('p-valor').value = item.valor; document.getElementById('p-tipo').value = item.tipo || 'Divida'; document.getElementById('btn-submit-pagamentos').innerText = "Salvar Alteração"; }
+        else if(lista === 'producoes') { switchTab('estoque'); document.getElementById('prod-data').value = item.data; document.getElementById('prod-qtd').value = item.qtd; document.getElementById('btn-submit-producao').innerText = "Salvar Alteração"; }
+        else if(lista === 'estoqueMov') { switchTab('estoque'); document.getElementById('mov-data').value = item.data; document.getElementById('mov-tipo').value = item.tipo; document.getElementById('mov-item').value = item.item; document.getElementById('mov-qtd').value = item.qtd; document.getElementById('mov-desc').value = item.desc; document.getElementById('btn-submit-mov').innerText = "Salvar Alteração"; }
+    }
+
+    function toggleAsaas() {
+        const pgto = document.getElementById('v-pgto').value; const asaasGroup = document.getElementById('asaas-group');
+        if(pgto === 'PIX') { asaasGroup.style.display = 'flex'; } else { asaasGroup.style.display = 'none'; document.getElementById('v-asaas').checked = false; }
+    }
+    
+    function calcDescAtacado() {
+        let copos = parseInt(document.getElementById('a-copos').value) || 0;
+        document.getElementById('a-desconto').value = (copos >= 12) ? copos.toFixed(2) : '0.00';
+    }
+
+    // --- ADD FUNCTIONS ---
+    function addVenda() {
+        const data = document.getElementById('v-data').value;
+        if(!data) return alert('Data obrigatória');
+        const produtoStr = document.getElementById('v-produto').value;
+        const pgto = document.getElementById('v-pgto').value;
+        const isAsaas = document.getElementById('v-asaas').checked;
+        const qtd = parseInt(document.getElementById('v-qtd').value) || 1;
+        const desconto = parseFloat(document.getElementById('v-desconto').value) || 0;
+        const entrega = parseFloat(document.getElementById('v-entrega').value) || 0;
+
+        const precoBase = produtoStr === 'Combo' ? db.config.precoCombo : db.config.precoUnd;
+        const valorBruto = precoBase * qtd;
+        const valorCobradoMaq = valorBruto - desconto;
+        
+        let taxaPerc = 0;
+        if(pgto.includes('Credito Insercao')) taxaPerc = db.config.taxaCredIns;
+        else if(pgto.includes('Credito Aproximacao')) taxaPerc = db.config.taxaCredApr;
+        else if(pgto.includes('Debito Insercao')) taxaPerc = db.config.taxaDebIns;
+        else if(pgto.includes('Debito Aproximacao')) taxaPerc = db.config.taxaDebApr;
+        else if(pgto.includes('Cartao Online')) taxaPerc = db.config.taxaCartaoOnline;
+        
+        let valorTaxa = (pgto === 'PIX' && isAsaas) ? 0.14 : (valorCobradoMaq * (taxaPerc / 100));
+        
+        finalizarEdicao('vendas', { 
+            id: (editingItem.lista==='vendas'?editingItem.id:Date.now()), 
+            num: (editingItem.lista==='vendas'?db.vendas.find(i=>i.id===editingItem.id).num:getNextNum(db.vendas)),
+            data, produto: produtoStr, pgto, asaas: isAsaas, qtd, desconto, 
+            valorBruto: Number(valorBruto), valorTaxa: Number(valorTaxa), 
+            valorLiquido: Number(valorCobradoMaq - valorTaxa), entrega: Number(entrega) 
+        }, 'btn-submit-vendas', 'Salvar Venda', 'Venda Salva!');
+        document.getElementById('v-qtd').value = '1'; document.getElementById('v-desconto').value = '0';
+    }
+
+    function addAtacado() {
+        const data = document.getElementById('a-data').value;
+        const cliente = document.getElementById('a-cliente').value;
+        const qtd = parseInt(document.getElementById('a-qtd').value)||0;
+        const unitario = parseFloat(document.getElementById('a-valor').value)||0;
+        const copos = parseInt(document.getElementById('a-copos').value)||0;
+        const desconto = parseFloat(document.getElementById('a-desconto').value)||0;
+        const status = document.getElementById('a-status').value;
+        const totalBruto = qtd * unitario;
+        finalizarEdicao('atacado', {
+            id: (editingItem.lista==='atacado'?editingItem.id:Date.now()),
+            num: (editingItem.lista==='atacado'?db.atacado.find(i=>i.id===editingItem.id).num:getNextNum(db.atacado)),
+            data, cliente, qtd, unitario, coposDevolvidos: copos, desconto, 
+            totalBruto: Number(totalBruto), totalLiquido: Number(totalBruto - desconto), status
+        }, 'btn-submit-atacado', 'Salvar Pedido', 'Atacado Salvo!');
+        document.getElementById('a-cliente').value = ''; document.getElementById('a-qtd').value = ''; document.getElementById('a-valor').value = '';
+    }
+
+    function addDespesa() {
+        const data = document.getElementById('d-data').value;
+        const item = document.getElementById('d-item').value;
+        const qtd = parseFloat(document.getElementById('d-qtd').value)||0;
+        const unitario = parseFloat(document.getElementById('d-valor').value)||0;
+        const categoria = document.getElementById('d-categoria').value;
+        finalizarEdicao('despesas', {
+            id: (editingItem.lista==='despesas'?editingItem.id:Date.now()),
+            num: (editingItem.lista==='despesas'?db.despesas.find(i=>i.id===editingItem.id).num:getNextNum(db.despesas)),
+            data, item, qtd, unitario, total: Number(qtd * unitario), categoria
+        }, 'btn-submit-despesas', 'Salvar Despesa', 'Despesa Salva!');
+        document.getElementById('d-item').value = ''; document.getElementById('d-qtd').value = ''; document.getElementById('d-valor').value = '';
+    }
+    
+    function addInvestimento() {
+        const data = document.getElementById('i-data').value; const item = document.getElementById('i-item').value; const valor = parseFloat(document.getElementById('i-valor').value);
+        if(!data || !item || !valor) return alert('Preencha tudo.');
+        finalizarEdicao('investimentos', { id: (editingItem.lista==='investimentos'?editingItem.id:Date.now()), data, item, valor }, 'btn-submit-investimentos', 'Salvar', 'Investimento Salvo!');
+        document.getElementById('i-item').value = ''; document.getElementById('i-valor').value = '';
+    }
+
+    function addPagamento() {
+        const data = document.getElementById('p-data').value; const valor = parseFloat(document.getElementById('p-valor').value); const tipo = document.getElementById('p-tipo').value;
+        if(!data || !valor) return alert('Preencha tudo.');
+        finalizarEdicao('pagamentos', { id: (editingItem.lista==='pagamentos'?editingItem.id:Date.now()), data, valor, tipo }, 'btn-submit-pagamentos', 'Registrar Saque', 'Saque Registrado!');
+        document.getElementById('p-valor').value = '';
+    }
+
+    function addProducao() {
+        const data = document.getElementById('prod-data').value; const qtd = parseInt(document.getElementById('prod-qtd').value);
+        if(!data || !qtd) return alert("Preencha tudo!");
+        let oldNum = getNextNum(db.producoes); if(editingItem.lista === 'producoes') { const old = db.producoes.find(i=>i.id===editingItem.id); if(old) oldNum = old.num; }
+        finalizarEdicao('producoes', { id: (editingItem.lista==='producoes'?editingItem.id:Date.now()), num: oldNum, data, qtd }, 'btn-submit-producao', 'Registrar', 'Receita Registrada!');
+    }
+
+    function addEstoqueMov() {
+        const data = document.getElementById('mov-data').value || new Date().toISOString().split('T')[0];
+        const tipo = document.getElementById('mov-tipo').value; const item = document.getElementById('mov-item').value; const qtd = parseFloat(document.getElementById('mov-qtd').value);
+        if(!qtd) return alert("Qtd obrigatória");
+        finalizarEdicao('estoqueMov', { id: (editingItem.lista==='estoqueMov'?editingItem.id:Date.now()), data, tipo, item, qtd, desc: 'Manual' }, 'btn-submit-mov', 'Lançar Ajuste', 'Ajuste Salvo!');
+        document.getElementById('mov-qtd').value = '';
+    }
+
+    function realizarSaque(tipo) {
+        const valor = prompt("Valor a sacar:");
+        if(!valor) return;
+        const valNum = parseFloat(valor.replace(',', '.'));
+        if(isNaN(valNum)) return alert("Valor inválido");
+        db.pagamentos.push({ id: Date.now(), data: new Date().toISOString().split('T')[0], valor: valNum, tipo });
         saveData();
     }
 
-    function deleteItem(list, id) { if(confirm("Apagar?")) { db[list] = db[list].filter(i => i.id !== id); saveData(); } }
-    function saveData() { 
-        localStorage.setItem('pudimDuCaririDB', JSON.stringify(db));
-        if(currentUserRole === 'admin' && isOnline) firebase.database().ref('pudimAppDB').set(db); 
-        showToast("Sincronizado!"); updateAll(); 
+    function marcarComoPago(id) {
+        const item = db.atacado.find(a => a.id === id);
+        if(item && confirm("Confirmar pagamento?")) { item.status = 'PAGO'; saveData(); }
     }
-    function switchTab(id) { 
-        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        event.target.classList.add('active');
+    
+    function ajustarEstoqueRapido(itemKey, nomeItem) {
+        let saldos = calcularSaldosEstoque();
+        let atual = saldos[itemKey] || 0;
+        let novo = prompt(`Estoque ${nomeItem}: ${atual}\n\nQuantidade REAL agora:`, atual);
+        if(novo === null) return; 
+        novo = parseFloat(novo.replace(',', '.'));
+        if(isNaN(novo)) return alert("Inválido");
+        let diferenca = novo - atual; 
+        if(diferenca === 0) return;
+        db.estoqueMov.push({ id: Date.now(), data: new Date().toISOString().split('T')[0], tipo: diferenca > 0 ? 'entrada' : 'saida', item: itemKey, qtd: Math.abs(diferenca), desc: 'Rápido' });
+        saveData(); showToast("Estoque Ajustado!");
     }
-    function toggleAsaas() { document.getElementById('asaas-group').style.display = document.getElementById('v-pgto').value === 'PIX' ? 'flex' : 'none'; }
-    function limparFiltro() { document.getElementById('dash-filter-month').value = ''; updateDashboard(); }
+
+    // --- UPDATE VIEW ---
+    function updateAll() {
+        updateDashboard();
+        renderEstoque();
+        renderTabelas();
+        renderConfig();
+    }
+    
+    function calcularSaldosEstoque() {
+        let saldos = { pudim: 0, leite_condensado: 0, leite_integral: 0, ovos: 0, acucar: 0, copo: 0, tampa: 0, sacola: 0, adesivo: 0, colher: 0 };
+        db.estoqueMov.forEach(m => { if(m.tipo === 'entrada') saldos[m.item] += (m.qtd||0); else saldos[m.item] -= (m.qtd||0); });
+        db.producoes.forEach(p => { 
+            const pq = p.qtd || 0;
+            saldos.pudim += pq*6; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*400; saldos.ovos -= pq*3; saldos.acucar -= pq*200; 
+            saldos.copo -= pq*6; saldos.tampa -= pq*6; saldos.adesivo -= pq*6;
+        });
+        db.vendas.forEach(v => { const pStr = v.produto || ''; const p = (pStr.includes('Combo')?3:1)*(v.qtd||1); saldos.pudim -= p; saldos.colher -= p; saldos.sacola -= 1; });
+        db.atacado.forEach(a => { saldos.pudim -= (a.qtd||0); if(a.coposDevolvidos) saldos.copo += a.coposDevolvidos; });
+        return saldos;
+    }
+
+    function renderEstoque() {
+        let saldos = calcularSaldosEstoque();
+        const mapKeys = ['pudim', 'leite_condensado', 'leite_integral', 'ovos', 'acucar', 'copo', 'tampa', 'sacola', 'adesivo', 'colher'];
+        mapKeys.forEach(k => {
+            let el = document.getElementById('est-' + k);
+            if(el) {
+                let val = saldos[k]; let suffix = (k==='leite_integral') ? ' ml' : (k==='acucar' ? ' g' : ' un');
+                el.innerText = val + suffix; el.classList.remove('status-red', 'status-yellow', 'status-green');
+                el.classList.add(val <= 0 ? 'status-red' : 'status-green');
+            }
+        });
+        // Renderiza HISTORICO RECEITAS (Compacto)
+        document.getElementById('tbody-producoes').innerHTML = db.producoes.sort(sortByDateDesc).map(p => 
+            `<tr><td style="font-size:0.85rem">${formatData(p.data)}</td><td style="text-align:center; font-weight:bold">${p.qtd}</td>
+            <td style="display:flex; justify-content:center; gap:5px;">
+                <button class="btn-icon btn-edit" onclick="prepararEdicao('producoes', ${p.id})">✏️</button>
+                <button class="btn-icon btn-delete" onclick="db.producoes=db.producoes.filter(x=>x.id!=${p.id}); saveData()">🗑️</button>
+            </td></tr>`
+        ).join('');
+        const mapItemNames = { leite_condensado: "L. Cond", leite_integral: "Leite", ovos: "Ovos", acucar: "Açúcar", copo: "Copos", tampa: "Tampas", sacola: "Sacolas", adesivo: "Adesivos", colher: "Colheres", pudim: "Pudim" };
+        document.getElementById('tbody-estoquemov').innerHTML = db.estoqueMov.sort(sortByDateDesc).map(m => `<tr><td>${formatData(m.data)}</td><td>${mapItemNames[m.item]}</td><td style="color:${m.tipo==='entrada'?'green':'red'}; font-weight:bold">${m.tipo==='entrada'?'+':'-'}${m.qtd}</td><td><button class="btn-icon btn-delete" onclick="db.estoqueMov=db.estoqueMov.filter(x=>x.id!=${m.id}); saveData()">🗑️</button></td></tr>`).join('');
+    }
+
+    function updateDashboard() {
+        let abs_vIns=0, abs_vCg=0, abs_vMo=0, abs_vGiro=0, abs_vFundo=0, abs_vLu=0, abs_vBea=0;
+        db.vendas.forEach(v => {
+            const q = (v.produto && v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
+            const ins = q * (db.config.custoInsumo||0); const base = Number(v.valorLiquido||0) - ins;
+            const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
+            abs_vIns+=Number(ins); abs_vCg+=Number(cg); abs_vMo+=Number(mo); abs_vGiro+=Number(lucro*0.5); abs_vFundo+=Number(lucro*0.15); abs_vLu+=Number(lucro*0.175); abs_vBea+=Number(lucro*0.175);
+        });
+        let abs_aIns=0, abs_aCg=0, abs_aMo=0, abs_aGiro=0, abs_aFundo=0, abs_aLu=0, abs_aBea=0;
+        db.atacado.forEach(a => {
+            if (a.status !== 'PAGO') return;
+            const liq = Number(a.totalLiquido||0); const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - ((a.coposDevolvidos||0)*db.config.custoCopo));
+            const base = liq - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
+            abs_aIns+=Number(ins); abs_aCg+=Number(cg); abs_aMo+=Number(mo); abs_aGiro+=Number(lucro*0.5); abs_aFundo+=Number(lucro*0.15); abs_aLu+=Number(lucro*0.175); abs_aBea+=Number(lucro*0.175);
+        });
+        let tAbsInsumos=0, tAbsEmbalagem=0, tAbsGerais=0, tAbsMarketing=0;
+        db.despesas.forEach(d => {
+            const val = Number(d.total||0);
+            if(d.categoria === 'INSUMOS') tAbsInsumos += val; else if(d.categoria === 'EMBALAGEM') tAbsEmbalagem += val; else if(d.categoria === 'GASTOS GERAIS') tAbsGerais += val; else if(d.categoria === 'MARKETING') tAbsMarketing += val;
+        });
+        let sqGiro=0, sqMO=0, sqLu=0, sqBea=0;
+        db.pagamentos.forEach(p => { const val = Number(p.valor||0); if(p.tipo === 'Divida') sqGiro += val; else if(p.tipo === 'MaoObra') sqMO += val; else if(p.tipo === 'Luyan') sqLu += val; else if(p.tipo === 'Beatriz') sqBea += val; });
+
+        const setTxt = (cls, val) => { document.querySelectorAll(cls).forEach(el => { el.innerText = formatMoney(val); if(val < 0) el.classList.add('alerta-negativo'); else el.classList.remove('alerta-negativo'); }); };
+        setTxt('.global-insumos', (abs_vIns + abs_aIns) - (tAbsInsumos + tAbsEmbalagem));
+        setTxt('.global-cg', (abs_vCg + abs_aCg) - tAbsGerais);
+        setTxt('.global-fundo', (abs_vFundo + abs_aFundo) - tAbsMarketing);
+        setTxt('.global-mo', (abs_vMo + abs_aMo) - sqMO);
+        setTxt('.global-luyan', (abs_vLu + abs_aLu) - sqLu);
+        setTxt('.global-beatriz', (abs_vBea + abs_aBea) - sqBea);
+        let sGiro = (abs_vGiro + abs_aGiro) - sqGiro;
+        setTxt('.global-giro', sGiro);
+        
+        let totalConta = ((abs_vIns + abs_aIns) - (tAbsInsumos + tAbsEmbalagem)) + ((abs_vCg + abs_aCg) - tAbsGerais) + ((abs_vFundo + abs_aFundo) - tAbsMarketing) + ((abs_vMo + abs_aMo) - sqMO) + ((abs_vLu + abs_aLu) - sqLu) + ((abs_vBea + abs_aBea) - sqBea) + sGiro;
+        document.getElementById('global-total-conta').innerText = formatMoney(totalConta);
+        
+        const roi = db.investimentos.reduce((acc, c) => acc + Number(c.valor||0), 0) - sqGiro;
+        const elRoi = document.querySelector('.global-roi');
+        if(elRoi) { elRoi.innerText = roi > 0 ? "Falta " + formatMoney(roi) : "PAGO! Sobra " + formatMoney(Math.abs(roi)); elRoi.style.color = roi > 0 ? 'var(--danger)' : 'var(--success)'; }
+
+        // Filtrados (Dashboards)
+        const filterMonth = document.getElementById('dash-filter-month').value;
+        const filterFn = (d) => !filterMonth || (d.data && d.data.startsWith(filterMonth));
+        let vBruto=0, vLiq=0, vQtd=0, vIns=0, vCG=0, vMO=0, vLucro=0, vGiro=0, vFundo=0, vLu=0, vBea=0, vEnt=0;
+        db.vendas.filter(filterFn).forEach(v => {
+            vBruto += Number(v.valorBruto||0); vLiq += Number(v.valorLiquido||0); vEnt += Number(v.entrega||0);
+            const q = (v.produto.includes('Combo')?3:1)*(v.qtd||1); vQtd += q;
+            const ins = q*db.config.custoInsumo; const base = Number(v.valorLiquido||0)-ins;
+            const cg=base*0.15; const mo=base*0.20; const luc=base-cg-mo;
+            vIns+=ins; vCG+=cg; vMO+=mo; vLucro+=luc; vGiro+=luc*0.50; vFundo+=luc*0.15; vLu+=luc*0.175; vBea+=luc*0.175;
+        });
+        document.getElementById('v-dash-bruto').innerText = formatMoney(vBruto); document.getElementById('v-dash-liquido').innerText = formatMoney(vLiq); document.getElementById('v-dash-entrega').innerText = formatMoney(vEnt); document.getElementById('v-dash-qtd').innerText = vQtd; document.getElementById('v-dash-insumos').innerText = formatMoney(vIns); document.getElementById('v-dash-cg').innerText = formatMoney(vCG); document.getElementById('v-dash-mo').innerText = formatMoney(vMO); document.getElementById('v-dash-lucro-restante').innerText = formatMoney(vLucro); document.getElementById('v-dash-giro').innerText = formatMoney(vGiro); document.getElementById('v-dash-fundo').innerText = formatMoney(vFundo); document.getElementById('v-dash-luyan').innerText = formatMoney(vLu); document.getElementById('v-dash-beatriz').innerText = formatMoney(vBea);
+        
+        let aBruto=0, aLiq=0, aQtd=0, aIns=0, aCG=0, aMO=0, aLucro=0, aGiro=0, aFundo=0, aLu=0, aBea=0, aDesc=0;
+        db.atacado.filter(filterFn).filter(a=>a.status==='PAGO').forEach(a => {
+            aBruto += Number(a.totalBruto||0); aLiq += Number(a.totalLiquido||0); aQtd += Number(a.qtd||0); aDesc += Number(a.desconto||0);
+            const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - ((a.coposDevolvidos||0)*db.config.custoCopo));
+            const base = Number(a.totalLiquido||0)-ins; const cg=base*0.15; const mo=base*0.20; const luc=base-cg-mo;
+            aIns+=ins; aCG+=cg; aMO+=mo; aLucro+=luc; aGiro+=luc*0.50; aFundo+=luc*0.15; aLu+=luc*0.175; aBea+=luc*0.175;
+        });
+        document.getElementById('a-dash-bruto').innerText = formatMoney(aBruto); document.getElementById('a-dash-desconto').innerText = "- "+formatMoney(aDesc); document.getElementById('a-dash-liquido').innerText = formatMoney(aLiq); document.getElementById('a-dash-qtd').innerText = aQtd; document.getElementById('a-dash-insumos').innerText = formatMoney(aIns); document.getElementById('a-dash-cg').innerText = formatMoney(aCG); document.getElementById('a-dash-mo').innerText = formatMoney(aMO); document.getElementById('a-dash-lucro-restante').innerText = formatMoney(aLucro); document.getElementById('a-dash-giro').innerText = formatMoney(aGiro); document.getElementById('a-dash-fundo').innerText = formatMoney(aFundo); document.getElementById('a-dash-luyan').innerText = formatMoney(aLu); document.getElementById('a-dash-beatriz').innerText = formatMoney(aBea);
+
+        let dIns=0, dEmb=0, dGer=0, dMark=0;
+        db.despesas.filter(filterFn).forEach(d => {
+            const val = Number(d.total||0); if(d.categoria==='INSUMOS') dIns+=val; else if(d.categoria==='EMBALAGEM') dEmb+=val; else if(d.categoria==='GASTOS GERAIS') dGer+=val; else if(d.categoria==='MARKETING') dMark+=val;
+        });
+        document.getElementById('dash-desp-insumos').innerText = formatMoney(dIns); document.getElementById('dash-desp-embalagem').innerText = formatMoney(dEmb); document.getElementById('dash-desp-gerais').innerText = formatMoney(dGer); document.getElementById('dash-desp-marketing').innerText = formatMoney(dMark); document.getElementById('dash-desp-total').innerText = formatMoney(dIns+dEmb+dGer+dMark);
+    }
+
+    function renderTabelas() {
+        document.getElementById('tbody-vendas').innerHTML = db.vendas.sort(sortByDateDesc).map(v => 
+            `<tr><td>#${v.num}</td><td>${formatData(v.data)}</td><td>${v.produto}</td><td style="font-weight:bold">${formatMoney(v.valorLiquido)}</td>
+            <td><button class="btn-icon btn-edit" onclick="prepararEdicao('vendas', ${v.id})">✏️</button><button class="btn-icon btn-delete" onclick="db.vendas=db.vendas.filter(x=>x.id!=${v.id}); saveData()">🗑️</button></td></tr>`
+        ).join('');
+        
+        document.getElementById('tbody-atacado').innerHTML = db.atacado.sort(sortByDateDesc).map(a => 
+            `<tr><td>#${a.num}</td><td>${formatData(a.data)}</td><td>${a.cliente}</td><td>${a.qtd}</td><td style="font-weight:bold">${formatMoney(a.totalLiquido)}</td>
+            <td style="color:${a.status==='PAGO'?'green':'red'}">${a.status}</td>
+            <td>${a.status!=='PAGO'?`<button class="btn-icon btn-pay" onclick="marcarComoPago(${a.id})">💰</button>`:''}
+            <button class="btn-icon btn-edit" onclick="prepararEdicao('atacado', ${a.id})">✏️</button><button class="btn-icon btn-delete" onclick="db.atacado=db.atacado.filter(x=>x.id!=${a.id}); saveData()">🗑️</button></td></tr>`
+        ).join('');
+        
+        document.getElementById('tbody-despesas').innerHTML = db.despesas.sort(sortByDateDesc).map(d =>
+            `<tr><td>#${d.num}</td><td>${formatData(d.data)}</td><td>${d.item}</td><td style="color:red;font-weight:bold">${formatMoney(d.total)}</td><td>${d.categoria}</td>
+            <td><button class="btn-icon btn-edit" onclick="prepararEdicao('despesas', ${d.id})">✏️</button><button class="btn-icon btn-delete" onclick="db.despesas=db.despesas.filter(x=>x.id!=${d.id}); saveData()">🗑️</button></td></tr>`
+        ).join('');
+        
+        const aReceber = db.atacado.filter(a => a.status !== 'PAGO');
+        document.getElementById('tbody-receber').innerHTML = aReceber.map(a => 
+            `<tr><td>${formatData(a.data)}</td><td>${a.cliente}</td><td>${a.qtd}</td><td style="color:red;font-weight:bold">${formatMoney(a.totalLiquido)}</td><td><button class="btn-icon btn-pay" onclick="marcarComoPago(${a.id})">💰 Pagar</button></td></tr>`
+        ).join('');
+        document.getElementById('total-receber').innerText = formatMoney(aReceber.reduce((ac, x)=>ac+Number(x.totalLiquido||0), 0));
+        
+        document.getElementById('tbody-pagamentos').innerHTML = db.pagamentos.sort(sortByDateDesc).map(p =>
+            `<tr><td>${formatData(p.data)}</td><td>${descTipoMap[p.tipo]}</td><td style="color:red;font-weight:bold">-${formatMoney(p.valor)}</td><td style="color:#6B7280">Ref. Caixa</td>
+            <td><button class="btn-icon btn-edit" onclick="prepararEdicao('pagamentos', ${p.id})">✏️</button><button class="btn-icon btn-delete" onclick="db.pagamentos=db.pagamentos.filter(x=>x.id!=${p.id}); saveData()">🗑️</button></td></tr>`
+        ).join('');
+
+        document.getElementById('tbody-investimentos').innerHTML = db.investimentos.sort(sortByDateDesc).map(i => `<tr><td>${formatData(i.data)}</td><td>${i.item}</td><td style="color:red; font-weight:bold">${formatMoney(i.valor||0)}</td><td style="white-space:nowrap;"><button class="btn-icon btn-edit" onclick="prepararEdicao('investimentos', ${i.id})">✏️</button><button class="btn-icon btn-delete" onclick="db.investimentos=db.investimentos.filter(x=>x.id!=${i.id}); saveData()">🗑️</button></td></tr>`).join('');
+
+        // RATEIOS DETALHADOS COM TOTAL
+        let htmlVar = '', tLiq=0, tIns=0, tGer=0, tMao=0, tLuc=0, tGiro=0, tFun=0, tLu=0, tBea=0;
+        db.vendas.sort(sortByDateDesc).forEach(v => {
+            const pStr = v.produto || ''; const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1);
+            const ins = q * (db.config.custoInsumo||0); const base = Number(v.valorLiquido||0) - ins;
+            const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
+            const g=lucro*0.5, f=lucro*0.15, l=lucro*0.175, b=lucro*0.175;
+            tLiq+=Number(v.valorLiquido); tIns+=ins; tGer+=cg; tMao+=mo; tLuc+=lucro; tGiro+=g; tFun+=f; tLu+=l; tBea+=b;
+            htmlVar += `<tr><td>${v.num}</td><td>${formatData(v.data)}</td><td>${formatMoney(v.valorLiquido)}</td><td style="color:red">-${formatMoney(ins)}</td><td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td><td style="color:green;font-weight:bold">${formatMoney(lucro)}</td><td>${formatMoney(g)}</td><td>${formatMoney(f)}</td><td>${formatMoney(l)}</td><td>${formatMoney(b)}</td></tr>`;
+        });
+        if(db.vendas.length > 0) htmlVar += `<tr class="tr-totais"><td>TOTAL</td><td>-</td><td>${formatMoney(tLiq)}</td><td>-${formatMoney(tIns)}</td><td>-${formatMoney(tGer)}</td><td>-${formatMoney(tMao)}</td><td>${formatMoney(tLuc)}</td><td>${formatMoney(tGiro)}</td><td>${formatMoney(tFun)}</td><td>${formatMoney(tLu)}</td><td>${formatMoney(tBea)}</td></tr>`;
+        document.getElementById('tbody-rateio-varejo').innerHTML = htmlVar;
+        
+        let htmlAta = '', atLiq=0, atIns=0, atGer=0, atMao=0, atLuc=0, atGiro=0, atFun=0, atLu=0, atBea=0;
+        db.atacado.filter(a=>a.status === 'PAGO').sort(sortByDateDesc).forEach(a => {
+            const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - (a.coposDevolvidos*db.config.custoCopo));
+            const base = Number(a.totalLiquido||0) - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
+            const g=lucro*0.5, f=lucro*0.15, l=lucro*0.175, b=lucro*0.175;
+            atLiq+=Number(a.totalLiquido); atIns+=ins; atGer+=cg; atMao+=mo; atLuc+=lucro; atGiro+=g; atFun+=f; atLu+=l; atBea+=b;
+            htmlAta += `<tr><td>${a.num}</td><td>${formatData(a.data)}</td><td>${formatMoney(a.totalLiquido)}</td><td style="color:red">-${formatMoney(ins)}</td><td style="color:red">-${formatMoney(cg)}</td><td style="color:red">-${formatMoney(mo)}</td><td style="color:green;font-weight:bold">${formatMoney(lucro)}</td><td>${formatMoney(g)}</td><td>${formatMoney(f)}</td><td>${formatMoney(l)}</td><td>${formatMoney(b)}</td></tr>`;
+        });
+        if(db.atacado.filter(a=>a.status==='PAGO').length > 0) htmlAta += `<tr class="tr-totais"><td>TOTAL</td><td>-</td><td>${formatMoney(atLiq)}</td><td>-${formatMoney(atIns)}</td><td>-${formatMoney(atGer)}</td><td>-${formatMoney(atMao)}</td><td>${formatMoney(atLuc)}</td><td>${formatMoney(atGiro)}</td><td>${formatMoney(atFun)}</td><td>${formatMoney(atLu)}</td><td>${formatMoney(atBea)}</td></tr>`;
+        document.getElementById('tbody-rateio-atacado').innerHTML = htmlAta;
+    }
+    
+    // --- WHATSAPP EXPORT ---
+    function fechamentoWhatsApp() {
+        const hoje = new Date().toISOString().split('T')[0];
+        const vHoje = db.vendas.filter(v => (v.data||'').startsWith(hoje));
+        const aHoje = db.atacado.filter(a => (a.data||'').startsWith(hoje) && a.status === 'PAGO');
+        
+        let vQtd=0, vLiq=0;
+        vHoje.forEach(v => { const q = (v.produto.includes('Combo')?3:1)*(v.qtd||1); vQtd += q; vLiq += Number(v.valorLiquido||0); });
+        let aQtd=0, aLiq=0;
+        aHoje.forEach(a => { aQtd += Number(a.qtd||0); aLiq += Number(a.totalLiquido||0); });
+        let despHoje=0;
+        db.despesas.filter(d => d.data === hoje).forEach(d => despHoje += Number(d.total||0));
+
+        let txt = `*📊 FECHAMENTO DO DIA - ${hoje.split('-').reverse().join('/')}*\n\n`;
+        txt += `*🛒 VAREJO*\n- Pudins: ${vQtd}\n- Líquido: R$ ${vLiq.toFixed(2)}\n\n`;
+        txt += `*📦 ATACADO*\n- Pudins: ${aQtd}\n- Líquido: R$ ${aLiq.toFixed(2)}\n\n`;
+        txt += `*💸 SAÍDAS*\n- Total: R$ ${despHoje.toFixed(2)}\n\n`;
+        txt += `*💰 SALDO DO DIA*\n👉 R$ ${(vLiq + aLiq - despHoje).toFixed(2)}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`, '_blank');
+    }
+
+    function exportDataBlob() {
+        const dataStr = JSON.stringify(db, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a'); link.href = url; link.download = "backup_pudim.json";
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    }
+    function importData(event) {
+        const file = event.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) { try { db = loadDBData(JSON.parse(e.target.result)); saveData(); showToast("Restaurado!"); } catch (err) { alert("Erro JSON"); } };
+        reader.readAsText(file);
+    }
+    function exportarExcel() {
+        if (typeof XLSX === 'undefined') return alert("Erro lib Excel.");
+        const wb = XLSX.utils.book_new();
+        
+        // Rateio Varejo
+        const wsVar = [["ID", "Data", "Produto", "Líquido", "Insumo", "Custos Gerais", "Mão de Obra", "Lucro", "Giro (50%)", "Fundo (15%)", "Luyan (17.5%)", "Beatriz (17.5%)"]];
+        db.vendas.forEach(v => {
+            const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
+            const ins = q * db.config.custoInsumo; const base = Number(v.valorLiquido||0) - ins;
+            const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
+            wsVar.push([v.num, v.data, v.produto, v.valorLiquido, ins, cg, mo, lucro, lucro*0.5, lucro*0.15, lucro*0.175, lucro*0.175]);
+        });
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsVar), "Rateio Varejo");
+
+        // Despesas
+        const wsDesp = [["Data", "Item", "Qtd", "Valor Un", "Total", "Categoria"]];
+        db.despesas.forEach(d => wsDesp.push([d.data, d.item, d.qtd, d.unitario, d.total, d.categoria]));
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsDesp), "Despesas");
+
+        XLSX.writeFile(wb, "PudimDuCariri_Relatorio.xlsx");
+        showToast("Excel Gerado!");
+    }
 
     init();
 </script>
