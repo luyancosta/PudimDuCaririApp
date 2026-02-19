@@ -1052,43 +1052,69 @@
         document.getElementById('tbody-rateio-atacado').innerHTML = htmlAta;
     }
     
-    // --- WHATSAPP EXPORT ---
-    function fechamentoWhatsApp() {
+ // --- FECHAMENTO WHATSAPP ---
+    function enviarFechamentoWhatsApp() {
         const hoje = new Date().toISOString().split('T')[0];
-        const vHoje = db.vendas.filter(v => (v.data||'').startsWith(hoje));
-        const aHoje = db.atacado.filter(a => (a.data||'').startsWith(hoje) && a.status === 'PAGO');
-        
-        let vQtd=0, vLiq=0;
-        vHoje.forEach(v => { const q = (v.produto.includes('Combo')?3:1)*(v.qtd||1); vQtd += q; vLiq += Number(v.valorLiquido||0); });
-        let aQtd=0, aLiq=0;
-        aHoje.forEach(a => { aQtd += Number(a.qtd||0); aLiq += Number(a.totalLiquido||0); });
-        let despHoje=0;
-        db.despesas.filter(d => d.data === hoje).forEach(d => despHoje += Number(d.total||0));
+        const vHoje = db.vendas.filter(v => v.data === hoje);
+        const aHoje = db.atacado.filter(a => a.data === hoje && a.status === 'PAGO');
+        const dHoje = db.despesas.filter(d => d.data === hoje);
 
-        let txt = `*📊 FECHAMENTO DO DIA - ${hoje.split('-').reverse().join('/')}*\n\n`;
-        txt += `*🛒 VAREJO*\n- Pudins: ${vQtd}\n- Líquido: R$ ${vLiq.toFixed(2)}\n\n`;
-        txt += `*📦 ATACADO*\n- Pudins: ${aQtd}\n- Líquido: R$ ${aLiq.toFixed(2)}\n\n`;
-        txt += `*💸 SAÍDAS*\n- Total: R$ ${despHoje.toFixed(2)}\n\n`;
-        txt += `*💰 SALDO DO DIA*\n👉 R$ ${(vLiq + aLiq - despHoje).toFixed(2)}`;
+        let vQtd = 0, vLiq = 0;
+        let pPixP = 0, pPixA = 0, pDin = 0, pCard = 0;
+
+        vHoje.forEach(v => {
+            const q = (v.produto === 'Combo' ? 3 : 1) * Number(v.qtd || 1);
+            const val = Number(v.valorLiquido || 0);
+            vQtd += q; vLiq += val;
+            if(v.pgto === 'PIX') { if(v.asaas) pPixA += val; else pPixP += val; }
+            else if(v.pgto === 'Dinheiro') pDin += val;
+            else pCard += val;
+        });
+
+        let aQtd = 0, aLiq = 0;
+        aHoje.forEach(a => {
+            aQtd += Number(a.qtd || 0);
+            aLiq += Number(a.totalLiquido || 0);
+        });
+
+        let totalSair = 0;
+        dHoje.forEach(d => totalSair += Number(d.total || 0));
+
+        const saldoDia = (vLiq + aLiq) - totalSair;
+        
+        // Puxa o saldo atualizado do estoque
+        const estoque = calcularSaldosEstoque();
+
+        let txt = `*📊 FECHAMENTO PUDIM DU CARIRI - ${hoje.split('-').reverse().join('/')}*\n\n`;
+        
+        txt += `*🛒 VAREJO*\n- Pudins: ${vQtd} un\n- Total Líquido: ${formatMoney(vLiq)}\n\n`;
+        
+        txt += `*📦 ATACADO*\n- Pudins: ${aQtd} un\n- Total Líquido: ${formatMoney(aLiq)}\n\n`;
+        
+        txt += `*💸 DESPESAS DO DIA*\n- Total Saída: ${formatMoney(totalSair)}\n\n`;
+        
+        txt += `*💰 RESUMO DE RECEBIMENTO*\n`;
+        txt += `• PIX (Pessoal): ${formatMoney(pPixP)}\n`;
+        txt += `• PIX (Asaas): ${formatMoney(pPixA)}\n`;
+        txt += `• Dinheiro: ${formatMoney(pDin)}\n`;
+        txt += `• Cartões/Link: ${formatMoney(pCard)}\n\n`;
+        
+        txt += `*📦 POSIÇÃO DO ESTOQUE*\n`;
+        txt += `• Pudins Prontos: ${estoque.pudim} un\n`;
+        txt += `• Leite Cond.: ${estoque.leite_condensado} un\n`;
+        txt += `• Leite Int.: ${estoque.leite_integral} ml\n`;
+        txt += `• Ovos: ${estoque.ovos} un\n`;
+        txt += `• Açúcar: ${estoque.acucar} g\n`;
+        txt += `• Copos Vazios: ${estoque.copo} un\n`;
+        txt += `• Tampas: ${estoque.tampa} un\n`;
+        txt += `• Sacolas: ${estoque.sacola} un\n`;
+        txt += `• Adesivos: ${estoque.adesivo} un\n`;
+        txt += `• Colheres: ${estoque.colher} un\n\n`;
+
+        txt += `*💎 SALDO FINAL (LUCRO HOJE)*\n👉 *${formatMoney(saldoDia)}*`;
+
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`, '_blank');
     }
-
-    function exportDataBlob() {
-        const dataStr = JSON.stringify(db, null, 2);
-        const blob = new Blob([dataStr], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a'); link.href = url; link.download = "backup_pudim.json";
-        document.body.appendChild(link); link.click(); document.body.removeChild(link);
-    }
-    function importData(event) {
-        const file = event.target.files[0]; if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) { try { db = loadDBData(JSON.parse(e.target.result)); saveData(); showToast("Restaurado!"); } catch (err) { alert("Erro JSON"); } };
-        reader.readAsText(file);
-    }
-    function exportarExcel() {
-        if (typeof XLSX === 'undefined') return alert("Erro lib Excel.");
-        const wb = XLSX.utils.book_new();
         
         // Rateio Varejo
         const wsVar = [["ID", "Data", "Produto", "Líquido", "Insumo", "Custos Gerais", "Mão de Obra", "Lucro", "Giro (50%)", "Fundo (15%)", "Luyan (17.5%)", "Beatriz (17.5%)"]];
