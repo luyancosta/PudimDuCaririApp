@@ -285,8 +285,12 @@
                     <h3>Tampas</h3><p id="est-tampa" class="status-green">0 un</p>
                 </div>
                 <div class="card estoque-card" style="border-left-color: #8B5CF6;">
-                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('sacola', 'Sacolas')">✏️</button>
-                    <h3>Sacolas</h3><p id="est-sacola" class="status-green">0 un</p>
+                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('sacola_1', 'Sacolas (1 un)')">✏️</button>
+                    <h3>Sacolas (1 un)</h3><p id="est-sacola_1" class="status-green">0 un</p>
+                </div>
+                <div class="card estoque-card" style="border-left-color: #8B5CF6;">
+                    <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('sacola_2', 'Sacolas (2 un)')">✏️</button>
+                    <h3>Sacolas (2 un)</h3><p id="est-sacola_2" class="status-green">0 un</p>
                 </div>
                 <div class="card estoque-card" style="border-left-color: #8B5CF6;">
                     <button class="btn-edit-stock" onclick="ajustarEstoqueRapido('adesivo', 'Adesivos')">✏️</button>
@@ -322,7 +326,8 @@
                                     <option value="acucar">Açúcar</option>
                                     <option value="copo">Copo Vazio</option>
                                     <option value="tampa">Tampas</option>
-                                    <option value="sacola">Sacolas</option>
+                                    <option value="sacola_1">Sacola (1 un)</option>
+                                    <option value="sacola_2">Sacola (2 un)</option>
                                     <option value="adesivo">Adesivos</option>
                                     <option value="colher">Colheres</option>
                                     <option value="pudim">Pudim Pronto</option>
@@ -380,6 +385,14 @@
                         </select>
                     </div>
                     <div class="form-group"><label>Qtd</label><input type="number" id="v-qtd" value="1" min="1"></div>
+                    <div class="form-group">
+                        <label>Sacola Usada</label>
+                        <select id="v-sacola">
+                            <option value="sacola_1">Sacola (1 un)</option>
+                            <option value="sacola_2">Sacola (2 un)</option>
+                            <option value="nenhuma">Nenhuma</option>
+                        </select>
+                    </div>
                     <div class="form-group"><label>Desc. (R$)</label><input type="number" id="v-desconto" step="0.01" value="0"></div>
                     
                     <div class="form-group">
@@ -555,6 +568,10 @@
     let editingItem = { lista: null, id: null };
     
     // --- UTILS (FORMAT & SORT) ---
+    const getTodayDate = () => {
+        const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+        return new Date(Date.now() - tzoffset).toISOString().split('T')[0];
+    };
     const formatMoney = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(val)||0);
     const formatData = (date) => date ? new Date(date + "T00:00:00").toLocaleDateString('pt-BR') : '';
     const descTipoMap = { 'Divida': 'Giro', 'MaoObra': 'Mão Obra', 'Luyan': 'Luyan', 'Beatriz': 'Beatriz' };
@@ -679,7 +696,10 @@
     }
 
     // --- UI HELPERS ---
-    function resetDateInputs() { document.querySelectorAll('input[type="date"]').forEach(el => el.value = new Date().toISOString().split('T')[0]); document.getElementById('mov-data').value = new Date().toISOString().split('T')[0]; }
+    function resetDateInputs() { 
+        document.querySelectorAll('input[type="date"]').forEach(el => el.value = getTodayDate()); 
+        document.getElementById('mov-data').value = getTodayDate(); 
+    }
     function limparFiltro() { document.getElementById('dash-filter-month').value = ''; updateDashboard(); }
     function switchTab(tabId) {
         document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
@@ -739,6 +759,7 @@
         if(lista === 'vendas') { 
             switchTab('vendas'); document.getElementById('v-data').value = item.data; 
             const pStr = item.produto || ''; document.getElementById('v-produto').value = pStr.includes('Combo') ? 'Combo' : 'Unidade'; 
+            document.getElementById('v-sacola').value = item.sacola || 'sacola_1';
             document.getElementById('v-pgto').value = item.pgto; document.getElementById('v-asaas').checked = item.asaas || false; toggleAsaas();
             document.getElementById('v-entrega').value = item.entrega || 0; document.getElementById('v-qtd').value = item.qtd || 1; document.getElementById('v-desconto').value = item.desconto || 0; 
             document.getElementById('btn-submit-vendas').innerText = "Salvar Alteração"; 
@@ -767,6 +788,7 @@
         if(!data) return alert('Data obrigatória');
         const produtoStr = document.getElementById('v-produto').value;
         const pgto = document.getElementById('v-pgto').value;
+        const sacola = document.getElementById('v-sacola').value;
         const isAsaas = document.getElementById('v-asaas').checked;
         const qtd = parseInt(document.getElementById('v-qtd').value) || 1;
         const desconto = parseFloat(document.getElementById('v-desconto').value) || 0;
@@ -788,7 +810,7 @@
         finalizarEdicao('vendas', { 
             id: (editingItem.lista==='vendas'?editingItem.id:Date.now()), 
             num: (editingItem.lista==='vendas'?db.vendas.find(i=>i.id===editingItem.id).num:getNextNum(db.vendas)),
-            data, produto: produtoStr, pgto, asaas: isAsaas, qtd, desconto, 
+            data, produto: produtoStr, pgto, asaas: isAsaas, qtd, desconto, sacola,
             valorBruto: Number(valorBruto), valorTaxa: Number(valorTaxa), 
             valorLiquido: Number(valorCobradoMaq - valorTaxa), entrega: Number(entrega) 
         }, 'btn-submit-vendas', 'Salvar Venda', 'Venda Salva!');
@@ -849,7 +871,7 @@
     }
 
     function addEstoqueMov() {
-        const data = document.getElementById('mov-data').value || new Date().toISOString().split('T')[0];
+        const data = document.getElementById('mov-data').value || getTodayDate();
         const tipo = document.getElementById('mov-tipo').value; const item = document.getElementById('mov-item').value; const qtd = parseFloat(document.getElementById('mov-qtd').value);
         if(!qtd) return alert("Qtd obrigatória");
         finalizarEdicao('estoqueMov', { id: (editingItem.lista==='estoqueMov'?editingItem.id:Date.now()), data, tipo, item, qtd, desc: 'Manual' }, 'btn-submit-mov', 'Lançar Ajuste', 'Ajuste Salvo!');
@@ -861,7 +883,7 @@
         if(!valor) return;
         const valNum = parseFloat(valor.replace(',', '.'));
         if(isNaN(valNum)) return alert("Valor inválido");
-        db.pagamentos.push({ id: Date.now(), data: new Date().toISOString().split('T')[0], valor: valNum, tipo });
+        db.pagamentos.push({ id: Date.now(), data: getTodayDate(), valor: valNum, tipo });
         saveData();
     }
 
@@ -879,7 +901,7 @@
         if(isNaN(novo)) return alert("Inválido");
         let diferenca = novo - atual; 
         if(diferenca === 0) return;
-        db.estoqueMov.push({ id: Date.now(), data: new Date().toISOString().split('T')[0], tipo: diferenca > 0 ? 'entrada' : 'saida', item: itemKey, qtd: Math.abs(diferenca), desc: 'Rápido' });
+        db.estoqueMov.push({ id: Date.now(), data: getTodayDate(), tipo: diferenca > 0 ? 'entrada' : 'saida', item: itemKey, qtd: Math.abs(diferenca), desc: 'Rápido' });
         saveData(); showToast("Estoque Ajustado!");
     }
 
@@ -892,21 +914,34 @@
     }
     
     function calcularSaldosEstoque() {
-        let saldos = { pudim: 0, leite_condensado: 0, leite_integral: 0, ovos: 0, acucar: 0, copo: 0, tampa: 0, sacola: 0, adesivo: 0, colher: 0 };
-        db.estoqueMov.forEach(m => { if(m.tipo === 'entrada') saldos[m.item] += (m.qtd||0); else saldos[m.item] -= (m.qtd||0); });
+        let saldos = { pudim: 0, leite_condensado: 0, leite_integral: 0, ovos: 0, acucar: 0, copo: 0, tampa: 0, sacola_1: 0, sacola_2: 0, adesivo: 0, colher: 0 };
+        db.estoqueMov.forEach(m => { 
+            let itemKey = m.item === 'sacola' ? 'sacola_1' : m.item; // Retrocompatibilidade para ajustes antigos de sacola
+            if(m.tipo === 'entrada') saldos[itemKey] += (m.qtd||0); 
+            else saldos[itemKey] -= (m.qtd||0); 
+        });
         db.producoes.forEach(p => { 
             const pq = p.qtd || 0;
             saldos.pudim += pq*6; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*400; saldos.ovos -= pq*3; saldos.acucar -= pq*200; 
             saldos.copo -= pq*6; saldos.tampa -= pq*6; saldos.adesivo -= pq*6;
         });
-        db.vendas.forEach(v => { const pStr = v.produto || ''; const p = (pStr.includes('Combo')?3:1)*(v.qtd||1); saldos.pudim -= p; saldos.colher -= p; saldos.sacola -= 1; });
+        db.vendas.forEach(v => { 
+            const pStr = v.produto || ''; 
+            const p = (pStr.includes('Combo')?3:1)*(v.qtd||1); 
+            saldos.pudim -= p; 
+            saldos.colher -= p; 
+            
+            let tipoSacola = v.sacola || 'sacola_1'; // Vendas antigas ou não preenchidas usarão sacola_1
+            if(tipoSacola === 'sacola_1') saldos.sacola_1 -= 1;
+            else if(tipoSacola === 'sacola_2') saldos.sacola_2 -= 1;
+        });
         db.atacado.forEach(a => { saldos.pudim -= (a.qtd||0); if(a.coposDevolvidos) saldos.copo += a.coposDevolvidos; });
         return saldos;
     }
 
     function renderEstoque() {
         let saldos = calcularSaldosEstoque();
-        const mapKeys = ['pudim', 'leite_condensado', 'leite_integral', 'ovos', 'acucar', 'copo', 'tampa', 'sacola', 'adesivo', 'colher'];
+        const mapKeys = ['pudim', 'leite_condensado', 'leite_integral', 'ovos', 'acucar', 'copo', 'tampa', 'sacola_1', 'sacola_2', 'adesivo', 'colher'];
         mapKeys.forEach(k => {
             let el = document.getElementById('est-' + k);
             if(el) {
@@ -923,8 +958,8 @@
                 <button class="btn-icon btn-delete" onclick="db.producoes=db.producoes.filter(x=>x.id!=${p.id}); saveData()">🗑️</button>
             </td></tr>`
         ).join('');
-        const mapItemNames = { leite_condensado: "L. Cond", leite_integral: "Leite", ovos: "Ovos", acucar: "Açúcar", copo: "Copos", tampa: "Tampas", sacola: "Sacolas", adesivo: "Adesivos", colher: "Colheres", pudim: "Pudim" };
-        document.getElementById('tbody-estoquemov').innerHTML = db.estoqueMov.sort(sortByDateDesc).map(m => `<tr><td>${formatData(m.data)}</td><td>${mapItemNames[m.item]}</td><td style="color:${m.tipo==='entrada'?'green':'red'}; font-weight:bold">${m.tipo==='entrada'?'+':'-'}${m.qtd}</td><td><button class="btn-icon btn-delete" onclick="db.estoqueMov=db.estoqueMov.filter(x=>x.id!=${m.id}); saveData()">🗑️</button></td></tr>`).join('');
+        const mapItemNames = { leite_condensado: "L. Cond", leite_integral: "Leite", ovos: "Ovos", acucar: "Açúcar", copo: "Copos", tampa: "Tampas", sacola_1: "Sacolas (1 un)", sacola_2: "Sacolas (2 un)", adesivo: "Adesivos", colher: "Colheres", pudim: "Pudim", sacola: "Sacola Antiga" };
+        document.getElementById('tbody-estoquemov').innerHTML = db.estoqueMov.sort(sortByDateDesc).map(m => `<tr><td>${formatData(m.data)}</td><td>${mapItemNames[m.item] || m.item}</td><td style="color:${m.tipo==='entrada'?'green':'red'}; font-weight:bold">${m.tipo==='entrada'?'+':'-'}${m.qtd}</td><td><button class="btn-icon btn-delete" onclick="db.estoqueMov=db.estoqueMov.filter(x=>x.id!=${m.id}); saveData()">🗑️</button></td></tr>`).join('');
     }
 
     function updateDashboard() {
@@ -1054,7 +1089,7 @@
     
     // --- WHATSAPP EXPORT ---
     function fechamentoWhatsApp() {
-        const hoje = new Date().toISOString().split('T')[0];
+        const hoje = getTodayDate();
         const vHoje = db.vendas.filter(v => (v.data||'').startsWith(hoje));
         const aHoje = db.atacado.filter(a => (a.data||'').startsWith(hoje) && a.status === 'PAGO');
         
