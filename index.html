@@ -385,14 +385,30 @@
                         </select>
                     </div>
                     <div class="form-group"><label>Qtd</label><input type="number" id="v-qtd" value="1" min="1"></div>
+                    
                     <div class="form-group">
-                        <label>Sacola Usada</label>
-                        <select id="v-sacola">
-                            <option value="sacola_1">Sacola (1 un)</option>
-                            <option value="sacola_2">Sacola (2 un)</option>
-                            <option value="nenhuma">Nenhuma</option>
-                        </select>
+                        <label>Sacola 1</label>
+                        <div style="display:flex; gap:5px;">
+                            <select id="v-sacola1-tipo">
+                                <option value="nenhuma">Nenhuma</option>
+                                <option value="sacola_1">Sacola (1 un)</option>
+                                <option value="sacola_2">Sacola (2 un)</option>
+                            </select>
+                            <input type="number" id="v-sacola1-qtd" value="1" min="1" style="width: 70px;">
+                        </div>
                     </div>
+                    <div class="form-group">
+                        <label>Sacola 2 (Opcional)</label>
+                        <div style="display:flex; gap:5px;">
+                            <select id="v-sacola2-tipo">
+                                <option value="nenhuma">Nenhuma</option>
+                                <option value="sacola_1">Sacola (1 un)</option>
+                                <option value="sacola_2">Sacola (2 un)</option>
+                            </select>
+                            <input type="number" id="v-sacola2-qtd" value="0" min="0" style="width: 70px;">
+                        </div>
+                    </div>
+                    
                     <div class="form-group"><label>Desc. (R$)</label><input type="number" id="v-desconto" step="0.01" value="0"></div>
                     
                     <div class="form-group">
@@ -759,7 +775,13 @@
         if(lista === 'vendas') { 
             switchTab('vendas'); document.getElementById('v-data').value = item.data; 
             const pStr = item.produto || ''; document.getElementById('v-produto').value = pStr.includes('Combo') ? 'Combo' : 'Unidade'; 
-            document.getElementById('v-sacola').value = item.sacola || 'sacola_1';
+            
+            // Popula as opções de sacolas retroativamente
+            document.getElementById('v-sacola1-tipo').value = item.sacola1_tipo || item.sacola || 'nenhuma';
+            document.getElementById('v-sacola1-qtd').value = item.sacola1_qtd !== undefined ? item.sacola1_qtd : (item.sacola && item.sacola !== 'nenhuma' ? 1 : 1);
+            document.getElementById('v-sacola2-tipo').value = item.sacola2_tipo || 'nenhuma';
+            document.getElementById('v-sacola2-qtd').value = item.sacola2_qtd || 0;
+
             document.getElementById('v-pgto').value = item.pgto; document.getElementById('v-asaas').checked = item.asaas || false; toggleAsaas();
             document.getElementById('v-entrega').value = item.entrega || 0; document.getElementById('v-qtd').value = item.qtd || 1; document.getElementById('v-desconto').value = item.desconto || 0; 
             document.getElementById('btn-submit-vendas').innerText = "Salvar Alteração"; 
@@ -788,11 +810,16 @@
         if(!data) return alert('Data obrigatória');
         const produtoStr = document.getElementById('v-produto').value;
         const pgto = document.getElementById('v-pgto').value;
-        const sacola = document.getElementById('v-sacola').value;
         const isAsaas = document.getElementById('v-asaas').checked;
         const qtd = parseInt(document.getElementById('v-qtd').value) || 1;
         const desconto = parseFloat(document.getElementById('v-desconto').value) || 0;
         const entrega = parseFloat(document.getElementById('v-entrega').value) || 0;
+
+        // Pegando as sacolas
+        const sacola1_tipo = document.getElementById('v-sacola1-tipo').value;
+        const sacola1_qtd = parseInt(document.getElementById('v-sacola1-qtd').value) || 0;
+        const sacola2_tipo = document.getElementById('v-sacola2-tipo').value;
+        const sacola2_qtd = parseInt(document.getElementById('v-sacola2-qtd').value) || 0;
 
         const precoBase = produtoStr === 'Combo' ? db.config.precoCombo : db.config.precoUnd;
         const valorBruto = precoBase * qtd;
@@ -810,11 +837,19 @@
         finalizarEdicao('vendas', { 
             id: (editingItem.lista==='vendas'?editingItem.id:Date.now()), 
             num: (editingItem.lista==='vendas'?db.vendas.find(i=>i.id===editingItem.id).num:getNextNum(db.vendas)),
-            data, produto: produtoStr, pgto, asaas: isAsaas, qtd, desconto, sacola,
+            data, produto: produtoStr, pgto, asaas: isAsaas, qtd, desconto, 
+            sacola1_tipo, sacola1_qtd, sacola2_tipo, sacola2_qtd,
             valorBruto: Number(valorBruto), valorTaxa: Number(valorTaxa), 
             valorLiquido: Number(valorCobradoMaq - valorTaxa), entrega: Number(entrega) 
         }, 'btn-submit-vendas', 'Salvar Venda', 'Venda Salva!');
-        document.getElementById('v-qtd').value = '1'; document.getElementById('v-desconto').value = '0';
+        
+        // Reset dos campos de venda
+        document.getElementById('v-qtd').value = '1'; 
+        document.getElementById('v-desconto').value = '0';
+        document.getElementById('v-sacola1-tipo').value = 'nenhuma';
+        document.getElementById('v-sacola1-qtd').value = '1';
+        document.getElementById('v-sacola2-tipo').value = 'nenhuma';
+        document.getElementById('v-sacola2-qtd').value = '0';
     }
 
     function addAtacado() {
@@ -931,9 +966,19 @@
             saldos.pudim -= p; 
             saldos.colher -= p; 
             
-            let tipoSacola = v.sacola || 'sacola_1'; // Vendas antigas ou não preenchidas usarão sacola_1
-            if(tipoSacola === 'sacola_1') saldos.sacola_1 -= 1;
-            else if(tipoSacola === 'sacola_2') saldos.sacola_2 -= 1;
+            // Controle das novas sacolas e compatibilidade com vendas antigas
+            if (v.sacola1_tipo && v.sacola1_tipo !== 'nenhuma') {
+                saldos[v.sacola1_tipo] -= (v.sacola1_qtd || 1);
+            } else if (v.sacola && !v.sacola1_tipo) {
+                // Venda antiga que só tinha a variavel string 'sacola'
+                if (v.sacola === 'sacola_1') saldos.sacola_1 -= 1;
+                else if (v.sacola === 'sacola_2') saldos.sacola_2 -= 1;
+                else if (v.sacola !== 'nenhuma') saldos.sacola_1 -= 1;
+            }
+
+            if (v.sacola2_tipo && v.sacola2_tipo !== 'nenhuma') {
+                saldos[v.sacola2_tipo] -= (v.sacola2_qtd || 1);
+            }
         });
         db.atacado.forEach(a => { saldos.pudim -= (a.qtd||0); if(a.coposDevolvidos) saldos.copo += a.coposDevolvidos; });
         return saldos;
@@ -1100,11 +1145,37 @@
         let despHoje=0;
         db.despesas.filter(d => d.data === hoje).forEach(d => despHoje += Number(d.total||0));
 
+        // Pegando os valores reais atuais do DOM (exatamente como mostram as "Caixinhas")
+        const tCaixa = document.getElementById('global-total-conta').innerText;
+        const tInsumo = document.querySelector('.global-insumos').innerText;
+        const tCG = document.querySelector('.global-cg').innerText;
+        const tMO = document.querySelector('.global-mo').innerText;
+        const tFundo = document.querySelector('.global-fundo').innerText;
+        const tLuyan = document.querySelector('.global-luyan').innerText;
+        const tBeatriz = document.querySelector('.global-beatriz').innerText;
+        const tGiro = document.querySelector('.global-giro').innerText;
+        const tROI = document.querySelector('.global-roi').innerText;
+
         let txt = `*📊 FECHAMENTO DO DIA - ${hoje.split('-').reverse().join('/')}*\n\n`;
         txt += `*🛒 VAREJO*\n- Pudins: ${vQtd}\n- Líquido: R$ ${vLiq.toFixed(2)}\n\n`;
         txt += `*📦 ATACADO*\n- Pudins: ${aQtd}\n- Líquido: R$ ${aLiq.toFixed(2)}\n\n`;
         txt += `*💸 SAÍDAS*\n- Total: R$ ${despHoje.toFixed(2)}\n\n`;
-        txt += `*💰 SALDO DO DIA*\n👉 R$ ${(vLiq + aLiq - despHoje).toFixed(2)}`;
+        txt += `*💰 SALDO DO DIA*\n👉 R$ ${(vLiq + aLiq - despHoje).toFixed(2)}\n\n`;
+        
+        // Novo bloco de Caixas Globais
+        txt += `*--------------------*\n\n`;
+        txt += `*O QUE TEM NO CAIXA*\n`;
+        txt += `💵 *Dinheiro Total Físico:* ${tCaixa}\n\n`;
+        txt += `🔒 *Divisão dos Saldos:*\n`;
+        txt += `- Insumo Fixo: ${tInsumo}\n`;
+        txt += `- Custos Gerais: ${tCG}\n`;
+        txt += `- Mão de Obra: ${tMO}\n`;
+        txt += `- Fundo 15%: ${tFundo}\n`;
+        txt += `- Luyan: ${tLuyan}\n`;
+        txt += `- Beatriz: ${tBeatriz}\n`;
+        txt += `- Giro Disponível: ${tGiro}\n\n`;
+        txt += `📉 *Investimento:* ${tROI}`;
+
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`, '_blank');
     }
 
