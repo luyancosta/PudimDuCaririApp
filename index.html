@@ -627,6 +627,7 @@
             <div class="card" style="border-left-color: #F59E0B;"><h3>Beatriz</h3><p class="global-beatriz">R$ 0,00</p>
                 <button class="btn-action-small" style="background:#F59E0B" onclick="realizarSaque('Beatriz')">💸 Sacar</button>
             </div>
+            <div class="card" style="border-left-color: #3B82F6;"><h3>Total Entregas</h3><p class="global-entrega" style="color: #3B82F6;">R$ 0,00</p></div>
             <div class="card" style="border-left-color: #10B981; grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem;">
                 <div><h3 style="margin-bottom: 0;">Giro Disponível</h3><p class="global-giro" style="color: #10B981; font-size: 2.2rem;">R$ 0,00</p></div>
                 <button class="btn-action-small" style="width: auto; padding: 15px 30px; font-size: 1rem; background: #10B981;" onclick="realizarSaque('Divida')">💰 Abater Dívida</button>
@@ -1008,8 +1009,9 @@
     }
 
     function updateDashboard() {
-        let abs_vIns=0, abs_vCg=0, abs_vMo=0, abs_vGiro=0, abs_vFundo=0, abs_vLu=0, abs_vBea=0;
+        let abs_vIns=0, abs_vCg=0, abs_vMo=0, abs_vGiro=0, abs_vFundo=0, abs_vLu=0, abs_vBea=0, abs_vEntGlob=0;
         db.vendas.forEach(v => {
+            abs_vEntGlob += Number(v.entrega || 0);
             const q = (v.produto && v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
             const ins = q * (db.config.custoInsumo||0); const base = Number(v.valorLiquido||0) - ins;
             const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
@@ -1037,6 +1039,7 @@
         setTxt('.global-mo', (abs_vMo + abs_aMo) - sqMO);
         setTxt('.global-luyan', (abs_vLu + abs_aLu) - sqLu);
         setTxt('.global-beatriz', (abs_vBea + abs_aBea) - sqBea);
+        setTxt('.global-entrega', abs_vEntGlob);
         let sGiro = (abs_vGiro + abs_aGiro) - sqGiro;
         setTxt('.global-giro', sGiro);
         
