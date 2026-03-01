@@ -606,11 +606,15 @@
     };
     const getNextNum = (arr) => forceArray(arr).length > 0 ? Math.max(...forceArray(arr).map(x => x.num || 0)) + 1 : 1;
     
-    // ORDENAÇÃO: Data mais recente primeiro. Se data igual, ID maior (mais novo) primeiro.
+    // --- NOVA ORDENAÇÃO BLINDADA ---
+    // Faz a ordenação baseada em texto primeiro (para evitar o bug do Date dar NaN)
     const sortByDateDesc = (a, b) => { 
-        let dA = new Date(a.data||0).getTime(); 
-        let dB = new Date(b.data||0).getTime(); 
-        return dA === dB ? (b.id||0) - (a.id||0) : dB - dA; 
+        let dA = a.data || ""; 
+        let dB = b.data || ""; 
+        if (dA !== dB) {
+            return dA > dB ? -1 : 1; // Ordem decrescente alfabeticamente para datas (ex: 2024-05 > 2024-04)
+        }
+        return (b.id || 0) - (a.id || 0); // Desempate pelo ID (mais recente = maior)
     };
 
     function showToast(msg, isError = false) {
@@ -706,7 +710,6 @@
         if(!data.config) data.config = { precoUnd: 15, precoCombo: 40, custoInsumo: 5.95, taxaCredIns: 4.98, taxaCredApr: 3.09, taxaDebIns: 1.99, taxaDebApr: 0.89, custoCopo: 1.50, taxaCartaoOnline: 2.99 };
         ['pagamentos','producoes','estoqueMov','vendas','atacado','despesas','investimentos'].forEach(k => data[k] = toArray(data[k]));
         
-        // Garante numeração se não existir
         const addMissingNums = (arr) => { arr.sort((a,b)=> new Date(a.data||0) - new Date(b.data||0)).forEach((x,i)=>{ if(!x.num) x.num=i+1; }); };
         addMissingNums(data.vendas); addMissingNums(data.atacado); addMissingNums(data.despesas);
         return data;
@@ -784,7 +787,6 @@
             switchTab('vendas'); document.getElementById('v-data').value = item.data; 
             const pStr = item.produto || ''; document.getElementById('v-produto').value = pStr.includes('Combo') ? 'Combo' : 'Unidade'; 
             
-            // Popula as opções de sacolas retroativamente
             document.getElementById('v-sacola1-tipo').value = item.sacola1_tipo || item.sacola || 'nenhuma';
             document.getElementById('v-sacola1-qtd').value = item.sacola1_qtd !== undefined ? item.sacola1_qtd : (item.sacola && item.sacola !== 'nenhuma' ? 1 : 1);
             document.getElementById('v-sacola2-tipo').value = item.sacola2_tipo || 'nenhuma';
@@ -814,8 +816,7 @@
 
     // --- ADD FUNCTIONS ---
     function addVenda() {
-        const data = document.getElementById('v-data').value;
-        if(!data) return alert('Data obrigatória');
+        const data = document.getElementById('v-data').value || getTodayDate();
         const produtoStr = document.getElementById('v-produto').value;
         const pgto = document.getElementById('v-pgto').value;
         const isAsaas = document.getElementById('v-asaas').checked;
@@ -823,7 +824,6 @@
         const desconto = parseFloat(document.getElementById('v-desconto').value) || 0;
         const entrega = parseFloat(document.getElementById('v-entrega').value) || 0;
 
-        // Pegando as sacolas
         const sacola1_tipo = document.getElementById('v-sacola1-tipo').value;
         const sacola1_qtd = parseInt(document.getElementById('v-sacola1-qtd').value) || 0;
         const sacola2_tipo = document.getElementById('v-sacola2-tipo').value;
@@ -851,7 +851,6 @@
             valorLiquido: Number(valorCobradoMaq - valorTaxa), entrega: Number(entrega) 
         }, 'btn-submit-vendas', 'Salvar Venda', 'Venda Salva!');
         
-        // Reset dos campos de venda
         document.getElementById('v-qtd').value = '1'; 
         document.getElementById('v-desconto').value = '0';
         document.getElementById('v-sacola1-tipo').value = 'nenhuma';
@@ -861,7 +860,7 @@
     }
 
     function addAtacado() {
-        const data = document.getElementById('a-data').value;
+        const data = document.getElementById('a-data').value || getTodayDate();
         const cliente = document.getElementById('a-cliente').value;
         const qtd = parseInt(document.getElementById('a-qtd').value)||0;
         const unitario = parseFloat(document.getElementById('a-valor').value)||0;
@@ -879,7 +878,7 @@
     }
 
     function addDespesa() {
-        const data = document.getElementById('d-data').value;
+        const data = document.getElementById('d-data').value || getTodayDate();
         const item = document.getElementById('d-item').value;
         const qtd = parseFloat(document.getElementById('d-qtd').value)||0;
         const unitario = parseFloat(document.getElementById('d-valor').value)||0;
@@ -893,22 +892,25 @@
     }
     
     function addInvestimento() {
-        const data = document.getElementById('i-data').value; const item = document.getElementById('i-item').value; const valor = parseFloat(document.getElementById('i-valor').value);
-        if(!data || !item || !valor) return alert('Preencha tudo.');
+        const data = document.getElementById('i-data').value || getTodayDate(); 
+        const item = document.getElementById('i-item').value; const valor = parseFloat(document.getElementById('i-valor').value);
+        if(!item || !valor) return alert('Preencha tudo.');
         finalizarEdicao('investimentos', { id: (editingItem.lista==='investimentos'?editingItem.id:Date.now()), data, item, valor }, 'btn-submit-investimentos', 'Salvar', 'Investimento Salvo!');
         document.getElementById('i-item').value = ''; document.getElementById('i-valor').value = '';
     }
 
     function addPagamento() {
-        const data = document.getElementById('p-data').value; const valor = parseFloat(document.getElementById('p-valor').value); const tipo = document.getElementById('p-tipo').value;
-        if(!data || !valor) return alert('Preencha tudo.');
+        const data = document.getElementById('p-data').value || getTodayDate(); 
+        const valor = parseFloat(document.getElementById('p-valor').value); const tipo = document.getElementById('p-tipo').value;
+        if(!valor) return alert('Preencha tudo.');
         finalizarEdicao('pagamentos', { id: (editingItem.lista==='pagamentos'?editingItem.id:Date.now()), data, valor, tipo }, 'btn-submit-pagamentos', 'Registrar Saque', 'Saque Registrado!');
         document.getElementById('p-valor').value = '';
     }
 
     function addProducao() {
-        const data = document.getElementById('prod-data').value; const qtd = parseInt(document.getElementById('prod-qtd').value);
-        if(!data || !qtd) return alert("Preencha tudo!");
+        const data = document.getElementById('prod-data').value || getTodayDate(); 
+        const qtd = parseInt(document.getElementById('prod-qtd').value);
+        if(!qtd) return alert("Preencha tudo!");
         let oldNum = getNextNum(db.producoes); if(editingItem.lista === 'producoes') { const old = db.producoes.find(i=>i.id===editingItem.id); if(old) oldNum = old.num; }
         finalizarEdicao('producoes', { id: (editingItem.lista==='producoes'?editingItem.id:Date.now()), num: oldNum, data, qtd }, 'btn-submit-producao', 'Registrar', 'Receita Registrada!');
     }
@@ -959,7 +961,7 @@
     function calcularSaldosEstoque() {
         let saldos = { pudim: 0, leite_condensado: 0, leite_integral: 0, ovos: 0, acucar: 0, copo: 0, tampa: 0, sacola_1: 0, sacola_2: 0, adesivo: 0, colher: 0 };
         db.estoqueMov.forEach(m => { 
-            let itemKey = m.item === 'sacola' ? 'sacola_1' : m.item; // Retrocompatibilidade para ajustes antigos de sacola
+            let itemKey = m.item === 'sacola' ? 'sacola_1' : m.item;
             if(m.tipo === 'entrada') saldos[itemKey] += (m.qtd||0); 
             else saldos[itemKey] -= (m.qtd||0); 
         });
@@ -974,11 +976,9 @@
             saldos.pudim -= p; 
             saldos.colher -= p; 
             
-            // Controle das novas sacolas e compatibilidade com vendas antigas
             if (v.sacola1_tipo && v.sacola1_tipo !== 'nenhuma') {
                 saldos[v.sacola1_tipo] -= (v.sacola1_qtd || 1);
             } else if (v.sacola && !v.sacola1_tipo) {
-                // Venda antiga que só tinha a variavel string 'sacola'
                 if (v.sacola === 'sacola_1') saldos.sacola_1 -= 1;
                 else if (v.sacola === 'sacola_2') saldos.sacola_2 -= 1;
                 else if (v.sacola !== 'nenhuma') saldos.sacola_1 -= 1;
@@ -1003,16 +1003,18 @@
                 el.classList.add(val <= 0 ? 'status-red' : 'status-green');
             }
         });
-        // Renderiza HISTORICO RECEITAS (Compacto)
-        document.getElementById('tbody-producoes').innerHTML = db.producoes.sort(sortByDateDesc).map(p => 
+        
+        // Uso de [...array] para blindar a ordenação e não afetar os dados reais
+        document.getElementById('tbody-producoes').innerHTML = [...db.producoes].sort(sortByDateDesc).map(p => 
             `<tr><td style="font-size:0.85rem">${formatData(p.data)}</td><td style="text-align:center; font-weight:bold">${p.qtd}</td>
             <td style="display:flex; justify-content:center; gap:5px;">
                 <button class="btn-icon btn-edit" onclick="prepararEdicao('producoes', ${p.id})">✏️</button>
                 <button class="btn-icon btn-delete" onclick="db.producoes=db.producoes.filter(x=>x.id!=${p.id}); saveData()">🗑️</button>
             </td></tr>`
         ).join('');
+        
         const mapItemNames = { leite_condensado: "L. Cond", leite_integral: "Leite", ovos: "Ovos", acucar: "Açúcar", copo: "Copos", tampa: "Tampas", sacola_1: "Sacolas (1 un)", sacola_2: "Sacolas (2 un)", adesivo: "Adesivos", colher: "Colheres", pudim: "Pudim", sacola: "Sacola Antiga" };
-        document.getElementById('tbody-estoquemov').innerHTML = db.estoqueMov.sort(sortByDateDesc).map(m => `<tr><td>${formatData(m.data)}</td><td>${mapItemNames[m.item] || m.item}</td><td style="color:${m.tipo==='entrada'?'green':'red'}; font-weight:bold">${m.tipo==='entrada'?'+':'-'}${m.qtd}</td><td><button class="btn-icon btn-delete" onclick="db.estoqueMov=db.estoqueMov.filter(x=>x.id!=${m.id}); saveData()">🗑️</button></td></tr>`).join('');
+        document.getElementById('tbody-estoquemov').innerHTML = [...db.estoqueMov].sort(sortByDateDesc).map(m => `<tr><td>${formatData(m.data)}</td><td>${mapItemNames[m.item] || m.item}</td><td style="color:${m.tipo==='entrada'?'green':'red'}; font-weight:bold">${m.tipo==='entrada'?'+':'-'}${m.qtd}</td><td><button class="btn-icon btn-delete" onclick="db.estoqueMov=db.estoqueMov.filter(x=>x.id!=${m.id}); saveData()">🗑️</button></td></tr>`).join('');
     }
 
     function updateDashboard() {
@@ -1039,32 +1041,30 @@
             else if(d.categoria === 'EMBALAGEM') tAbsEmbalagem += val; 
             else if(d.categoria === 'GASTOS GERAIS') tAbsGerais += val; 
             else if(d.categoria === 'MARKETING') tAbsMarketing += val;
-            else if(d.categoria === 'ENTREGADOR') tAbsEntregador += val; // NOVO: Captura o total de Entregador
+            else if(d.categoria === 'ENTREGADOR') tAbsEntregador += val; 
         });
         
         let sqGiro=0, sqMO=0, sqLu=0, sqBea=0;
         db.pagamentos.forEach(p => { const val = Number(p.valor||0); if(p.tipo === 'Divida') sqGiro += val; else if(p.tipo === 'MaoObra') sqMO += val; else if(p.tipo === 'Luyan') sqLu += val; else if(p.tipo === 'Beatriz') sqBea += val; });
 
-        // --- NOVA LÓGICA DE CÁLCULO DE ENTREGAS ---
         let saldoEntregas = abs_vEntGlob - tAbsEntregador;
         let descontoGerais = 0;
         if (saldoEntregas < 0) {
-            descontoGerais = Math.abs(saldoEntregas); // O que faltar sai do Custos Gerais
-            saldoEntregas = 0; // Previne que a caixinha de entrega fique negativa
+            descontoGerais = Math.abs(saldoEntregas); 
+            saldoEntregas = 0; 
         }
 
         const setTxt = (cls, val) => { document.querySelectorAll(cls).forEach(el => { el.innerText = formatMoney(val); if(val < 0) el.classList.add('alerta-negativo'); else el.classList.remove('alerta-negativo'); }); };
         setTxt('.global-insumos', (abs_vIns + abs_aIns) - (tAbsInsumos + tAbsEmbalagem));
-        setTxt('.global-cg', ((abs_vCg + abs_aCg) - tAbsGerais) - descontoGerais); // SUBTRAI O DESCONTO (se houver) DOS CUSTOS GERAIS
+        setTxt('.global-cg', ((abs_vCg + abs_aCg) - tAbsGerais) - descontoGerais); 
         setTxt('.global-fundo', (abs_vFundo + abs_aFundo) - tAbsMarketing);
         setTxt('.global-mo', (abs_vMo + abs_aMo) - sqMO);
         setTxt('.global-luyan', (abs_vLu + abs_aLu) - sqLu);
         setTxt('.global-beatriz', (abs_vBea + abs_aBea) - sqBea);
-        setTxt('.global-entrega', saldoEntregas); // MOSTRA O SALDO DE ENTREGAS
+        setTxt('.global-entrega', saldoEntregas); 
         let sGiro = (abs_vGiro + abs_aGiro) - sqGiro;
         setTxt('.global-giro', sGiro);
         
-        // CORREÇÃO: ADICIONEI "saldoEntregas" AO TOTAL CONTA PARA FECHAR O CAIXA FISICO CORRETAMENTE
         let totalConta = ((abs_vIns + abs_aIns) - (tAbsInsumos + tAbsEmbalagem)) + (((abs_vCg + abs_aCg) - tAbsGerais) - descontoGerais) + ((abs_vFundo + abs_aFundo) - tAbsMarketing) + ((abs_vMo + abs_aMo) - sqMO) + ((abs_vLu + abs_aLu) - sqLu) + ((abs_vBea + abs_aBea) - sqBea) + sGiro + saldoEntregas;
         document.getElementById('global-total-conta').innerText = formatMoney(totalConta);
         
@@ -1072,7 +1072,6 @@
         const elRoi = document.querySelector('.global-roi');
         if(elRoi) { elRoi.innerText = roi > 0 ? "Falta " + formatMoney(roi) : "PAGO! Sobra " + formatMoney(Math.abs(roi)); elRoi.style.color = roi > 0 ? 'var(--danger)' : 'var(--success)'; }
 
-        // Filtrados (Dashboards)
         const filterMonth = document.getElementById('dash-filter-month').value;
         const filterFn = (d) => !filterMonth || (d.data && d.data.startsWith(filterMonth));
         let vBruto=0, vLiq=0, vQtd=0, vIns=0, vCG=0, vMO=0, vLucro=0, vGiro=0, vFundo=0, vLu=0, vBea=0, vEnt=0;
@@ -1102,19 +1101,20 @@
     }
 
     function renderTabelas() {
-        document.getElementById('tbody-vendas').innerHTML = db.vendas.sort(sortByDateDesc).map(v => 
+        // Uso de [...array] em todas as tabelas para proteger os dados 
+        document.getElementById('tbody-vendas').innerHTML = [...db.vendas].sort(sortByDateDesc).map(v => 
             `<tr><td>#${v.num}</td><td>${formatData(v.data)}</td><td>${v.produto}</td><td style="font-weight:bold">${formatMoney(v.valorLiquido)}</td>
             <td><button class="btn-icon btn-edit" onclick="prepararEdicao('vendas', ${v.id})">✏️</button><button class="btn-icon btn-delete" onclick="db.vendas=db.vendas.filter(x=>x.id!=${v.id}); saveData()">🗑️</button></td></tr>`
         ).join('');
         
-        document.getElementById('tbody-atacado').innerHTML = db.atacado.sort(sortByDateDesc).map(a => 
+        document.getElementById('tbody-atacado').innerHTML = [...db.atacado].sort(sortByDateDesc).map(a => 
             `<tr><td>#${a.num}</td><td>${formatData(a.data)}</td><td>${a.cliente}</td><td>${a.qtd}</td><td style="font-weight:bold">${formatMoney(a.totalLiquido)}</td>
             <td style="color:${a.status==='PAGO'?'green':'red'}">${a.status}</td>
             <td>${a.status!=='PAGO'?`<button class="btn-icon btn-pay" onclick="marcarComoPago(${a.id})">💰</button>`:''}
             <button class="btn-icon btn-edit" onclick="prepararEdicao('atacado', ${a.id})">✏️</button><button class="btn-icon btn-delete" onclick="db.atacado=db.atacado.filter(x=>x.id!=${a.id}); saveData()">🗑️</button></td></tr>`
         ).join('');
         
-        document.getElementById('tbody-despesas').innerHTML = db.despesas.sort(sortByDateDesc).map(d =>
+        document.getElementById('tbody-despesas').innerHTML = [...db.despesas].sort(sortByDateDesc).map(d =>
             `<tr><td>#${d.num}</td><td>${formatData(d.data)}</td><td>${d.item}</td><td style="color:red;font-weight:bold">${formatMoney(d.total)}</td><td>${d.categoria}</td>
             <td><button class="btn-icon btn-edit" onclick="prepararEdicao('despesas', ${d.id})">✏️</button><button class="btn-icon btn-delete" onclick="db.despesas=db.despesas.filter(x=>x.id!=${d.id}); saveData()">🗑️</button></td></tr>`
         ).join('');
@@ -1125,16 +1125,16 @@
         ).join('');
         document.getElementById('total-receber').innerText = formatMoney(aReceber.reduce((ac, x)=>ac+Number(x.totalLiquido||0), 0));
         
-        document.getElementById('tbody-pagamentos').innerHTML = db.pagamentos.sort(sortByDateDesc).map(p =>
+        document.getElementById('tbody-pagamentos').innerHTML = [...db.pagamentos].sort(sortByDateDesc).map(p =>
             `<tr><td>${formatData(p.data)}</td><td>${descTipoMap[p.tipo]}</td><td style="color:red;font-weight:bold">-${formatMoney(p.valor)}</td><td style="color:#6B7280">Ref. Caixa</td>
             <td><button class="btn-icon btn-edit" onclick="prepararEdicao('pagamentos', ${p.id})">✏️</button><button class="btn-icon btn-delete" onclick="db.pagamentos=db.pagamentos.filter(x=>x.id!=${p.id}); saveData()">🗑️</button></td></tr>`
         ).join('');
 
-        document.getElementById('tbody-investimentos').innerHTML = db.investimentos.sort(sortByDateDesc).map(i => `<tr><td>${formatData(i.data)}</td><td>${i.item}</td><td style="color:red; font-weight:bold">${formatMoney(i.valor||0)}</td><td style="white-space:nowrap;"><button class="btn-icon btn-edit" onclick="prepararEdicao('investimentos', ${i.id})">✏️</button><button class="btn-icon btn-delete" onclick="db.investimentos=db.investimentos.filter(x=>x.id!=${i.id}); saveData()">🗑️</button></td></tr>`).join('');
+        document.getElementById('tbody-investimentos').innerHTML = [...db.investimentos].sort(sortByDateDesc).map(i => `<tr><td>${formatData(i.data)}</td><td>${i.item}</td><td style="color:red; font-weight:bold">${formatMoney(i.valor||0)}</td><td style="white-space:nowrap;"><button class="btn-icon btn-edit" onclick="prepararEdicao('investimentos', ${i.id})">✏️</button><button class="btn-icon btn-delete" onclick="db.investimentos=db.investimentos.filter(x=>x.id!=${i.id}); saveData()">🗑️</button></td></tr>`).join('');
 
         // RATEIOS DETALHADOS COM TOTAL
         let htmlVar = '', tLiq=0, tIns=0, tGer=0, tMao=0, tLuc=0, tGiro=0, tFun=0, tLu=0, tBea=0;
-        db.vendas.sort(sortByDateDesc).forEach(v => {
+        [...db.vendas].sort(sortByDateDesc).forEach(v => {
             const pStr = v.produto || ''; const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1);
             const ins = q * (db.config.custoInsumo||0); const base = Number(v.valorLiquido||0) - ins;
             const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
@@ -1146,7 +1146,7 @@
         document.getElementById('tbody-rateio-varejo').innerHTML = htmlVar;
         
         let htmlAta = '', atLiq=0, atIns=0, atGer=0, atMao=0, atLuc=0, atGiro=0, atFun=0, atLu=0, atBea=0;
-        db.atacado.filter(a=>a.status === 'PAGO').sort(sortByDateDesc).forEach(a => {
+        [...db.atacado].filter(a=>a.status === 'PAGO').sort(sortByDateDesc).forEach(a => {
             const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - (a.coposDevolvidos*db.config.custoCopo));
             const base = Number(a.totalLiquido||0) - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
             const g=lucro*0.5, f=lucro*0.15, l=lucro*0.175, b=lucro*0.175;
@@ -1170,7 +1170,6 @@
         let despHoje=0;
         db.despesas.filter(d => d.data === hoje).forEach(d => despHoje += Number(d.total||0));
 
-        // Pegando os valores reais atuais do DOM (exatamente como mostram as "Caixinhas")
         const tCaixa = document.getElementById('global-total-conta').innerText;
         const tInsumo = document.querySelector('.global-insumos').innerText;
         const tCG = document.querySelector('.global-cg').innerText;
@@ -1187,7 +1186,6 @@
         txt += `*💸 SAÍDAS*\n- Total: R$ ${despHoje.toFixed(2)}\n\n`;
         txt += `*💰 SALDO DO DIA*\n👉 R$ ${(vLiq + aLiq - despHoje).toFixed(2)}\n\n`;
         
-        // Novo bloco de Caixas Globais
         txt += `*--------------------*\n\n`;
         txt += `*O QUE TEM NO CAIXA*\n`;
         txt += `💵 *Dinheiro Total Físico:* ${tCaixa}\n\n`;
@@ -1221,7 +1219,6 @@
         if (typeof XLSX === 'undefined') return alert("Erro lib Excel.");
         const wb = XLSX.utils.book_new();
         
-        // Rateio Varejo
         const wsVar = [["ID", "Data", "Produto", "Líquido", "Insumo", "Custos Gerais", "Mão de Obra", "Lucro", "Giro (50%)", "Fundo (15%)", "Luyan (17.5%)", "Beatriz (17.5%)"]];
         db.vendas.forEach(v => {
             const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
@@ -1231,7 +1228,6 @@
         });
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsVar), "Rateio Varejo");
 
-        // Despesas
         const wsDesp = [["Data", "Item", "Qtd", "Valor Un", "Total", "Categoria"]];
         db.despesas.forEach(d => wsDesp.push([d.data, d.item, d.qtd, d.unitario, d.total, d.categoria]));
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsDesp), "Despesas");
