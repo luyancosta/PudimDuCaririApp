@@ -230,6 +230,7 @@
                 <div class="card" style="border-left-color: #F59E0B;"><h3>Embalagem</h3><p id="dash-desp-embalagem">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #EF4444;"><h3>Gastos Gerais</h3><p id="dash-desp-gerais">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #8B5CF6;"><h3>Marketing</h3><p id="dash-desp-marketing">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #10B981;"><h3>Entregador</h3><p id="dash-desp-entregador">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #EF4444; grid-column: 1 / -1; display:flex; flex-direction:row; align-items:center; justify-content:space-between;">
                     <h3 style="margin-bottom:0;">TOTAL GASTO</h3><p id="dash-desp-total" style="color: #EF4444; font-size:2rem;">R$ 0,00</p>
                 </div>
@@ -495,7 +496,13 @@
                     <div class="form-group"><label>Valor Un.</label><input type="number" id="d-valor" step="0.01"></div>
                     <div class="form-group">
                         <label>Categoria</label>
-                        <select id="d-categoria"><option value="INSUMOS">Insumos</option><option value="EMBALAGEM">Embalagem</option><option value="GASTOS GERAIS">Gastos Gerais</option><option value="MARKETING">Marketing</option></select>
+                        <select id="d-categoria">
+                            <option value="INSUMOS">Insumos</option>
+                            <option value="EMBALAGEM">Embalagem</option>
+                            <option value="GASTOS GERAIS">Gastos Gerais</option>
+                            <option value="MARKETING">Marketing</option>
+                            <option value="ENTREGADOR">Entregador</option>
+                        </select>
                     </div>
                 </div>
                 <button class="btn-submit" id="btn-submit-despesas" onclick="addDespesa()">Salvar Despesa</button>
@@ -586,7 +593,7 @@
     // --- UTILS (FORMAT & SORT) ---
     const getTodayDate = () => {
         const tzoffset = (new Date()).getTimezoneOffset() * 60000;
-        return new Date(Date.now() - tzoffset).toISOString().split('T')[0];
+        return new Date(Date.now() - tzoffset).toISOString().split('T');
     };
     const formatMoney = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(val)||0);
     const formatData = (date) => date ? new Date(date + "T00:00:00").toLocaleDateString('pt-BR') : '';
@@ -1024,26 +1031,41 @@
             const base = liq - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
             abs_aIns+=Number(ins); abs_aCg+=Number(cg); abs_aMo+=Number(mo); abs_aGiro+=Number(lucro*0.5); abs_aFundo+=Number(lucro*0.15); abs_aLu+=Number(lucro*0.175); abs_aBea+=Number(lucro*0.175);
         });
-        let tAbsInsumos=0, tAbsEmbalagem=0, tAbsGerais=0, tAbsMarketing=0;
+        
+        let tAbsInsumos=0, tAbsEmbalagem=0, tAbsGerais=0, tAbsMarketing=0, tAbsEntregador=0;
         db.despesas.forEach(d => {
             const val = Number(d.total||0);
-            if(d.categoria === 'INSUMOS') tAbsInsumos += val; else if(d.categoria === 'EMBALAGEM') tAbsEmbalagem += val; else if(d.categoria === 'GASTOS GERAIS') tAbsGerais += val; else if(d.categoria === 'MARKETING') tAbsMarketing += val;
+            if(d.categoria === 'INSUMOS') tAbsInsumos += val; 
+            else if(d.categoria === 'EMBALAGEM') tAbsEmbalagem += val; 
+            else if(d.categoria === 'GASTOS GERAIS') tAbsGerais += val; 
+            else if(d.categoria === 'MARKETING') tAbsMarketing += val;
+            else if(d.categoria === 'ENTREGADOR') tAbsEntregador += val; // NOVO: Captura o total de Entregador
         });
+        
         let sqGiro=0, sqMO=0, sqLu=0, sqBea=0;
         db.pagamentos.forEach(p => { const val = Number(p.valor||0); if(p.tipo === 'Divida') sqGiro += val; else if(p.tipo === 'MaoObra') sqMO += val; else if(p.tipo === 'Luyan') sqLu += val; else if(p.tipo === 'Beatriz') sqBea += val; });
 
+        // --- NOVA LÓGICA DE CÁLCULO DE ENTREGAS ---
+        let saldoEntregas = abs_vEntGlob - tAbsEntregador;
+        let descontoGerais = 0;
+        if (saldoEntregas < 0) {
+            descontoGerais = Math.abs(saldoEntregas); // O que faltar sai do Custos Gerais
+            saldoEntregas = 0; // Previne que a caixinha de entrega fique negativa
+        }
+
         const setTxt = (cls, val) => { document.querySelectorAll(cls).forEach(el => { el.innerText = formatMoney(val); if(val < 0) el.classList.add('alerta-negativo'); else el.classList.remove('alerta-negativo'); }); };
         setTxt('.global-insumos', (abs_vIns + abs_aIns) - (tAbsInsumos + tAbsEmbalagem));
-        setTxt('.global-cg', (abs_vCg + abs_aCg) - tAbsGerais);
+        setTxt('.global-cg', ((abs_vCg + abs_aCg) - tAbsGerais) - descontoGerais); // SUBTRAI O DESCONTO (se houver) DOS CUSTOS GERAIS
         setTxt('.global-fundo', (abs_vFundo + abs_aFundo) - tAbsMarketing);
         setTxt('.global-mo', (abs_vMo + abs_aMo) - sqMO);
         setTxt('.global-luyan', (abs_vLu + abs_aLu) - sqLu);
         setTxt('.global-beatriz', (abs_vBea + abs_aBea) - sqBea);
-        setTxt('.global-entrega', abs_vEntGlob);
+        setTxt('.global-entrega', saldoEntregas); // MOSTRA O SALDO DE ENTREGAS
         let sGiro = (abs_vGiro + abs_aGiro) - sqGiro;
         setTxt('.global-giro', sGiro);
         
-        let totalConta = ((abs_vIns + abs_aIns) - (tAbsInsumos + tAbsEmbalagem)) + ((abs_vCg + abs_aCg) - tAbsGerais) + ((abs_vFundo + abs_aFundo) - tAbsMarketing) + ((abs_vMo + abs_aMo) - sqMO) + ((abs_vLu + abs_aLu) - sqLu) + ((abs_vBea + abs_aBea) - sqBea) + sGiro;
+        // CORREÇÃO: ADICIONEI "saldoEntregas" AO TOTAL CONTA PARA FECHAR O CAIXA FISICO CORRETAMENTE
+        let totalConta = ((abs_vIns + abs_aIns) - (tAbsInsumos + tAbsEmbalagem)) + (((abs_vCg + abs_aCg) - tAbsGerais) - descontoGerais) + ((abs_vFundo + abs_aFundo) - tAbsMarketing) + ((abs_vMo + abs_aMo) - sqMO) + ((abs_vLu + abs_aLu) - sqLu) + ((abs_vBea + abs_aBea) - sqBea) + sGiro + saldoEntregas;
         document.getElementById('global-total-conta').innerText = formatMoney(totalConta);
         
         const roi = db.investimentos.reduce((acc, c) => acc + Number(c.valor||0), 0) - sqGiro;
@@ -1072,11 +1094,11 @@
         });
         document.getElementById('a-dash-bruto').innerText = formatMoney(aBruto); document.getElementById('a-dash-desconto').innerText = "- "+formatMoney(aDesc); document.getElementById('a-dash-liquido').innerText = formatMoney(aLiq); document.getElementById('a-dash-qtd').innerText = aQtd; document.getElementById('a-dash-insumos').innerText = formatMoney(aIns); document.getElementById('a-dash-cg').innerText = formatMoney(aCG); document.getElementById('a-dash-mo').innerText = formatMoney(aMO); document.getElementById('a-dash-lucro-restante').innerText = formatMoney(aLucro); document.getElementById('a-dash-giro').innerText = formatMoney(aGiro); document.getElementById('a-dash-fundo').innerText = formatMoney(aFundo); document.getElementById('a-dash-luyan').innerText = formatMoney(aLu); document.getElementById('a-dash-beatriz').innerText = formatMoney(aBea);
 
-        let dIns=0, dEmb=0, dGer=0, dMark=0;
+        let dIns=0, dEmb=0, dGer=0, dMark=0, dEnt=0;
         db.despesas.filter(filterFn).forEach(d => {
-            const val = Number(d.total||0); if(d.categoria==='INSUMOS') dIns+=val; else if(d.categoria==='EMBALAGEM') dEmb+=val; else if(d.categoria==='GASTOS GERAIS') dGer+=val; else if(d.categoria==='MARKETING') dMark+=val;
+            const val = Number(d.total||0); if(d.categoria==='INSUMOS') dIns+=val; else if(d.categoria==='EMBALAGEM') dEmb+=val; else if(d.categoria==='GASTOS GERAIS') dGer+=val; else if(d.categoria==='MARKETING') dMark+=val; else if(d.categoria==='ENTREGADOR') dEnt+=val;
         });
-        document.getElementById('dash-desp-insumos').innerText = formatMoney(dIns); document.getElementById('dash-desp-embalagem').innerText = formatMoney(dEmb); document.getElementById('dash-desp-gerais').innerText = formatMoney(dGer); document.getElementById('dash-desp-marketing').innerText = formatMoney(dMark); document.getElementById('dash-desp-total').innerText = formatMoney(dIns+dEmb+dGer+dMark);
+        document.getElementById('dash-desp-insumos').innerText = formatMoney(dIns); document.getElementById('dash-desp-embalagem').innerText = formatMoney(dEmb); document.getElementById('dash-desp-gerais').innerText = formatMoney(dGer); document.getElementById('dash-desp-marketing').innerText = formatMoney(dMark); document.getElementById('dash-desp-entregador').innerText = formatMoney(dEnt); document.getElementById('dash-desp-total').innerText = formatMoney(dIns+dEmb+dGer+dMark+dEnt);
     }
 
     function renderTabelas() {
@@ -1190,7 +1212,7 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
     function importData(event) {
-        const file = event.target.files[0]; if (!file) return;
+        const file = event.target.files; if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) { try { db = loadDBData(JSON.parse(e.target.result)); saveData(); showToast("Restaurado!"); } catch (err) { alert("Erro JSON"); } };
         reader.readAsText(file);
