@@ -606,15 +606,12 @@
     };
     const getNextNum = (arr) => forceArray(arr).length > 0 ? Math.max(...forceArray(arr).map(x => x.num || 0)) + 1 : 1;
     
-    // --- NOVA ORDENAÇÃO BLINDADA ---
-    // Faz a ordenação baseada em texto primeiro (para evitar o bug do Date dar NaN)
+    // ORDENAÇÃO BLINDADA
     const sortByDateDesc = (a, b) => { 
         let dA = a.data || ""; 
         let dB = b.data || ""; 
-        if (dA !== dB) {
-            return dA > dB ? -1 : 1; // Ordem decrescente alfabeticamente para datas (ex: 2024-05 > 2024-04)
-        }
-        return (b.id || 0) - (a.id || 0); // Desempate pelo ID (mais recente = maior)
+        if (dA !== dB) return dA > dB ? -1 : 1; 
+        return (b.id || 0) - (a.id || 0); 
     };
 
     function showToast(msg, isError = false) {
@@ -1004,7 +1001,6 @@
             }
         });
         
-        // Uso de [...array] para blindar a ordenação e não afetar os dados reais
         document.getElementById('tbody-producoes').innerHTML = [...db.producoes].sort(sortByDateDesc).map(p => 
             `<tr><td style="font-size:0.85rem">${formatData(p.data)}</td><td style="text-align:center; font-weight:bold">${p.qtd}</td>
             <td style="display:flex; justify-content:center; gap:5px;">
@@ -1018,14 +1014,14 @@
     }
 
     function updateDashboard() {
-        let abs_vIns=0, abs_vCg=0, abs_vMo=0, abs_vGiro=0, abs_vFundo=0, abs_vLu=0, abs_vBea=0, abs_vEntGlob=0;
+        let abs_vIns=0, abs_vCg=0, abs_vMo=0, abs_vGiro=0, abs_vFundo=0, abs_vLu=0, abs_vBea=0;
         db.vendas.forEach(v => {
-            abs_vEntGlob += Number(v.entrega || 0);
             const q = (v.produto && v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
             const ins = q * (db.config.custoInsumo||0); const base = Number(v.valorLiquido||0) - ins;
             const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
             abs_vIns+=Number(ins); abs_vCg+=Number(cg); abs_vMo+=Number(mo); abs_vGiro+=Number(lucro*0.5); abs_vFundo+=Number(lucro*0.15); abs_vLu+=Number(lucro*0.175); abs_vBea+=Number(lucro*0.175);
         });
+        
         let abs_aIns=0, abs_aCg=0, abs_aMo=0, abs_aGiro=0, abs_aFundo=0, abs_aLu=0, abs_aBea=0;
         db.atacado.forEach(a => {
             if (a.status !== 'PAGO') return;
@@ -1034,34 +1030,68 @@
             abs_aIns+=Number(ins); abs_aCg+=Number(cg); abs_aMo+=Number(mo); abs_aGiro+=Number(lucro*0.5); abs_aFundo+=Number(lucro*0.15); abs_aLu+=Number(lucro*0.175); abs_aBea+=Number(lucro*0.175);
         });
         
-        let tAbsInsumos=0, tAbsEmbalagem=0, tAbsGerais=0, tAbsMarketing=0, tAbsEntregador=0;
+        let tAbsInsumos=0, tAbsEmbalagem=0, tAbsGerais=0, tAbsMarketing=0;
         db.despesas.forEach(d => {
             const val = Number(d.total||0);
             if(d.categoria === 'INSUMOS') tAbsInsumos += val; 
             else if(d.categoria === 'EMBALAGEM') tAbsEmbalagem += val; 
             else if(d.categoria === 'GASTOS GERAIS') tAbsGerais += val; 
             else if(d.categoria === 'MARKETING') tAbsMarketing += val;
-            else if(d.categoria === 'ENTREGADOR') tAbsEntregador += val; 
         });
+
+        // --- NOVA LÓGICA CRONOLÓGICA (Simula o Caixa Físico no Tempo) ---
+        let eventosEntrega = [];
+        
+        // 1. Pega todas as entradas de dinheiro de entrega nas vendas
+        db.vendas.forEach(v => {
+            if (Number(v.entrega || 0) > 0) {
+                eventosEntrega.push({ data: v.data || "", id: v.id, tipo: 'entrada', valor: Number(v.entrega) });
+            }
+        });
+        
+        // 2. Pega todas as saídas de pagamento do Entregador
+        db.despesas.forEach(d => {
+            if (d.categoria === 'ENTREGADOR') {
+                eventosEntrega.push({ data: d.data || "", id: d.id, tipo: 'saida', valor: Number(d.total || 0) });
+            }
+        });
+        
+        // 3. Ordena os eventos do mais antigo para o mais novo (Cronologia)
+        eventosEntrega.sort((a, b) => {
+            if (a.data !== b.data) return a.data < b.data ? -1 : 1; // Datas mais antigas primeiro
+            return (a.id || 0) - (b.id || 0); // Desempate
+        });
+        
+        let saldoEntregas = 0;
+        let descontoGerais = 0;
+        
+        // 4. Simula a gaveta física!
+        eventosEntrega.forEach(ev => {
+            if (ev.tipo === 'entrada') {
+                saldoEntregas += ev.valor; // Dinheiro entra na gaveta
+            } else if (ev.tipo === 'saida') {
+                if (saldoEntregas >= ev.valor) {
+                    saldoEntregas -= ev.valor; // Tem dinheiro, paga!
+                } else {
+                    descontoGerais += (ev.valor - saldoEntregas); // Falta dinheiro? Pega do Custos Gerais
+                    saldoEntregas = 0; // Zera a gaveta (para quando entrar venda nova, ficar lá!)
+                }
+            }
+        });
+        // ----------------------------------------------------------------
         
         let sqGiro=0, sqMO=0, sqLu=0, sqBea=0;
         db.pagamentos.forEach(p => { const val = Number(p.valor||0); if(p.tipo === 'Divida') sqGiro += val; else if(p.tipo === 'MaoObra') sqMO += val; else if(p.tipo === 'Luyan') sqLu += val; else if(p.tipo === 'Beatriz') sqBea += val; });
 
-        let saldoEntregas = abs_vEntGlob - tAbsEntregador;
-        let descontoGerais = 0;
-        if (saldoEntregas < 0) {
-            descontoGerais = Math.abs(saldoEntregas); 
-            saldoEntregas = 0; 
-        }
-
         const setTxt = (cls, val) => { document.querySelectorAll(cls).forEach(el => { el.innerText = formatMoney(val); if(val < 0) el.classList.add('alerta-negativo'); else el.classList.remove('alerta-negativo'); }); };
+        
         setTxt('.global-insumos', (abs_vIns + abs_aIns) - (tAbsInsumos + tAbsEmbalagem));
-        setTxt('.global-cg', ((abs_vCg + abs_aCg) - tAbsGerais) - descontoGerais); 
+        setTxt('.global-cg', ((abs_vCg + abs_aCg) - tAbsGerais) - descontoGerais); // SUBTRAI O DESCONTO OCORRIDO NO TEMPO
         setTxt('.global-fundo', (abs_vFundo + abs_aFundo) - tAbsMarketing);
         setTxt('.global-mo', (abs_vMo + abs_aMo) - sqMO);
         setTxt('.global-luyan', (abs_vLu + abs_aLu) - sqLu);
         setTxt('.global-beatriz', (abs_vBea + abs_aBea) - sqBea);
-        setTxt('.global-entrega', saldoEntregas); 
+        setTxt('.global-entrega', saldoEntregas); // GAVETA DE ENTREGAS AGORA FICA SEMPRE ATUALIZADA!
         let sGiro = (abs_vGiro + abs_aGiro) - sqGiro;
         setTxt('.global-giro', sGiro);
         
@@ -1101,7 +1131,6 @@
     }
 
     function renderTabelas() {
-        // Uso de [...array] em todas as tabelas para proteger os dados 
         document.getElementById('tbody-vendas').innerHTML = [...db.vendas].sort(sortByDateDesc).map(v => 
             `<tr><td>#${v.num}</td><td>${formatData(v.data)}</td><td>${v.produto}</td><td style="font-weight:bold">${formatMoney(v.valorLiquido)}</td>
             <td><button class="btn-icon btn-edit" onclick="prepararEdicao('vendas', ${v.id})">✏️</button><button class="btn-icon btn-delete" onclick="db.vendas=db.vendas.filter(x=>x.id!=${v.id}); saveData()">🗑️</button></td></tr>`
