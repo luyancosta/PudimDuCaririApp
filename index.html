@@ -9,7 +9,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -172,7 +173,8 @@
                     <input type="month" id="dash-filter-month" onchange="updateDashboard()" style="width: 160px; margin: 0;">
                 </div>
                 <button class="btn-action-small" style="width: auto; background: var(--text-muted); margin: 0; padding: 10px;" onclick="limparFiltro()">Limpar</button>
-                <button class="btn-action-small" style="width: auto; margin: 0 0 0 auto; background: #25D366; padding: 10px 20px;" onclick="fechamentoWhatsApp()">📱 Enviar Fechamento</button>
+                <button class="btn-action-small" style="width: auto; background: #10B981; padding: 10px 20px; margin-left: auto;" onclick="exportarFechamentoMensal()">📊 Baixar Fechamento Completo (Excel)</button>
+                <button class="btn-action-small" style="width: auto; margin: 0; background: #25D366; padding: 10px 20px;" onclick="fechamentoWhatsApp()">📱 Enviar WhatsApp</button>
             </div>
 
             <h2 class="section-title" style="color: var(--success); border-color: var(--success);">💰 CAIXA REAL (FÍSICO)</h2>
@@ -464,10 +466,7 @@
         </div>
 
         <div id="rateio" class="content">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom: 1rem;">
-                <h2 class="section-title" style="margin:0; border:none;">Detalhamento Financeiro</h2>
-                <button class="btn-action-small" style="width:auto; background:#10B981" onclick="exportarExcel()">📊 Baixar Excel</button>
-            </div>
+            <h2 class="section-title" style="margin-bottom: 1rem;">Detalhamento Financeiro</h2>
             
             <h3 class="section-title">Varejo</h3>
             <div class="table-container">
@@ -1238,31 +1237,226 @@
         const link = document.createElement('a'); link.href = url; link.download = "backup_pudim.json";
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
+    
     function importData(event) {
         const file = event.target.files; if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) { try { db = loadDBData(JSON.parse(e.target.result)); saveData(); showToast("Restaurado!"); } catch (err) { alert("Erro JSON"); } };
         reader.readAsText(file);
     }
-    function exportarExcel() {
-        if (typeof XLSX === 'undefined') return alert("Erro lib Excel.");
-        const wb = XLSX.utils.book_new();
+    
+    // --- NOVO EXPORTAR FECHAMENTO COMPLETO COM SOMAS ---
+    async function exportarFechamentoMensal() {
+        if (typeof ExcelJS === 'undefined') return alert("Erro ao carregar a biblioteca do Excel.");
         
-        const wsVar = [["ID", "Data", "Produto", "Líquido", "Insumo", "Custos Gerais", "Mão de Obra", "Lucro", "Giro (50%)", "Fundo (15%)", "Luyan (17.5%)", "Beatriz (17.5%)"]];
-        db.vendas.forEach(v => {
-            const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
-            const ins = q * db.config.custoInsumo; const base = Number(v.valorLiquido||0) - ins;
-            const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
-            wsVar.push([v.num, v.data, v.produto, v.valorLiquido, ins, cg, mo, lucro, lucro*0.5, lucro*0.15, lucro*0.175, lucro*0.175]);
+        const wb = new ExcelJS.Workbook();
+        wb.creator = 'Pudim Du Cariri';
+        wb.created = new Date();
+
+        // NOVA LÓGICA DE ABA COM COLUNAS DE SOMA
+        function addAba(nome, cor, headers, rows, colDinheiro, colsToSum = []) {
+            const ws = wb.addWorksheet(nome, { views: [{ showGridLines: false }] });
+            ws.mergeCells(1, 1, 1, headers.length);
+            const titleCell = ws.getCell(1, 1);
+            titleCell.value = '🍮 ' + nome.toUpperCase() + ' - PUDIM DU CARIRI';
+            titleCell.font = { name: 'Arial', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+            titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: cor } };
+            titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+            ws.getRow(1).height = 30;
+
+            ws.addRow([]);
+
+            const headerRow = ws.addRow(headers);
+            headerRow.eachCell((cell) => {
+                cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F2937' } };
+                cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                cell.border = { bottom: { style: 'medium', color: { argb: cor } } };
+            });
+
+            // Prepara a linha de Totais (caso tenha colunas para somar)
+            let totais = new Array(headers.length).fill('');
+            if (colsToSum.length > 0) {
+                totais[0] = 'TOTAL GERAL';
+                colsToSum.forEach(idx => totais[idx - 1] = 0);
+            }
+
+            rows.forEach(rData => {
+                const row = ws.addRow(rData);
+                row.eachCell((cell, colNum) => {
+                    cell.border = { bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } } };
+                    if (colDinheiro.includes(colNum)) {
+                        cell.numFmt = '"R$ "#,##0.00';
+                    } else {
+                        cell.alignment = { horizontal: 'center' };
+                    }
+                });
+
+                // Vai somando os valores linha por linha
+                if (colsToSum.length > 0) {
+                    colsToSum.forEach(idx => {
+                        totais[idx - 1] += Number(rData[idx - 1] || 0);
+                    });
+                }
+            });
+
+            // Insere a linha de Total em destaque no final
+            if (colsToSum.length > 0 && rows.length > 0) {
+                const rowTotal = ws.addRow(totais);
+                rowTotal.eachCell((cell, colNum) => {
+                    cell.font = { bold: true, color: { argb: 'FF1F2937' } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFDE68A' } }; // Amarelinho
+                    cell.border = { top: { style: 'medium', color: { argb: 'FF1F2937' } }, bottom: { style: 'medium', color: { argb: 'FF1F2937' } } };
+                    
+                    if (colDinheiro.includes(colNum) && colsToSum.includes(colNum)) {
+                        cell.numFmt = '"R$ "#,##0.00';
+                    } else {
+                        cell.alignment = { horizontal: 'center' };
+                    }
+                });
+            }
+
+            ws.columns.forEach(column => { column.width = 18; });
+        }
+
+        // ==========================================
+        // ABA 1: RESUMO DO DASHBOARD
+        // ==========================================
+        const wsResumo = wb.addWorksheet('Resumo Financeiro', { views: [{ showGridLines: false }] });
+        wsResumo.mergeCells('A1:B1');
+        const titleRes = wsResumo.getCell('A1');
+        titleRes.value = '📊 FECHAMENTO DO CAIXA REAL';
+        titleRes.font = { name: 'Arial', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+        titleRes.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF10B981' } };
+        titleRes.alignment = { vertical: 'middle', horizontal: 'center' };
+        wsResumo.getRow(1).height = 30;
+        wsResumo.addRow([]);
+        
+        const metricas = [
+            ["Dinheiro Total Disponível", document.getElementById('global-total-conta').innerText],
+            ["Giro Livre", document.querySelector('.global-giro').innerText],
+            ["Caixinha Insumo Fixo", document.querySelector('.global-insumos').innerText],
+            ["Caixinha Custos Gerais", document.querySelector('.global-cg').innerText],
+            ["Caixinha Mão de Obra", document.querySelector('.global-mo').innerText],
+            ["Caixinha Fundo 15%", document.querySelector('.global-fundo').innerText],
+            ["Caixinha Luyan", document.querySelector('.global-luyan').innerText],
+            ["Caixinha Beatriz", document.querySelector('.global-beatriz').innerText],
+            ["Gaveta de Entregas", document.querySelector('.global-entrega').innerText],
+            ["Investimento a Pagar", document.querySelector('.global-roi').innerText]
+        ];
+        
+        metricas.forEach(m => {
+            const row = wsResumo.addRow(m);
+            row.getCell(1).font = { bold: true };
+            row.getCell(1).border = { bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } } };
+            row.getCell(2).border = { bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } } };
+            row.getCell(2).alignment = { horizontal: 'right' };
+            if(m[0] === "Dinheiro Total Disponível" || m[0] === "Giro Livre") {
+                row.getCell(2).font = { bold: true, color: { argb: 'FF10B981' } };
+            }
         });
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsVar), "Rateio Varejo");
+        wsResumo.getColumn(1).width = 30; wsResumo.getColumn(2).width = 25;
 
-        const wsDesp = [["Data", "Item", "Qtd", "Valor Un", "Total", "Categoria"]];
-        db.despesas.forEach(d => wsDesp.push([d.data, d.item, d.qtd, d.unitario, d.total, d.categoria]));
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsDesp), "Despesas");
+        // ==========================================
+        // ABA 2: VAREJO
+        // ==========================================
+        const rowsVendas = db.vendas.map(v => {
+            const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
+            const ins = q * db.config.custoInsumo; 
+            const base = Number(v.valorLiquido||0) - ins;
+            const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
+            return [
+                v.num, formatData(v.data), v.produto, v.pgto, Number(v.qtd), 
+                Number(v.valorBruto), Number(v.desconto), Number(v.entrega), Number(v.valorTaxa), Number(v.valorLiquido),
+                ins, cg, mo, lucro, lucro*0.5, lucro*0.15, lucro*0.175, lucro*0.175
+            ];
+        });
+        addAba('Varejo', 'FFD97706', 
+            ["ID", "Data", "Produto", "Pgto", "Qtd", "Bruto", "Desconto", "Entrega", "Taxa Maq", "Líquido", "Insumo", "Custos Gerais", "Mão de Obra", "Lucro", "Giro (50%)", "Fundo (15%)", "Luyan", "Beatriz"], 
+            rowsVendas, 
+            [6,7,8,9,10,11,12,13,14,15,16,17,18], // Quais colunas formatar como Moeda (R$)
+            [5,6,7,8,9,10,11,12,13,14,15,16,17,18] // Quais colunas Somar no final
+        );
 
-        XLSX.writeFile(wb, "PudimDuCariri_Relatorio.xlsx");
-        showToast("Excel Gerado!");
+        // ==========================================
+        // ABA 3: ATACADO
+        // ==========================================
+        const rowsAtacado = db.atacado.map(a => {
+            const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - ((a.coposDevolvidos||0)*db.config.custoCopo));
+            const base = Number(a.totalLiquido||0) - ins; const cg = base * 0.15; const mo = base * 0.20; const lucro = base - cg - mo;
+            return [
+                a.num, formatData(a.data), a.cliente, a.status, Number(a.qtd), Number(a.coposDevolvidos),
+                Number(a.unitario), Number(a.totalBruto), Number(a.desconto), Number(a.totalLiquido),
+                ins, cg, mo, lucro
+            ];
+        });
+        addAba('Atacado', 'FF8B5CF6', 
+            ["ID", "Data", "Cliente", "Status", "Qtd", "Copos Dev", "Valor Un", "Bruto", "Desc Log", "Líquido", "Insumo", "Custos Gerais", "Mão de Obra", "Lucro"], 
+            rowsAtacado, 
+            [7,8,9,10,11,12,13,14], // Moeda
+            [5,6,8,9,10,11,12,13,14] // Soma
+        );
+
+        // ==========================================
+        // ABA 4: DESPESAS
+        // ==========================================
+        const rowsDespesas = db.despesas.map(d => [d.num, formatData(d.data), d.categoria, d.item, Number(d.qtd), Number(d.unitario), Number(d.total)]);
+        addAba('Despesas', 'FFEF4444', 
+            ["ID", "Data", "Categoria", "Item", "Qtd", "Valor Un", "Total Gasto"], 
+            rowsDespesas, 
+            [6, 7], // Moeda
+            [5, 7]  // Soma
+        );
+
+        // ==========================================
+        // ABA 5: EXTRATO / SAQUES
+        // ==========================================
+        const rowsSaques = db.pagamentos.map(p => [formatData(p.data), descTipoMap[p.tipo] || p.tipo, Number(p.valor)]);
+        addAba('Extrato de Saques', 'FFF59E0B', 
+            ["Data", "Origem (Caixinha)", "Valor Sacado"], 
+            rowsSaques, 
+            [3], // Moeda
+            [3]  // Soma
+        );
+
+        // ==========================================
+        // ABA 6: PRODUÇÕES E AJUSTES DE ESTOQUE
+        // ==========================================
+        const rowsProducoes = db.producoes.map(p => [formatData(p.data), Number(p.qtd)]);
+        addAba('Receitas Batidas', 'FF3B82F6', 
+            ["Data", "Qtd Receitas Feitas"], 
+            rowsProducoes, 
+            [], 
+            [2] // Soma
+        );
+
+        const rowsEstoque = db.estoqueMov.map(m => [formatData(m.data), m.item, m.tipo, Number(m.qtd), m.desc]);
+        addAba('Ajustes Estoque', 'FF6B7280', 
+            ["Data", "Item", "Tipo (Ent/Sai)", "Qtd", "Motivo"], 
+            rowsEstoque, 
+            [], 
+            [] // Sem soma aqui pois Entrada e Saída estão na mesma coluna
+        );
+
+        // ==========================================
+        // ABA 7: INVESTIMENTOS INICIAIS
+        // ==========================================
+        const rowsInvestimentos = db.investimentos.map(i => [formatData(i.data), i.item, Number(i.valor)]);
+        addAba('Investimentos', 'FF111827', 
+            ["Data", "Item", "Valor Investido"], 
+            rowsInvestimentos, 
+            [3], // Moeda
+            [3]  // Soma
+        );
+
+        // ==========================================
+        // BAIXAR O ARQUIVO
+        // ==========================================
+        const buffer = await wb.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        saveAs(blob, "Fechamento_Completo_PudimDuCariri.xlsx");
+        
+        showToast("Fechamento Gerado com Sucesso!");
     }
 
     init();
