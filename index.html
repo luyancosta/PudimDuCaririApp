@@ -590,8 +590,6 @@
 
     // ========= DATA DE CORTE PARA A NOVA REGRA =========
     const DATA_CORTE_RATEIO = '2026-03-23'; 
-    // Vendas ANTES dessa data usam: C.G 15%, Giro 50%, Lu 17,5%, Bea 17,5%.
-    // Vendas A PARTIR dessa data usam: C.G 20%, Giro 0%, Lu 50%, Bea 35%.
     // ===================================================
 
     let isOnline = firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLE_SUA_API_KEY_AQUI";
@@ -644,13 +642,21 @@
     }
 
     // --- NOVA FUNÇÃO CENTRAL DE RATEIO ---
-    // Isso garante que vendas velhas fiquem intactas e as novas usem a nova lógica.
-    function calcularRateio(base, dataRef) {
+    function calcularRateio(base, dataRef, forcarRegraNova = false) {
         let cg, mo, lucro, giro, fundo, luyan, beatriz;
-        let d = dataRef || '2000-01-01'; // Fallback se a venda por acaso vier sem data
+        let d = dataRef || '2000-01-01'; 
         
-        if (d < DATA_CORTE_RATEIO) {
-            // REGRA ANTIGA (Passado Intacto)
+        if (forcarRegraNova || d >= DATA_CORTE_RATEIO) {
+            // REGRA NOVA 
+            cg = base * 0.20;
+            mo = base * 0.20;
+            lucro = base - cg - mo;
+            giro = 0; 
+            fundo = lucro * 0.15;
+            luyan = lucro * 0.50;
+            beatriz = lucro * 0.35;
+        } else {
+            // REGRA ANTIGA 
             cg = base * 0.15;
             mo = base * 0.20;
             lucro = base - cg - mo;
@@ -658,15 +664,6 @@
             fundo = lucro * 0.15;
             luyan = lucro * 0.175;
             beatriz = lucro * 0.175;
-        } else {
-            // REGRA NOVA (Daqui pra frente)
-            cg = base * 0.20;
-            mo = base * 0.20;
-            lucro = base - cg - mo;
-            giro = 0; // O Giro some
-            fundo = lucro * 0.15;
-            luyan = lucro * 0.50;
-            beatriz = lucro * 0.35;
         }
         
         return { cg, mo, lucro, giro, fundo, luyan, beatriz };
@@ -694,8 +691,9 @@
 
             <div class="card" style="border-left-color: #3B82F6;"><h3>Total Entregas</h3><p class="global-entrega" style="color: #3B82F6;">R$ 0,00</p></div>
             
-            <div class="card" style="grid-column: 1 / -1; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 1.5rem 2rem;">
+            <div class="card" id="card-investimento" style="grid-column: 1 / -1; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 1.5rem 2rem;">
                 <div><h3 style="margin-bottom: 0;">Investimento a Pagar</h3><p class="global-roi" style="color: var(--danger); font-size: 2.2rem;">R$ 0,00</p></div>
+                <button class="btn-action-small" style="width: auto; padding: 15px 30px; font-size: 1rem; background: #10B981;" onclick="realizarSaque('Divida')">💰 Abater Dívida</button>
             </div>
         </div>`;
 
@@ -916,11 +914,18 @@
         const desconto = parseFloat(document.getElementById('a-desconto').value)||0;
         const status = document.getElementById('a-status').value;
         const totalBruto = qtd * unitario;
+        
+        let usarNovaRegra = false;
+        if(editingItem.lista === 'atacado') {
+            const old = db.atacado.find(i=>i.id===editingItem.id);
+            if(old && old.usarRegraNova) usarNovaRegra = true;
+        }
+
         finalizarEdicao('atacado', {
             id: (editingItem.lista==='atacado'?editingItem.id:Date.now()),
             num: (editingItem.lista==='atacado'?db.atacado.find(i=>i.id===editingItem.id).num:getNextNum(db.atacado)),
             data, cliente, qtd, unitario, coposDevolvidos: copos, desconto, 
-            totalBruto: Number(totalBruto), totalLiquido: Number(totalBruto - desconto), status
+            totalBruto: Number(totalBruto), totalLiquido: Number(totalBruto - desconto), status, usarRegraNova: usarNovaRegra
         }, 'btn-submit-atacado', 'Salvar Pedido', 'Atacado Salvo!');
         document.getElementById('a-cliente').value = ''; document.getElementById('a-qtd').value = ''; document.getElementById('a-valor').value = '';
     }
@@ -1004,9 +1009,14 @@
         document.getElementById('mov-obs').value = '';
     }
 
+    // --- MARCAR COMO PAGO COM FORÇA DA REGRA NOVA ---
     function marcarComoPago(id) {
         const item = db.atacado.find(a => a.id === id);
-        if(item && confirm("Confirmar pagamento?")) { item.status = 'PAGO'; saveData(); }
+        if(item && confirm("Confirmar pagamento? (Isto aplicará a regra atual de rateio)")) { 
+            item.status = 'PAGO'; 
+            item.usarRegraNova = true; // Garante que caia na regra de Luyan 50%
+            saveData(); 
+        }
     }
     
     function ajustarEstoqueRapido(itemKey, nomeItem) {
@@ -1094,7 +1104,7 @@
             const ins = q * (db.config.custoInsumo||0); 
             const base = Number(v.valorLiquido||0) - ins;
             
-            const r = calcularRateio(base, v.data); // CHAMA A REGRA DE CORTE
+            const r = calcularRateio(base, v.data, v.usarRegraNova); 
             
             abs_vIns+=ins; abs_vCg+=r.cg; abs_vMo+=r.mo; abs_vGiro+=r.giro; abs_vFundo+=r.fundo; abs_vLu+=r.luyan; abs_vBea+=r.beatriz;
         });
@@ -1106,7 +1116,7 @@
             const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - ((a.coposDevolvidos||0)*db.config.custoCopo));
             const base = liq - ins; 
             
-            const r = calcularRateio(base, a.data); // CHAMA A REGRA DE CORTE
+            const r = calcularRateio(base, a.data, a.usarRegraNova); 
             
             abs_aIns+=ins; abs_aCg+=r.cg; abs_aMo+=r.mo; abs_aGiro+=r.giro; abs_aFundo+=r.fundo; abs_aLu+=r.luyan; abs_aBea+=r.beatriz;
         });
@@ -1181,9 +1191,21 @@
         let totalConta = ((abs_vIns + abs_aIns) - (tAbsInsumos + tAbsEmbalagem)) + (((abs_vCg + abs_aCg) - tAbsGerais) - descontoGerais) + ((abs_vFundo + abs_aFundo) - tAbsMarketing) + ((abs_vMo + abs_aMo) - sqMO) + ((abs_vLu + abs_aLu) - sqLu) + ((abs_vBea + abs_aBea) - sqBea) + saldoEntregas + sGiro;
         document.getElementById('global-total-conta').innerText = formatMoney(totalConta);
         
+        // Esconde ou mostra o card de INVESTIMENTOS
         const roi = db.investimentos.reduce((acc, c) => acc + Number(c.valor||0), 0) - sqGiro;
-        const elRoi = document.querySelector('.global-roi');
-        if(elRoi) { elRoi.innerText = roi > 0 ? "Falta " + formatMoney(roi) : "PAGO! Sobra " + formatMoney(Math.abs(roi)); elRoi.style.color = roi > 0 ? 'var(--danger)' : 'var(--success)'; }
+        const elRoiCard = document.getElementById('card-investimento');
+        const elRoiText = document.querySelector('.global-roi');
+        
+        if (elRoiCard) {
+            if (roi <= 0) {
+                elRoiCard.style.display = 'none'; // Some se não houver dívida
+            } else {
+                elRoiCard.style.display = 'flex'; // Mostra se houver dívida
+                if (elRoiText) {
+                    elRoiText.innerText = "Falta " + formatMoney(roi);
+                }
+            }
+        }
 
         // DASHBOARDS DE FILTRO MENSAL
         const filterMonth = document.getElementById('dash-filter-month').value;
@@ -1194,7 +1216,7 @@
             vBruto += Number(v.valorBruto||0); vLiq += Number(v.valorLiquido||0); vEnt += Number(v.entrega||0);
             const q = (v.produto.includes('Combo')?3:1)*(v.qtd||1); vQtd += q;
             const ins = q*db.config.custoInsumo; const base = Number(v.valorLiquido||0)-ins;
-            const r = calcularRateio(base, v.data);
+            const r = calcularRateio(base, v.data, v.usarRegraNova);
             vIns+=ins; vCG+=r.cg; vMO+=r.mo; vLucro+=r.lucro; vGiroF+=r.giro; vFundo+=r.fundo; vLu+=r.luyan; vBea+=r.beatriz;
         });
         document.getElementById('v-dash-bruto').innerText = formatMoney(vBruto); document.getElementById('v-dash-liquido').innerText = formatMoney(vLiq); document.getElementById('v-dash-entrega').innerText = formatMoney(vEnt); document.getElementById('v-dash-qtd').innerText = vQtd; document.getElementById('v-dash-insumos').innerText = formatMoney(vIns); document.getElementById('v-dash-cg').innerText = formatMoney(vCG); document.getElementById('v-dash-mo').innerText = formatMoney(vMO); document.getElementById('v-dash-lucro-restante').innerText = formatMoney(vLucro); document.getElementById('v-dash-giro').innerText = formatMoney(vGiroF); document.getElementById('v-dash-fundo').innerText = formatMoney(vFundo); document.getElementById('v-dash-luyan').innerText = formatMoney(vLu); document.getElementById('v-dash-beatriz').innerText = formatMoney(vBea);
@@ -1204,7 +1226,7 @@
             aBruto += Number(a.totalBruto||0); aLiq += Number(a.totalLiquido||0); aQtd += Number(a.qtd||0); aDesc += Number(a.desconto||0);
             const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - ((a.coposDevolvidos||0)*db.config.custoCopo));
             const base = Number(a.totalLiquido||0)-ins; 
-            const r = calcularRateio(base, a.data);
+            const r = calcularRateio(base, a.data, a.usarRegraNova);
             aIns+=ins; aCG+=r.cg; aMO+=r.mo; aLucro+=r.lucro; aGiroF+=r.giro; aFundo+=r.fundo; aLu+=r.luyan; aBea+=r.beatriz;
         });
         document.getElementById('a-dash-bruto').innerText = formatMoney(aBruto); document.getElementById('a-dash-desconto').innerText = "- "+formatMoney(aDesc); document.getElementById('a-dash-liquido').innerText = formatMoney(aLiq); document.getElementById('a-dash-qtd').innerText = aQtd; document.getElementById('a-dash-insumos').innerText = formatMoney(aIns); document.getElementById('a-dash-cg').innerText = formatMoney(aCG); document.getElementById('a-dash-mo').innerText = formatMoney(aMO); document.getElementById('a-dash-lucro-restante').innerText = formatMoney(aLucro); document.getElementById('a-dash-giro').innerText = formatMoney(aGiroF); document.getElementById('a-dash-fundo').innerText = formatMoney(aFundo); document.getElementById('a-dash-luyan').innerText = formatMoney(aLu); document.getElementById('a-dash-beatriz').innerText = formatMoney(aBea);
@@ -1252,7 +1274,7 @@
         [...db.vendas].sort(sortByDateDesc).forEach(v => {
             const pStr = v.produto || ''; const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1);
             const ins = q * (db.config.custoInsumo||0); const base = Number(v.valorLiquido||0) - ins;
-            const r = calcularRateio(base, v.data);
+            const r = calcularRateio(base, v.data, v.usarRegraNova);
             tLiq+=Number(v.valorLiquido); tIns+=ins; tGer+=r.cg; tMao+=r.mo; tLuc+=r.lucro; tGiro+=r.giro; tFun+=r.fundo; tLu+=r.luyan; tBea+=r.beatriz;
             htmlVar += `<tr><td>${v.num}</td><td>${formatData(v.data)}</td><td>${formatMoney(v.valorLiquido)}</td><td style="color:red">-${formatMoney(ins)}</td><td style="color:red">-${formatMoney(r.cg)}</td><td style="color:red">-${formatMoney(r.mo)}</td><td style="color:green;font-weight:bold">${formatMoney(r.lucro)}</td><td>${formatMoney(r.giro)}</td><td>${formatMoney(r.fundo)}</td><td>${formatMoney(r.luyan)}</td><td>${formatMoney(r.beatriz)}</td></tr>`;
         });
@@ -1263,7 +1285,7 @@
         [...db.atacado].filter(a=>a.status === 'PAGO').sort(sortByDateDesc).forEach(a => {
             const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - (a.coposDevolvidos*db.config.custoCopo));
             const base = Number(a.totalLiquido||0) - ins; 
-            const r = calcularRateio(base, a.data);
+            const r = calcularRateio(base, a.data, a.usarRegraNova);
             atLiq+=Number(a.totalLiquido); atIns+=ins; atGer+=r.cg; atMao+=r.mo; atLuc+=r.lucro; atGiro+=r.giro; atFun+=r.fundo; atLu+=r.luyan; atBea+=r.beatriz;
             htmlAta += `<tr><td>${a.num}</td><td>${formatData(a.data)}</td><td>${formatMoney(a.totalLiquido)}</td><td style="color:red">-${formatMoney(ins)}</td><td style="color:red">-${formatMoney(r.cg)}</td><td style="color:red">-${formatMoney(r.mo)}</td><td style="color:green;font-weight:bold">${formatMoney(r.lucro)}</td><td>${formatMoney(r.giro)}</td><td>${formatMoney(r.fundo)}</td><td>${formatMoney(r.luyan)}</td><td>${formatMoney(r.beatriz)}</td></tr>`;
         });
@@ -1290,7 +1312,9 @@
         const tFundo = document.querySelector('.global-fundo').innerText;
         const tLuyan = document.querySelector('.global-luyan').innerText;
         const tBeatriz = document.querySelector('.global-beatriz').innerText;
-        const tROI = document.querySelector('.global-roi').innerText;
+        
+        const elRoiCard = document.getElementById('card-investimento');
+        const tROI = document.querySelector('.global-roi') ? document.querySelector('.global-roi').innerText : '';
         const tGiro = document.querySelector('.global-giro').innerText;
 
         let txt = `*📊 FECHAMENTO DO DIA - ${hoje.split('-').reverse().join('/')}*\n\n`;
@@ -1310,11 +1334,12 @@
         txt += `- Luyan: ${tLuyan}\n`;
         txt += `- Beatriz: ${tBeatriz}\n`;
         
-        // Só mostrar o Giro Antigo no Whats se ele ainda não tiver sido sacado/zerado.
         const numGiro = parseFloat(tGiro.replace('R$', '').replace('.', '').replace(',', '.'));
         if (numGiro > 0) { txt += `- Giro (Antigo): ${tGiro}\n`; }
         
-        txt += `\n📉 *Investimento:* ${tROI}`;
+        if(elRoiCard && elRoiCard.style.display !== 'none' && tROI !== '') {
+            txt += `\n📉 *Investimento:* ${tROI}`;
+        }
 
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`, '_blank');
     }
@@ -1413,6 +1438,9 @@
         wsResumo.getRow(1).height = 30;
         wsResumo.addRow([]);
         
+        const elRoiCard = document.getElementById('card-investimento');
+        const roiValor = elRoiCard && elRoiCard.style.display !== 'none' ? document.querySelector('.global-roi').innerText : "PAGO";
+
         const metricas = [
             ["Dinheiro Total Disponível", document.getElementById('global-total-conta').innerText],
             ["Caixinha Insumo Fixo", document.querySelector('.global-insumos').innerText],
@@ -1423,7 +1451,7 @@
             ["Caixinha Beatriz", document.querySelector('.global-beatriz').innerText],
             ["Gaveta de Entregas", document.querySelector('.global-entrega').innerText],
             ["Giro (Histórico Antigo)", document.querySelector('.global-giro').innerText],
-            ["Investimento a Pagar", document.querySelector('.global-roi').innerText]
+            ["Investimento a Pagar", roiValor]
         ];
         
         metricas.forEach(m => {
@@ -1442,7 +1470,7 @@
             const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
             const ins = q * db.config.custoInsumo; 
             const base = Number(v.valorLiquido||0) - ins;
-            const r = calcularRateio(base, v.data);
+            const r = calcularRateio(base, v.data, v.usarRegraNova);
             return [
                 v.num, formatData(v.data), v.produto, v.pgto, Number(v.qtd), 
                 Number(v.valorBruto), Number(v.desconto), Number(v.entrega), Number(v.valorTaxa), Number(v.valorLiquido),
@@ -1459,7 +1487,7 @@
         const rowsAtacado = db.atacado.map(a => {
             const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - ((a.coposDevolvidos||0)*db.config.custoCopo));
             const base = Number(a.totalLiquido||0) - ins; 
-            const r = calcularRateio(base, a.data);
+            const r = calcularRateio(base, a.data, a.usarRegraNova);
             return [
                 a.num, formatData(a.data), a.cliente, a.status, Number(a.qtd), Number(a.coposDevolvidos),
                 Number(a.unitario), Number(a.totalBruto), Number(a.desconto), Number(a.totalLiquido),
