@@ -582,7 +582,7 @@
         "investimentos": [], "pagamentos": [], "producoes": [], "estoqueMov": []
     };
     
-    let carrinhoVarejo = []; // Variável para controlar o carrinho
+    let carrinhoVarejo = []; 
     
     const savedLocal = localStorage.getItem('pudimDuCaririDB');
     if(savedLocal) { try { db = JSON.parse(savedLocal); } catch(e) {} }
@@ -768,7 +768,6 @@
         if(lista === 'vendas') { 
             switchTab('vendas'); document.getElementById('v-data').value = item.data; 
             
-            // Joga o item do passado pro formato do carrinho para facilitar edição
             carrinhoVarejo = [{
                 produto: item.produto || 'Unidade', sabor: item.sabor || 'tradicional', qtd: item.qtd || 1,
                 valorManual: item.valorManual, bruto: item.valorBruto
@@ -797,7 +796,6 @@
         if(pgto === 'PIX') { asaasGroup.style.display = 'flex'; } else { asaasGroup.style.display = 'none'; document.getElementById('v-asaas').checked = false; }
     }
     
-    // --- LÓGICA DO CARRINHO DE VENDAS ---
     function addAoCarrinho() {
         const produto = document.getElementById('v-produto').value;
         const sabor = document.getElementById('v-sabor').value;
@@ -811,39 +809,21 @@
 
         carrinhoVarejo.push({ produto, sabor, qtd, valorManual: isNaN(valorManual) ? null : valorManual, bruto });
         
-        document.getElementById('v-qtd').value = '1';
-        document.getElementById('v-valor-manual').value = '';
-        renderCarrinho();
-        showToast("Produto Adicionado!", false);
+        document.getElementById('v-qtd').value = '1'; document.getElementById('v-valor-manual').value = '';
+        renderCarrinho(); showToast("Produto Adicionado!", false);
     }
 
-    function removerDoCarrinho(index) {
-        carrinhoVarejo.splice(index, 1);
-        renderCarrinho();
-    }
+    function removerDoCarrinho(index) { carrinhoVarejo.splice(index, 1); renderCarrinho(); }
 
     function renderCarrinho() {
-        const tbody = document.getElementById('tbody-carrinho');
-        const container = document.getElementById('cart-container');
-        
-        if (carrinhoVarejo.length === 0) {
-            container.style.display = 'none';
-            atualizarTotalCheckout();
-            return;
-        }
+        const tbody = document.getElementById('tbody-carrinho'); const container = document.getElementById('cart-container');
+        if (carrinhoVarejo.length === 0) { container.style.display = 'none'; atualizarTotalCheckout(); return; }
 
         container.style.display = 'block';
         tbody.innerHTML = carrinhoVarejo.map((item, index) => {
             const saborNome = item.sabor === 'ninho' ? 'Ninho' : (item.sabor === 'brigadeirao' ? 'Brigadeirão' : 'Tradicional');
-            return `<tr>
-                <td style="font-weight: bold;">${item.qtd}x</td>
-                <td>${item.produto}</td>
-                <td style="color: #6B7280;">${saborNome}</td>
-                <td style="font-weight:bold">${formatMoney(item.bruto)}</td>
-                <td><button class="btn-icon btn-delete" style="width:24px; height:24px; font-size:0.8rem;" onclick="removerDoCarrinho(${index})">X</button></td>
-            </tr>`;
+            return `<tr><td style="font-weight: bold;">${item.qtd}x</td><td>${item.produto}</td><td style="color: #6B7280;">${saborNome}</td><td style="font-weight:bold">${formatMoney(item.bruto)}</td><td><button class="btn-icon btn-delete" style="width:24px; height:24px; font-size:0.8rem;" onclick="removerDoCarrinho(${index})">X</button></td></tr>`;
         }).join('');
-        
         atualizarTotalCheckout();
     }
 
@@ -851,135 +831,77 @@
         const totalBruto = carrinhoVarejo.reduce((acc, item) => acc + item.bruto, 0);
         const desconto = parseFloat(document.getElementById('v-desconto').value) || 0;
         const entrega = parseFloat(document.getElementById('v-entrega').value) || 0;
-        
-        const totalPagar = totalBruto - desconto + entrega;
-        document.getElementById('v-total-display').innerText = formatMoney(Math.max(0, totalPagar));
+        document.getElementById('v-total-display').innerText = formatMoney(Math.max(0, totalBruto - desconto + entrega));
     }
 
     function finalizarVendaCarrinho() {
         if(carrinhoVarejo.length === 0) return alert("O carrinho está vazio!");
 
         const data = document.getElementById('v-data').value || getTodayDate();
-        const pgto = document.getElementById('v-pgto').value;
-        const isAsaas = document.getElementById('v-asaas').checked;
-        const descontoGeral = parseFloat(document.getElementById('v-desconto').value) || 0;
-        const entregaGeral = parseFloat(document.getElementById('v-entrega').value) || 0;
+        const pgto = document.getElementById('v-pgto').value; const isAsaas = document.getElementById('v-asaas').checked;
+        const descontoGeral = parseFloat(document.getElementById('v-desconto').value) || 0; const entregaGeral = parseFloat(document.getElementById('v-entrega').value) || 0;
 
-        const sacola1_tipo = document.getElementById('v-sacola1-tipo').value;
-        const sacola1_qtd = parseInt(document.getElementById('v-sacola1-qtd').value) || 0;
-        const sacola2_tipo = document.getElementById('v-sacola2-tipo').value;
-        const sacola2_qtd = parseInt(document.getElementById('v-sacola2-qtd').value) || 0;
+        const sacola1_tipo = document.getElementById('v-sacola1-tipo').value; const sacola1_qtd = parseInt(document.getElementById('v-sacola1-qtd').value) || 0;
+        const sacola2_tipo = document.getElementById('v-sacola2-tipo').value; const sacola2_qtd = parseInt(document.getElementById('v-sacola2-qtd').value) || 0;
 
         let totalBrutoGeral = carrinhoVarejo.reduce((acc, item) => acc + item.bruto, 0);
         
         let taxaPerc = 0;
-        if(pgto.includes('Credito Insercao')) taxaPerc = db.config.taxaCredIns;
-        else if(pgto.includes('Credito Aproximacao')) taxaPerc = db.config.taxaCredApr;
-        else if(pgto.includes('Debito Insercao')) taxaPerc = db.config.taxaDebIns;
-        else if(pgto.includes('Debito Aproximacao')) taxaPerc = db.config.taxaDebApr;
-        else if(pgto.includes('Cartao Online')) taxaPerc = db.config.taxaCartaoOnline;
+        if(pgto.includes('Credito Insercao')) taxaPerc = db.config.taxaCredIns; else if(pgto.includes('Credito Aproximacao')) taxaPerc = db.config.taxaCredApr; else if(pgto.includes('Debito Insercao')) taxaPerc = db.config.taxaDebIns; else if(pgto.includes('Debito Aproximacao')) taxaPerc = db.config.taxaDebApr; else if(pgto.includes('Cartao Online')) taxaPerc = db.config.taxaCartaoOnline;
 
-        // Se for Edição, apaga o item original do banco
         if(editingItem.lista === 'vendas') {
             db.vendas = db.vendas.filter(x => x.id !== editingItem.id);
-            editingItem = { lista: null, id: null };
-            document.getElementById('btn-submit-vendas').innerText = "FINALIZAR COMPRA";
+            editingItem = { lista: null, id: null }; document.getElementById('btn-submit-vendas').innerText = "FINALIZAR COMPRA";
         }
 
-        let curNum = getNextNum(db.vendas);
-        let asaasCobrado = false;
+        let curNum = getNextNum(db.vendas); let asaasCobrado = false;
 
-        // Distribui o desconto e as taxas de forma proporcional para cada item do carrinho
         carrinhoVarejo.forEach((item, index) => {
-            let isFirst = index === 0;
-            let proporcao = totalBrutoGeral > 0 ? (item.bruto / totalBrutoGeral) : 0;
-            let itemDesconto = descontoGeral * proporcao;
-            let itemCobrado = item.bruto - itemDesconto;
+            let isFirst = index === 0; let proporcao = totalBrutoGeral > 0 ? (item.bruto / totalBrutoGeral) : 0;
+            let itemDesconto = descontoGeral * proporcao; let itemCobrado = item.bruto - itemDesconto;
             
             let itemTaxa = 0;
-            if (pgto === 'PIX' && isAsaas) {
-                if (!asaasCobrado) { itemTaxa = 0.14; asaasCobrado = true; }
-            } else {
-                itemTaxa = itemCobrado * (taxaPerc / 100);
-            }
-
-            let itemLiquido = itemCobrado - itemTaxa;
+            if (pgto === 'PIX' && isAsaas) { if (!asaasCobrado) { itemTaxa = 0.14; asaasCobrado = true; } } else { itemTaxa = itemCobrado * (taxaPerc / 100); }
 
             db.vendas.push({
-                id: Date.now() + index, // Para garantir ID único mesmo em ms iguais
-                num: curNum++,
-                data, 
-                produto: item.produto, 
-                sabor: item.sabor, 
-                pgto, 
-                asaas: isFirst ? isAsaas : false, 
-                qtd: item.qtd, 
-                desconto: Number(itemDesconto.toFixed(2)),
-                sacola1_tipo: isFirst ? sacola1_tipo : 'nenhuma',
-                sacola1_qtd: isFirst ? sacola1_qtd : 0,
-                sacola2_tipo: isFirst ? sacola2_tipo : 'nenhuma',
-                sacola2_qtd: isFirst ? sacola2_qtd : 0,
-                valorManual: item.valorManual,
-                valorBruto: Number(item.bruto.toFixed(2)), 
-                valorTaxa: Number(itemTaxa.toFixed(2)), 
-                valorLiquido: Number(itemLiquido.toFixed(2)), 
-                entrega: isFirst ? Number(entregaGeral.toFixed(2)) : 0
+                id: Date.now() + index, num: curNum++, data, produto: item.produto, sabor: item.sabor, pgto, asaas: isFirst ? isAsaas : false, qtd: item.qtd, desconto: Number(itemDesconto.toFixed(2)),
+                sacola1_tipo: isFirst ? sacola1_tipo : 'nenhuma', sacola1_qtd: isFirst ? sacola1_qtd : 0, sacola2_tipo: isFirst ? sacola2_tipo : 'nenhuma', sacola2_qtd: isFirst ? sacola2_qtd : 0,
+                valorManual: item.valorManual, valorBruto: Number(item.bruto.toFixed(2)), valorTaxa: Number(itemTaxa.toFixed(2)), valorLiquido: Number((itemCobrado - itemTaxa).toFixed(2)), entrega: isFirst ? Number(entregaGeral.toFixed(2)) : 0
             });
         });
 
-        carrinhoVarejo = [];
-        renderCarrinho();
-        saveData();
-        showToast("Venda Finalizada com Sucesso!");
-        document.getElementById('v-desconto').value = '0';
-        document.getElementById('v-entrega').value = '0';
-        document.getElementById('v-sacola1-tipo').value = 'nenhuma';
-        document.getElementById('v-sacola1-qtd').value = '1';
-        document.getElementById('v-sacola2-tipo').value = 'nenhuma';
-        document.getElementById('v-sacola2-qtd').value = '0';
+        carrinhoVarejo = []; renderCarrinho(); saveData(); showToast("Venda Finalizada com Sucesso!");
+        document.getElementById('v-desconto').value = '0'; document.getElementById('v-entrega').value = '0';
+        document.getElementById('v-sacola1-tipo').value = 'nenhuma'; document.getElementById('v-sacola1-qtd').value = '1'; document.getElementById('v-sacola2-tipo').value = 'nenhuma'; document.getElementById('v-sacola2-qtd').value = '0';
     }
 
-    // --- CONTINUAÇÃO DAS OUTRAS FUNÇÕES ---
     function calcDescAtacado() {
-        let copos = parseInt(document.getElementById('a-copos').value) || 0;
-        document.getElementById('a-desconto').value = (copos >= 12) ? copos.toFixed(2) : '0.00';
+        let copos = parseInt(document.getElementById('a-copos').value) || 0; document.getElementById('a-desconto').value = (copos >= 12) ? copos.toFixed(2) : '0.00';
     }
 
     function addAtacado() {
         const data = document.getElementById('a-data').value || getTodayDate();
-        const cliente = document.getElementById('a-cliente').value;
-        const sabor = document.getElementById('a-sabor').value;
-        const qtd = parseInt(document.getElementById('a-qtd').value)||0;
-        const unitario = parseFloat(document.getElementById('a-valor').value)||0;
-        const copos = parseInt(document.getElementById('a-copos').value)||0;
-        const desconto = parseFloat(document.getElementById('a-desconto').value)||0;
-        const status = document.getElementById('a-status').value;
-        const totalBruto = qtd * unitario;
+        const cliente = document.getElementById('a-cliente').value; const sabor = document.getElementById('a-sabor').value;
+        const qtd = parseInt(document.getElementById('a-qtd').value)||0; const unitario = parseFloat(document.getElementById('a-valor').value)||0;
+        const copos = parseInt(document.getElementById('a-copos').value)||0; const desconto = parseFloat(document.getElementById('a-desconto').value)||0;
+        const status = document.getElementById('a-status').value; const totalBruto = qtd * unitario;
         
         let usarNovaRegra = false;
-        if(editingItem.lista === 'atacado') {
-            const old = db.atacado.find(i=>i.id===editingItem.id);
-            if(old && old.usarRegraNova) usarNovaRegra = true;
-        }
+        if(editingItem.lista === 'atacado') { const old = db.atacado.find(i=>i.id===editingItem.id); if(old && old.usarRegraNova) usarNovaRegra = true; }
 
         finalizarEdicao('atacado', {
-            id: (editingItem.lista==='atacado'?editingItem.id:Date.now()),
-            num: (editingItem.lista==='atacado'?db.atacado.find(i=>i.id===editingItem.id).num:getNextNum(db.atacado)),
-            data, cliente, sabor, qtd, unitario, coposDevolvidos: copos, desconto, 
-            totalBruto: Number(totalBruto), totalLiquido: Number(totalBruto - desconto), status, usarRegraNova: usarNovaRegra
+            id: (editingItem.lista==='atacado'?editingItem.id:Date.now()), num: (editingItem.lista==='atacado'?db.atacado.find(i=>i.id===editingItem.id).num:getNextNum(db.atacado)),
+            data, cliente, sabor, qtd, unitario, coposDevolvidos: copos, desconto, totalBruto: Number(totalBruto), totalLiquido: Number(totalBruto - desconto), status, usarRegraNova: usarNovaRegra
         }, 'btn-submit-atacado', 'Salvar Pedido', 'Atacado Salvo!');
         document.getElementById('a-cliente').value = ''; document.getElementById('a-qtd').value = ''; document.getElementById('a-valor').value = '';
     }
 
     function addDespesa() {
         const data = document.getElementById('d-data').value || getTodayDate();
-        const item = document.getElementById('d-item').value;
-        const qtd = parseFloat(document.getElementById('d-qtd').value)||0;
-        const unitario = parseFloat(document.getElementById('d-valor').value)||0;
-        const categoria = document.getElementById('d-categoria').value;
+        const item = document.getElementById('d-item').value; const qtd = parseFloat(document.getElementById('d-qtd').value)||0;
+        const unitario = parseFloat(document.getElementById('d-valor').value)||0; const categoria = document.getElementById('d-categoria').value;
         finalizarEdicao('despesas', {
-            id: (editingItem.lista==='despesas'?editingItem.id:Date.now()),
-            num: (editingItem.lista==='despesas'?db.despesas.find(i=>i.id===editingItem.id).num:getNextNum(db.despesas)),
+            id: (editingItem.lista==='despesas'?editingItem.id:Date.now()), num: (editingItem.lista==='despesas'?db.despesas.find(i=>i.id===editingItem.id).num:getNextNum(db.despesas)),
             data, item, qtd, unitario, total: Number(qtd * unitario), categoria
         }, 'btn-submit-despesas', 'Salvar Despesa', 'Despesa Salva!');
         document.getElementById('d-item').value = ''; document.getElementById('d-qtd').value = ''; document.getElementById('d-valor').value = '';
@@ -995,40 +917,30 @@
 
     function addPagamento() {
         const data = document.getElementById('p-data').value || getTodayDate(); 
-        const valor = parseFloat(document.getElementById('p-valor').value); 
-        const tipo = document.getElementById('p-tipo').value;
-        const obs = document.getElementById('p-obs').value || '';
+        const valor = parseFloat(document.getElementById('p-valor').value); const tipo = document.getElementById('p-tipo').value; const obs = document.getElementById('p-obs').value || '';
         if(!valor) return alert('Preencha o valor.');
         finalizarEdicao('pagamentos', { id: (editingItem.lista==='pagamentos'?editingItem.id:Date.now()), data, valor, tipo, obs }, 'btn-submit-pagamentos', 'Registrar Saque', 'Saque Registrado!');
         document.getElementById('p-valor').value = ''; document.getElementById('p-obs').value = '';
     }
 
     function realizarSaque(tipo) {
-        document.getElementById('modal-saque-tipo').value = tipo;
-        let txtSaque = descTipoMap[tipo];
-        if(tipo === 'Divida') txtSaque = "Dívida ou Zerar Giro";
-        document.getElementById('modal-saque-title').innerText = "💸 Saque - " + txtSaque;
-        document.getElementById('modal-saque-data').value = getTodayDate();
+        document.getElementById('modal-saque-tipo').value = tipo; let txtSaque = descTipoMap[tipo]; if(tipo === 'Divida') txtSaque = "Dívida ou Zerar Giro";
+        document.getElementById('modal-saque-title').innerText = "💸 Saque - " + txtSaque; document.getElementById('modal-saque-data').value = getTodayDate();
         document.getElementById('modal-saque-valor').value = ''; document.getElementById('modal-saque-obs').value = '';
         document.getElementById('modal-saque').style.display = 'flex'; document.getElementById('modal-saque-valor').focus();
     }
 
     function confirmarSaqueDashboard() {
-        const tipo = document.getElementById('modal-saque-tipo').value;
-        const data = document.getElementById('modal-saque-data').value;
-        const valor = parseFloat(document.getElementById('modal-saque-valor').value);
-        const obs = document.getElementById('modal-saque-obs').value || '';
-
+        const tipo = document.getElementById('modal-saque-tipo').value; const data = document.getElementById('modal-saque-data').value;
+        const valor = parseFloat(document.getElementById('modal-saque-valor').value); const obs = document.getElementById('modal-saque-obs').value || '';
         if(!valor || isNaN(valor)) return alert('Insira um valor válido.');
-        db.pagamentos.push({ id: Date.now(), data, valor, tipo, obs });
-        saveData();
+        db.pagamentos.push({ id: Date.now(), data, valor, tipo, obs }); saveData();
         document.getElementById('modal-saque').style.display = 'none'; showToast("Saque Registrado!");
     }
 
     function addProducao() {
         const data = document.getElementById('prod-data').value || getTodayDate(); 
-        const sabor = document.getElementById('prod-sabor').value;
-        const qtd = parseInt(document.getElementById('prod-qtd').value);
+        const sabor = document.getElementById('prod-sabor').value; const qtd = parseInt(document.getElementById('prod-qtd').value);
         if(!qtd) return alert("Preencha tudo!");
         let oldNum = getNextNum(db.producoes); if(editingItem.lista === 'producoes') { const old = db.producoes.find(i=>i.id===editingItem.id); if(old) oldNum = old.num; }
         finalizarEdicao('producoes', { id: (editingItem.lista==='producoes'?editingItem.id:Date.now()), num: oldNum, data, sabor, qtd }, 'btn-submit-producao', 'Registrar', 'Receita Registrada!');
@@ -1038,7 +950,6 @@
         const data = document.getElementById('mov-data').value || getTodayDate();
         const tipo = document.getElementById('mov-tipo').value; const item = document.getElementById('mov-item').value; const qtd = parseFloat(document.getElementById('mov-qtd').value);
         const obs = document.getElementById('mov-obs').value || '';
-        
         if(!qtd) return alert("Qtd obrigatória");
         finalizarEdicao('estoqueMov', { id: (editingItem.lista==='estoqueMov'?editingItem.id:Date.now()), data, tipo, item, qtd, desc: obs }, 'btn-submit-mov', 'Lançar Ajuste', 'Ajuste Salvo!');
         document.getElementById('mov-qtd').value = ''; document.getElementById('mov-obs').value = '';
@@ -1046,16 +957,13 @@
 
     function marcarComoPago(id) {
         const item = db.atacado.find(a => a.id === id);
-        if(item && confirm("Confirmar pagamento? (Isto aplicará a regra atual de rateio)")) { 
-            item.status = 'PAGO'; item.usarRegraNova = true; saveData(); 
-        }
+        if(item && confirm("Confirmar pagamento? (Isto aplicará a regra atual de rateio)")) { item.status = 'PAGO'; item.usarRegraNova = true; saveData(); }
     }
     
     function ajustarEstoqueRapido(itemKey, nomeItem) {
         let saldos = calcularSaldosEstoque(); let atual = saldos[itemKey] || 0;
         let novo = prompt(`Estoque ${nomeItem}: ${atual}\n\nQuantidade REAL agora:`, atual);
-        if(novo === null) return; novo = parseFloat(novo.replace(',', '.'));
-        if(isNaN(novo)) return alert("Inválido");
+        if(novo === null) return; novo = parseFloat(novo.replace(',', '.')); if(isNaN(novo)) return alert("Inválido");
         let diferenca = novo - atual; if(diferenca === 0) return;
         db.estoqueMov.push({ id: Date.now(), data: getTodayDate(), tipo: diferenca > 0 ? 'entrada' : 'saida', item: itemKey, qtd: Math.abs(diferenca), desc: 'Ajuste Rápido (Painel)' });
         saveData(); showToast("Estoque Ajustado!");
@@ -1065,58 +973,35 @@
     
     function calcularSaldosEstoque() {
         let saldos = { 
-            pudim: 0, pudim_ninho: 0, pudim_brig: 0,
-            leite_condensado: 0, leite_integral: 0, ovos: 0, acucar: 0, copo: 0, tampa: 0, sacola_1: 0, sacola_2: 0, adesivo: 0, colher: 0,
-            leite_po: 0, nutella: 0, creme_leite: 0, chocolate_50: 0, granulado: 0
+            pudim: 0, pudim_ninho: 0, pudim_brig: 0, leite_condensado: 0, leite_integral: 0, ovos: 0, acucar: 0, copo: 0, tampa: 0, sacola_1: 0, sacola_2: 0, adesivo: 0, colher: 0, leite_po: 0, nutella: 0, creme_leite: 0, chocolate_50: 0, granulado: 0
         };
 
-        db.estoqueMov.forEach(m => { 
-            let itemKey = m.item === 'sacola' ? 'sacola_1' : m.item;
-            if(m.tipo === 'entrada') saldos[itemKey] += (m.qtd||0); else saldos[itemKey] -= (m.qtd||0); 
-        });
+        db.estoqueMov.forEach(m => { let itemKey = m.item === 'sacola' ? 'sacola_1' : m.item; if(m.tipo === 'entrada') saldos[itemKey] += (m.qtd||0); else saldos[itemKey] -= (m.qtd||0); });
 
         db.producoes.forEach(p => { 
             const pq = p.qtd || 0; const sabor = p.sabor || 'tradicional';
             if (sabor === 'ninho') {
-                saldos.pudim_ninho += pq*7; 
-                saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*400; saldos.ovos -= pq*3; 
-                saldos.leite_po -= pq*130; saldos.nutella -= pq*70;
-                saldos.copo -= pq*7; saldos.tampa -= pq*7; saldos.adesivo -= pq*7;
+                saldos.pudim_ninho += pq*7; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*400; saldos.ovos -= pq*3; saldos.leite_po -= pq*130; saldos.nutella -= pq*70; saldos.copo -= pq*7; saldos.tampa -= pq*7; saldos.adesivo -= pq*7;
             } else if (sabor === 'brigadeirao') {
-                saldos.pudim_brig += pq*7; 
-                saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*200; saldos.ovos -= pq*3; 
-                saldos.creme_leite -= pq*1; saldos.chocolate_50 -= pq*90; saldos.granulado -= pq*35;
-                saldos.copo -= pq*7; saldos.tampa -= pq*7; saldos.adesivo -= pq*7;
+                saldos.pudim_brig += pq*7; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*200; saldos.ovos -= pq*3; saldos.creme_leite -= pq*1; saldos.chocolate_50 -= pq*90; saldos.granulado -= pq*35; saldos.copo -= pq*7; saldos.tampa -= pq*7; saldos.adesivo -= pq*7;
             } else { 
-                saldos.pudim += pq*6; 
-                saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*400; saldos.ovos -= pq*3; saldos.acucar -= pq*200; 
-                saldos.copo -= pq*6; saldos.tampa -= pq*6; saldos.adesivo -= pq*6;
+                saldos.pudim += pq*6; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*400; saldos.ovos -= pq*3; saldos.acucar -= pq*200; saldos.copo -= pq*6; saldos.tampa -= pq*6; saldos.adesivo -= pq*6;
             }
         });
 
         db.vendas.forEach(v => { 
             const pStr = v.produto || ''; const p = (pStr.includes('Combo')?3:1)*(v.qtd||1); const sabor = v.sabor || 'tradicional';
-            if (sabor === 'ninho') saldos.pudim_ninho -= p;
-            else if (sabor === 'brigadeirao') saldos.pudim_brig -= p;
-            else saldos.pudim -= p;
-
+            if (sabor === 'ninho') saldos.pudim_ninho -= p; else if (sabor === 'brigadeirao') saldos.pudim_brig -= p; else saldos.pudim -= p;
             saldos.colher -= p; 
             
             if (v.sacola1_tipo && v.sacola1_tipo !== 'nenhuma') { saldos[v.sacola1_tipo] -= (v.sacola1_qtd || 1); } 
-            else if (v.sacola && !v.sacola1_tipo) {
-                if (v.sacola === 'sacola_1') saldos.sacola_1 -= 1;
-                else if (v.sacola === 'sacola_2') saldos.sacola_2 -= 1;
-                else if (v.sacola !== 'nenhuma') saldos.sacola_1 -= 1;
-            }
-
+            else if (v.sacola && !v.sacola1_tipo) { if (v.sacola === 'sacola_1') saldos.sacola_1 -= 1; else if (v.sacola === 'sacola_2') saldos.sacola_2 -= 1; else if (v.sacola !== 'nenhuma') saldos.sacola_1 -= 1; }
             if (v.sacola2_tipo && v.sacola2_tipo !== 'nenhuma') { saldos[v.sacola2_tipo] -= (v.sacola2_qtd || 1); }
         });
 
         db.atacado.forEach(a => { 
             const p = a.qtd || 0; const sabor = a.sabor || 'tradicional';
-            if (sabor === 'ninho') saldos.pudim_ninho -= p;
-            else if (sabor === 'brigadeirao') saldos.pudim_brig -= p;
-            else saldos.pudim -= p;
+            if (sabor === 'ninho') saldos.pudim_ninho -= p; else if (sabor === 'brigadeirao') saldos.pudim_brig -= p; else saldos.pudim -= p;
             if(a.coposDevolvidos) saldos.copo += a.coposDevolvidos; 
         });
 
@@ -1129,20 +1014,15 @@
         mapKeys.forEach(k => {
             let el = document.getElementById('est-' + k);
             if(el) {
-                let val = saldos[k]; 
-                let suffix = (k==='leite_integral') ? ' ml' : ((k==='acucar' || k==='leite_po' || k==='nutella' || k==='chocolate_50' || k==='granulado') ? ' g' : ' un');
-                el.innerText = val + suffix; el.classList.remove('status-red', 'status-yellow', 'status-green');
-                el.classList.add(val <= 0 ? 'status-red' : 'status-green');
+                let val = saldos[k]; let suffix = (k==='leite_integral') ? ' ml' : ((k==='acucar' || k==='leite_po' || k==='nutella' || k==='chocolate_50' || k==='granulado') ? ' g' : ' un');
+                el.innerText = val + suffix; el.classList.remove('status-red', 'status-yellow', 'status-green'); el.classList.add(val <= 0 ? 'status-red' : 'status-green');
             }
         });
         
         document.getElementById('tbody-producoes').innerHTML = [...db.producoes].sort(sortByDateDesc).map(p => {
             const saborNome = p.sabor === 'ninho' ? 'Ninho' : (p.sabor === 'brigadeirao' ? 'Brigadeirão' : 'Tradicional');
             return `<tr><td style="font-size:0.85rem">${formatData(p.data)}</td><td>${saborNome}</td><td style="text-align:center; font-weight:bold">${p.qtd}</td>
-            <td style="display:flex; justify-content:center; gap:5px;">
-                <button class="btn-icon btn-edit" onclick="prepararEdicao('producoes', ${p.id})">✏️</button>
-                <button class="btn-icon btn-delete" onclick="db.producoes=db.producoes.filter(x=>x.id!=${p.id}); saveData()">🗑️</button>
-            </td></tr>`
+            <td style="display:flex; justify-content:center; gap:5px;"><button class="btn-icon btn-edit" onclick="prepararEdicao('producoes', ${p.id})">✏️</button><button class="btn-icon btn-delete" onclick="db.producoes=db.producoes.filter(x=>x.id!=${p.id}); saveData()">🗑️</button></td></tr>`
         }).join('');
         
         const mapItemNames = { leite_condensado: "L. Cond", leite_integral: "Leite", ovos: "Ovos", acucar: "Açúcar", copo: "Copos", tampa: "Tampas", sacola_1: "Sacolas (1 un)", sacola_2: "Sacolas (2 un)", adesivo: "Adesivos", colher: "Colheres", pudim: "Pudim Trad.", pudim_ninho: "Pudim Ninho", pudim_brig: "Brigadeirão", sacola: "Sacola Antiga", leite_po: "Leite em Pó", nutella: "Nutella", creme_leite: "Creme de Leite", chocolate_50: "Choc. 50%", granulado: "Granulado" };
@@ -1181,8 +1061,7 @@
         eventosEntrega.forEach(ev => {
             if (ev.tipo === 'entrada') saldoEntregas += ev.valor; 
             else if (ev.tipo === 'saida') {
-                if (saldoEntregas >= ev.valor) saldoEntregas -= ev.valor; 
-                else { descontoGerais += (ev.valor - saldoEntregas); saldoEntregas = 0; }
+                if (saldoEntregas >= ev.valor) saldoEntregas -= ev.valor; else { descontoGerais += (ev.valor - saldoEntregas); saldoEntregas = 0; }
             }
         });
         
@@ -1205,23 +1084,16 @@
         let sGiro = (abs_vGiro + abs_aGiro) - sqGiro;
         setTxt('.global-giro', sGiro);
         
-        const elGiroCard = document.getElementById('card-giro-historico');
-        if (elGiroCard) { elGiroCard.style.display = sGiro > 0 ? 'flex' : 'none'; }
+        const elGiroCard = document.getElementById('card-giro-historico'); if (elGiroCard) { elGiroCard.style.display = sGiro > 0 ? 'flex' : 'none'; }
         
         let totalConta = ((abs_vIns + abs_aIns) - (tAbsInsumos + tAbsEmbalagem)) + (((abs_vCg + abs_aCg) - tAbsGerais) - descontoGerais) + ((abs_vFundo + abs_aFundo) - tAbsMarketing) + ((abs_vMo + abs_aMo) - sqMO) + ((abs_vLu + abs_aLu) - sqLu) + ((abs_vBea + abs_aBea) - sqBea) + saldoEntregas + sGiro;
         document.getElementById('global-total-conta').innerText = formatMoney(totalConta);
         
         const roi = db.investimentos.reduce((acc, c) => acc + Number(c.valor||0), 0) - sqGiro;
-        const elRoiCard = document.getElementById('card-investimento');
-        const elRoiText = document.querySelector('.global-roi');
-        
-        if (elRoiCard) {
-            if (roi <= 0) elRoiCard.style.display = 'none'; 
-            else { elRoiCard.style.display = 'flex'; if (elRoiText) elRoiText.innerText = "Falta " + formatMoney(roi); }
-        }
+        const elRoiCard = document.getElementById('card-investimento'); const elRoiText = document.querySelector('.global-roi');
+        if (elRoiCard) { if (roi <= 0) elRoiCard.style.display = 'none'; else { elRoiCard.style.display = 'flex'; if (elRoiText) elRoiText.innerText = "Falta " + formatMoney(roi); } }
 
-        const filterMonth = document.getElementById('dash-filter-month').value;
-        const filterFn = (d) => !filterMonth || (d.data && d.data.startsWith(filterMonth));
+        const filterMonth = document.getElementById('dash-filter-month').value; const filterFn = (d) => !filterMonth || (d.data && d.data.startsWith(filterMonth));
         
         let vBruto=0, vLiq=0, vQtd=0, vIns=0, vCG=0, vMO=0, vLucro=0, vGiroF=0, vFundo=0, vLu=0, vBea=0, vEnt=0;
         db.vendas.filter(filterFn).forEach(v => {
@@ -1237,8 +1109,7 @@
         db.atacado.filter(filterFn).filter(a=>a.status==='PAGO').forEach(a => {
             aBruto += Number(a.totalBruto||0); aLiq += Number(a.totalLiquido||0); aQtd += Number(a.qtd||0); aDesc += Number(a.desconto||0);
             const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - ((a.coposDevolvidos||0)*db.config.custoCopo));
-            const base = Number(a.totalLiquido||0)-ins; 
-            const r = calcularRateio(base, a.data, a.usarRegraNova);
+            const base = Number(a.totalLiquido||0)-ins; const r = calcularRateio(base, a.data, a.usarRegraNova);
             aIns+=ins; aCG+=r.cg; aMO+=r.mo; aLucro+=r.lucro; aGiroF+=r.giro; aFundo+=r.fundo; aLu+=r.luyan; aBea+=r.beatriz;
         });
         document.getElementById('a-dash-bruto').innerText = formatMoney(aBruto); document.getElementById('a-dash-desconto').innerText = "- "+formatMoney(aDesc); document.getElementById('a-dash-liquido').innerText = formatMoney(aLiq); document.getElementById('a-dash-qtd').innerText = aQtd; document.getElementById('a-dash-insumos').innerText = formatMoney(aIns); document.getElementById('a-dash-cg').innerText = formatMoney(aCG); document.getElementById('a-dash-mo').innerText = formatMoney(aMO); document.getElementById('a-dash-lucro-restante').innerText = formatMoney(aLucro); document.getElementById('a-dash-giro').innerText = formatMoney(aGiroF); document.getElementById('a-dash-fundo').innerText = formatMoney(aFundo); document.getElementById('a-dash-luyan').innerText = formatMoney(aLu); document.getElementById('a-dash-beatriz').innerText = formatMoney(aBea);
@@ -1297,8 +1168,7 @@
         let htmlAta = '', atLiq=0, atIns=0, atGer=0, atMao=0, atLuc=0, atGiro=0, atFun=0, atLu=0, atBea=0;
         [...db.atacado].filter(a=>a.status === 'PAGO').sort(sortByDateDesc).forEach(a => {
             const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - (a.coposDevolvidos*db.config.custoCopo));
-            const base = Number(a.totalLiquido||0) - ins; 
-            const r = calcularRateio(base, a.data, a.usarRegraNova);
+            const base = Number(a.totalLiquido||0) - ins; const r = calcularRateio(base, a.data, a.usarRegraNova);
             atLiq+=Number(a.totalLiquido); atIns+=ins; atGer+=r.cg; atMao+=r.mo; atLuc+=r.lucro; atGiro+=r.giro; atFun+=r.fundo; atLu+=r.luyan; atBea+=r.beatriz;
             htmlAta += `<tr><td>${a.num}</td><td>${formatData(a.data)}</td><td>${formatMoney(a.totalLiquido)}</td><td style="color:red">-${formatMoney(ins)}</td><td style="color:red">-${formatMoney(r.cg)}</td><td style="color:red">-${formatMoney(r.mo)}</td><td style="color:green;font-weight:bold">${formatMoney(r.lucro)}</td><td>${formatMoney(r.giro)}</td><td>${formatMoney(r.fundo)}</td><td>${formatMoney(r.luyan)}</td><td>${formatMoney(r.beatriz)}</td></tr>`;
         });
@@ -1365,11 +1235,23 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
     
+    // --- FUNÇÃO DE RESTAURAR CORRIGIDA AQUI ---
     function importData(event) {
-        const file = event.target.files; if (!file) return;
+        const file = event.target.files[0]; // Correção: Pegando o primeiro arquivo corretamente
+        if (!file) return;
         const reader = new FileReader();
-        reader.onload = function(e) { try { db = loadDBData(JSON.parse(e.target.result)); saveData(); showToast("Restaurado!"); } catch (err) { alert("Erro JSON"); } };
+        reader.onload = function(e) { 
+            try { 
+                db = loadDBData(JSON.parse(e.target.result)); 
+                saveData(); // Isso já envia pro seu Firebase e LocalStorage!
+                showToast("Backup Restaurado com Sucesso!"); 
+                setTimeout(() => window.location.reload(), 1500); // Recarrega a tela com os dados velhos
+            } catch (err) { 
+                alert("Erro ao ler o arquivo JSON. O arquivo pode estar corrompido."); 
+            } 
+        };
         reader.readAsText(file);
+        event.target.value = ''; // Reseta o input para permitir selecionar de novo se precisar
     }
     
     async function exportarFechamentoMensal() {
