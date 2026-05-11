@@ -121,6 +121,11 @@
         body.viewer-mode .btn-pay { display: none !important; }
         body.viewer-mode input, body.viewer-mode select { pointer-events: none !important; background: #E5E7EB !important; color: #6B7280; }
 
+        .pagination-container { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; margin-bottom: 15px; }
+        .pagination-container button { background: var(--secondary); color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .pagination-container button:disabled { background: #D1D5DB; cursor: not-allowed; }
+        .pagination-container span { font-weight: 700; color: var(--text-muted); font-size: 0.85rem; }
+
         .toast { visibility: hidden; min-width: 250px; background-color: var(--secondary); color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 10000; bottom: 30px; right: 30px; font-size: 0.95rem; font-weight: 600; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); opacity: 0; transition: 0.3s; transform: translateY(20px); }
         .toast.show { visibility: visible; opacity: 1; transform: translateY(0); }
         
@@ -131,6 +136,7 @@
 
     <div id="toast" class="toast">Ação salva com sucesso!</div>
 
+    <!-- POPUP SAQUE -->
     <div id="modal-saque" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; animation: fadeIn 0.2s;">
         <div class="card" style="width: 90%; max-width: 400px; padding: 2rem;">
             <h3 class="section-title" id="modal-saque-title" style="margin-top: 0; border-bottom: none; color: var(--primary);">💸 Novo Saque</h3>
@@ -147,6 +153,7 @@
         </div>
     </div>
 
+    <!-- POPUP AJUSTE CAIXA -->
     <div id="modal-ajuste-caixa" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; animation: fadeIn 0.2s;">
         <div class="card" style="width: 90%; max-width: 400px; padding: 2rem;">
             <h3 class="section-title" id="modal-ajuste-title" style="margin-top: 0; border-bottom: none; color: var(--primary);">⚖️ Ajustar Valor</h3>
@@ -180,7 +187,7 @@
             <h1>🍮 Pudim Du Cariri</h1>
             <div class="header-actions">
                 <span id="user-badge" style="font-size: 0.8rem; color: #FDE68A; font-weight: 600; margin-right: 10px;"></span>
-                <button onclick="forceSaveManual()" style="background-color: var(--success); font-weight:bold;">💾 Salvar</button>
+                <button onclick="saveDataManual()" style="background-color: var(--success) !important;">💾 SALVAR</button>
                 <button onclick="exportDataBlob()">💾 Backup</button>
                 <button onclick="document.getElementById('importFile').click()">📂 Restaurar</button>
                 <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
@@ -214,10 +221,8 @@
             <h2 class="section-title" style="color: var(--success); border-color: var(--success);">💰 CAIXA REAL (FÍSICO)</h2>
             <div class="dashboard-grid">
                 <div class="card destaque" style="grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; padding: 1.5rem;">
-                    <div><h3 style="margin-bottom: 5px;">Dinheiro Total Disponível</h3>
-                        <p id="global-total-conta">R$ 0,00</p>
-                    </div>
-                    <button class="btn-action-small" style="width: auto; padding: 8px 15px; margin-top: 0; background: #FDE68A; color: black;" onclick="abrirModalAjusteCaixa('Caixa Geral')">⚖️ Ajustar Valor</button>
+                    <div><h3 style="margin-bottom: 5px;">Dinheiro Total Disponível</h3><p id="global-total-conta">R$ 0,00</p></div>
+                    <button class="btn-action-small" style="width: auto; background: #FDE68A; color: black; padding: 8px 15px; margin-top:0;" onclick="abrirModalAjusteCaixa('Caixa Geral')">⚖️ Ajustar Valor</button>
                 </div>
             </div>
 
@@ -302,7 +307,7 @@
             <div class="table-container mt-2">
                 <table><thead><tr><th>Data</th><th>Cliente</th><th>Qtd</th><th>Valor</th><th>Ação</th></tr></thead><tbody id="tbody-receber"></tbody></table>
             </div>
-            <div id="pag-receber"></div>
+            <div id="pag-receber" class="pagination-container"></div>
         </div>
 
         <div id="estoque" class="content">
@@ -424,12 +429,12 @@
                 <div style="flex:1; min-width:300px;" class="table-container table-compact">
                     <h3 class="section-title" style="border:none; margin-bottom:10px;">Histórico Receitas</h3>
                     <table><thead><tr><th>Data</th><th>Sabor</th><th style="text-align:center">Qtd</th><th style="text-align:center">Ação</th></tr></thead><tbody id="tbody-producoes"></tbody></table>
-                    <div id="pag-producoes"></div>
+                    <div id="pag-producoes" class="pagination-container"></div>
                 </div>
                 <div style="flex:1; min-width:300px;" class="table-container">
                     <h3 class="section-title" style="border:none; margin-bottom:10px;">Histórico Ajustes e Perdas</h3>
                     <table><thead><tr><th>Data</th><th>Item</th><th>Mov</th><th>Motivo/Obs</th><th>Ação</th></tr></thead><tbody id="tbody-estoquemov"></tbody></table>
-                    <div id="pag-estoqueMov"></div>
+                    <div id="pag-estoqueMov" class="pagination-container"></div>
                 </div>
             </div>
         </div>
@@ -545,7 +550,7 @@
                     <tbody id="tbody-vendas"></tbody>
                 </table>
             </div>
-            <div id="pag-vendas"></div>
+            <div id="pag-vendas" class="pagination-container"></div>
         </div>
 
         <div id="atacado" class="content">
@@ -566,18 +571,18 @@
             <div class="table-container mt-2">
                 <table><thead><tr><th>#</th><th>Data</th><th>Cliente</th><th>Sabor</th><th>Qtd</th><th>Liq</th><th>Status</th><th>Ação</th></tr></thead><tbody id="tbody-atacado"></tbody></table>
             </div>
-            <div id="pag-atacado"></div>
+            <div id="pag-atacado" class="pagination-container"></div>
         </div>
 
         <div id="rateio" class="content">
             <h2 class="section-title" style="margin-bottom: 1rem;">Detalhamento Financeiro</h2>
             <h3 class="section-title">Varejo</h3>
             <div class="table-container"><table><thead><tr><th>#</th><th>Data</th><th>Liq</th><th>Ins</th><th>Gerais</th><th>Mão</th><th>Lucro</th><th>Giro (Antigo)</th><th>Fundo</th><th>Lu</th><th>Bea</th></tr></thead><tbody id="tbody-rateio-varejo"></tbody></table></div>
-            <div id="pag-rateio-varejo" style="margin-bottom: 20px;"></div>
+            <div id="pag-rateio-varejo" class="pagination-container" style="margin-bottom: 20px;"></div>
             
             <h3 class="section-title mt-2">Atacado</h3>
             <div class="table-container"><table><thead><tr><th>#</th><th>Data</th><th>Liq</th><th>Ins</th><th>Gerais</th><th>Mão</th><th>Lucro</th><th>Giro (Antigo)</th><th>Fundo</th><th>Lu</th><th>Bea</th></tr></thead><tbody id="tbody-rateio-atacado"></tbody></table></div>
-            <div id="pag-rateio-atacado"></div>
+            <div id="pag-rateio-atacado" class="pagination-container"></div>
         </div>
 
         <div id="despesas" class="content">
@@ -593,7 +598,7 @@
                 <button class="btn-submit" id="btn-submit-despesas" onclick="addDespesa()">Salvar Despesa</button>
             </div>
             <div class="table-container mt-2"><table><thead><tr><th>#</th><th>Data</th><th>Item</th><th>Total</th><th>Cat</th><th>Ação</th></tr></thead><tbody id="tbody-despesas"></tbody></table></div>
-            <div id="pag-despesas"></div>
+            <div id="pag-despesas" class="pagination-container"></div>
         </div>
 
         <div id="extrato" class="content">
@@ -608,7 +613,7 @@
                 <button class="btn-submit" id="btn-submit-pagamentos" onclick="addPagamento()">Registrar Saque</button>
             </div>
             <div class="table-container mt-2"><table><thead><tr><th>Data</th><th>Origem</th><th>Valor</th><th>Obs</th><th>Ação</th></tr></thead><tbody id="tbody-pagamentos"></tbody></table></div>
-            <div id="pag-pagamentos"></div>
+            <div id="pag-pagamentos" class="pagination-container"></div>
         </div>
 
     </div>
@@ -690,11 +695,9 @@
         if(!container) return;
         let p = currentPage[listKey];
         container.innerHTML = `
-            <div style="display:flex; justify-content:center; gap:10px; margin-top:10px; margin-bottom:10px;">
-                <button class="btn-action-small" style="width:auto; background:var(--secondary);" onclick="mudarPagina('${listKey}', -1)" ${p <= 1 ? 'disabled' : ''}>Anterior</button>
-                <span style="align-self:center; font-weight:bold; font-size:0.85rem; color:var(--text-muted);">Pág ${p} de ${totalPages}</span>
-                <button class="btn-action-small" style="width:auto; background:var(--secondary);" onclick="mudarPagina('${listKey}', 1)" ${p >= totalPages ? 'disabled' : ''}>Próxima</button>
-            </div>
+            <button class="btn-action-small" style="width:auto; background:var(--secondary); padding: 5px 15px;" onclick="mudarPagina('${listKey}', -1)" ${p <= 1 ? 'disabled' : ''}>Anterior</button>
+            <span>Pág ${p} de ${totalPages}</span>
+            <button class="btn-action-small" style="width:auto; background:var(--secondary); padding: 5px 15px;" onclick="mudarPagina('${listKey}', 1)" ${p >= totalPages ? 'disabled' : ''}>Próxima</button>
         `;
     }
 
@@ -811,27 +814,55 @@
         if(isOnline) firebase.database().ref('pudimAppDB').set(db);
     }
     
-    function forceSaveManual() {
+    // ============================================
+    // Correção: BOTAO DE SALVAR (HEADER) EXIBE AVISO
+    // ============================================
+    function saveDataManual() {
         saveData();
         showToast("Dados sincronizados com sucesso!");
     }
     
-    // Função para exportar os dados JSON que foi adicionada e corrigida
+    function forceSaveManual() {
+        saveDataManual();
+    }
+    
+    // ============================================
+    // Correção: BOTAO DE BACKUP
+    // ============================================
     function exportDataBlob() {
         try {
             const dataStr = JSON.stringify(db, null, 2);
-            const blob = new Blob([dataStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = "backup_pudim_" + new Date().toISOString().split('T')[0] + ".json";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const blob = new Blob([dataStr], { type: "application/json;charset=utf-8" });
+            
+            if (window.saveAs) {
+                // Utilizando a biblioteca FileSaver.js que já estava no seu <head>
+                window.saveAs(blob, "backup_pudim_" + getTodayDate() + ".json");
+            } else {
+                // Fallback para download nativo
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = "backup_pudim_" + getTodayDate() + ".json";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
             showToast("Backup gerado com sucesso!");
         } catch (e) {
             alert("Erro ao gerar backup: " + e.message);
         }
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            db = JSON.parse(e.target.result);
+            saveData();
+            location.reload();
+        };
+        reader.readAsText(file);
     }
 
     function resetarSistema() {
@@ -1050,12 +1081,19 @@
         document.getElementById('modal-saque').style.display = 'flex'; document.getElementById('modal-saque-valor').focus();
     }
 
+    // ============================================
+    // Correção: CONFIRMAR SAQUE FECHA POPUP E MOSTRA AVISO
+    // ============================================
     function confirmarSaqueDashboard() {
         const tipo = document.getElementById('modal-saque-tipo').value; const data = document.getElementById('modal-saque-data').value;
         const valor = parseFloat(document.getElementById('modal-saque-valor').value); const obs = document.getElementById('modal-saque-obs').value || '';
+        
         if(!valor || isNaN(valor)) return alert('Insira um valor válido.');
-        db.pagamentos.push({ id: Date.now(), data, valor, tipo, obs }); saveData();
-        document.getElementById('modal-saque').style.display = 'none'; showToast("Saque Registrado!");
+        db.pagamentos.push({ id: Date.now(), data, valor, tipo, obs }); 
+        saveData();
+        
+        document.getElementById('modal-saque').style.display = 'none'; // Fecha o popup
+        showToast("Saque Registrado com Sucesso!"); // Mostra aviso
     }
 
     function abrirModalAjusteCaixa(box) {
@@ -1067,7 +1105,9 @@
         document.getElementById('modal-ajuste-valor').focus();
     }
 
-    // --- CÓDIGO ATUALIZADO: FECHAR POPUP APÓS AJUSTE ---
+    // ============================================
+    // Correção: CONFIRMAR AJUSTE CAIXA FECHA POPUP E MOSTRA AVISO
+    // ============================================
     function confirmarAjusteCaixa() {
         const box = document.getElementById('modal-ajuste-box').value;
         const op = document.getElementById('modal-ajuste-op').value;
@@ -1079,10 +1119,14 @@
         
         db.ajustesCaixas.push({ id: Date.now(), caixa: box, data: data, valor: valor });
         saveData();
-        document.getElementById('modal-ajuste-caixa').style.display = 'none';
-        showToast("Ajuste em " + box + " realizado!"); // Mostra toast e o popup já fecha acima
+        
+        document.getElementById('modal-ajuste-caixa').style.display = 'none'; // Fecha o popup
+        showToast("Ajuste em " + box + " realizado com sucesso!"); // Mostra aviso
     }
 
+    // ============================================
+    // Correção: ADICIONAR CONTAGEM MANUAL (LIMPA CAMPOS E MOSTRA AVISO)
+    // ============================================
     function addContagemManual() {
         const mes = document.getElementById('cnt-mes').value;
         const tipo = document.getElementById('cnt-tipo').value;
@@ -1091,8 +1135,9 @@
         
         db.ajustesContagem.push({ id: Date.now(), mes: mes, tipo: tipo, qtd: qtd });
         saveData();
-        showToast("Contagem Manual Adicionada!");
-        document.getElementById('cnt-qtd').value = '';
+        
+        document.getElementById('cnt-qtd').value = ''; // Limpa o campo
+        showToast("Contagem Manual Adicionada com sucesso!");
     }
 
     function addProducao() {
@@ -1137,7 +1182,7 @@
         if(novo === null) return; novo = parseFloat(novo.replace(',', '.')); if(isNaN(novo)) return alert("Inválido");
         let diferenca = novo - atual; if(diferenca === 0) return;
         db.estoqueMov.push({ id: Date.now(), data: getTodayDate(), tipo: diferenca > 0 ? 'entrada' : 'saida', item: itemKey, qtd: Math.abs(diferenca), desc: 'Ajuste Rápido (Painel)' });
-        saveData(); showToast("Estoque Ajustado!");
+        saveData(); showToast("Estoque Ajustado com sucesso!");
     }
 
     function updateAll() { updateDashboard(); renderEstoque(); renderTabelas(); renderContagem(); renderConfig(); }
@@ -1179,32 +1224,65 @@
         return saldos;
     }
     
-    // --- CÓDIGO ATUALIZADO: GARANTINDO BUSCA DE TODOS OS MESES ANTIGOS ---
+    // ============================================
+    // Correção: ABA CONTAGEM PEGANDO TODO O PASSADO DE FORMA SEGURA
+    // ============================================
     function renderContagem() {
         let dados = {};
+        
+        // Varejo
         db.vendas.forEach(v => {
-            let mes = (v.data || "").substring(0,7);
+            let dStr = v.data || "";
+            let mes = dStr.length >= 7 ? dStr.substring(0,7) : 'Sem Data';
             if(!dados[mes]) dados[mes] = {v:0, a:0};
-            dados[mes].v += (v.produto && v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
+            
+            let q = 1;
+            if (v.produto) { q = v.produto.toLowerCase().includes('combo') ? 3 : 1; }
+            dados[mes].v += q * (parseInt(v.qtd) || 1);
         });
-        db.atacado.filter(a=>a.status==='PAGO').forEach(a => {
-            let mes = (a.data || "").substring(0,7);
+        
+        // Atacado (Apenas Pagos)
+        db.atacado.forEach(a => {
+            if (a.status !== 'PAGO') return;
+            let dStr = a.data || "";
+            let mes = dStr.length >= 7 ? dStr.substring(0,7) : 'Sem Data';
             if(!dados[mes]) dados[mes] = {v:0, a:0};
-            dados[mes].a += (a.qtd || 0);
+            dados[mes].a += (parseInt(a.qtd) || 0);
         });
+        
+        // Ajustes Manuais da Contagem
         db.ajustesContagem.forEach(aj => {
-            let mes = aj.mes;
+            let mes = aj.mes || 'Sem Data';
             if(!dados[mes]) dados[mes] = {v:0, a:0};
-            if(aj.tipo === 'varejo') dados[mes].v += aj.qtd;
-            else dados[mes].a += aj.qtd;
+            if(aj.tipo === 'varejo') dados[mes].v += parseInt(aj.qtd) || 0;
+            else dados[mes].a += parseInt(aj.qtd) || 0;
         });
         
         let html = '';
+        
+        // Ordena do mais recente para o mais antigo
         Object.keys(dados).sort().reverse().forEach(m => {
             let t = dados[m].v + dados[m].a;
-            html += `<tr><td>${m}</td><td>${dados[m].v}</td><td>${dados[m].a}</td><td style="font-weight:bold; color:var(--primary);">${t}</td></tr>`;
+            
+            // Formatar de '2026-05' para 'Mai / 2026'
+            let mesFormatado = m;
+            if(m.includes('-')) {
+                const [y, mm] = m.split('-');
+                const mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                if(parseInt(mm) >= 1 && parseInt(mm) <= 12) {
+                    mesFormatado = `${mesesNomes[parseInt(mm)-1]} / ${y}`;
+                }
+            }
+
+            html += `<tr>
+                <td>${mesFormatado}</td>
+                <td>${dados[m].v}</td>
+                <td>${dados[m].a}</td>
+                <td style="font-weight:bold; color:var(--primary);">${t}</td>
+            </tr>`;
         });
-        document.getElementById('tbody-contagem').innerHTML = html || '<tr><td colspan="4" style="text-align:center;">Nenhum dado</td></tr>';
+        
+        document.getElementById('tbody-contagem').innerHTML = html || '<tr><td colspan="4" style="text-align:center;">Nenhum dado cadastrado</td></tr>';
     }
 
     function renderEstoque() {
@@ -1521,7 +1599,18 @@
 
         const buffer = await wb.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-        saveAs(blob, "Fechamento_Completo_PudimDuCariri.xlsx");
+        
+        if (window.saveAs) {
+            window.saveAs(blob, "Fechamento_Completo_PudimDuCariri.xlsx");
+        } else {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = "Fechamento_Completo_PudimDuCariri.xlsx";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
         
         showToast("Fechamento Gerado com Sucesso!");
     }
