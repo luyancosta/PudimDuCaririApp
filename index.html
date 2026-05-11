@@ -2727,67 +2727,27 @@
         addAba('Atacado', 'FF8B5CF6', 
 
             ["ID", "Data", "Cliente", "Sabor", "Status", "Qtd", "Copos Dev", "Valor Un", "Bruto", "Desc Log", "Líquido", "Insumo", "Custos Gerais", "Mão de Obra", "Lucro", "Giro (Antigo)", "Fundo (15%)", "Luyan", "Beatriz"], 
-
             rowsAtacado, [8,9,10,11,12,13,14,15,16,17,18,19], [6,7,9,10,11,12,13,14,15,16,17,18,19] 
-
         );
-
-
-
         const rowsDespesas = db.despesas.map(d => [d.num, formatData(d.data), d.categoria, d.item, Number(d.qtd), Number(d.unitario), Number(d.total)]);
-
         addAba('Despesas', 'FFEF4444', ["ID", "Data", "Categoria", "Item", "Qtd", "Valor Un", "Total Gasto"], rowsDespesas, [6, 7], [5, 7]);
-
-
-
         const rowsSaques = db.pagamentos.map(p => [formatData(p.data), descTipoMap[p.tipo] || p.tipo, Number(p.valor), p.obs || '']);
-
         addAba('Extrato de Saques', 'FFF59E0B', ["Data", "Origem (Caixinha)", "Valor Sacado", "Observação"], rowsSaques, [3], [3]);
-
-
-
         const rowsProducoes = db.producoes.map(p => {
-
             const saborNome = p.sabor === 'ninho' ? 'Ninho' : (p.sabor === 'brigadeirao' ? 'Brigadeirão' : 'Tradicional');
-
             return [formatData(p.data), saborNome, Number(p.qtd)];
-
         });
-
         addAba('Receitas Batidas', 'FF3B82F6', ["Data", "Sabor", "Qtd Receitas Feitas"], rowsProducoes, [], [3]);
-
-
-
         const rowsEstoque = db.estoqueMov.map(m => [formatData(m.data), m.item, m.tipo, Number(m.qtd), m.desc]);
-
         addAba('Ajustes Estoque', 'FF6B7280', ["Data", "Item", "Tipo (Ent/Sai)", "Qtd", "Motivo"], rowsEstoque, [], []);
-
-
-
         const rowsInvestimentos = db.investimentos.map(i => [formatData(i.data), i.item, Number(i.valor)]);
-
         addAba('Investimentos', 'FF111827', ["Data", "Item", "Valor Investido"], rowsInvestimentos, [3], [3]);
-
-
-
         const buffer = await wb.xlsx.writeBuffer();
-
         const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-
         saveAs(blob, "Fechamento_Completo_PudimDuCariri.xlsx");
-
-        
-
         showToast("Fechamento Gerado com Sucesso!");
-
     }
-
-
-
     init();
-
 </script>
-
 </body>
-
 </html>
