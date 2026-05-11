@@ -813,9 +813,27 @@
     
     function forceSaveManual() {
         saveData();
-        showToast("Dados salvos e confirmados!");
+        showToast("Dados sincronizados com sucesso!");
     }
     
+    // Função para exportar os dados JSON que foi adicionada e corrigida
+    function exportDataBlob() {
+        try {
+            const dataStr = JSON.stringify(db, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = "backup_pudim_" + new Date().toISOString().split('T')[0] + ".json";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Backup gerado com sucesso!");
+        } catch (e) {
+            alert("Erro ao gerar backup: " + e.message);
+        }
+    }
+
     function resetarSistema() {
         if(confirm("ATENÇÃO: Você está prestes a ZERAR TODOS OS DADOS do sistema. Tem certeza?")) {
             let check = prompt("Digite CONFIRMAR para apagar tudo:");
@@ -1049,6 +1067,7 @@
         document.getElementById('modal-ajuste-valor').focus();
     }
 
+    // --- CÓDIGO ATUALIZADO: FECHAR POPUP APÓS AJUSTE ---
     function confirmarAjusteCaixa() {
         const box = document.getElementById('modal-ajuste-box').value;
         const op = document.getElementById('modal-ajuste-op').value;
@@ -1061,7 +1080,7 @@
         db.ajustesCaixas.push({ id: Date.now(), caixa: box, data: data, valor: valor });
         saveData();
         document.getElementById('modal-ajuste-caixa').style.display = 'none';
-        showToast("Ajuste aplicado com sucesso!");
+        showToast("Ajuste em " + box + " realizado!"); // Mostra toast e o popup já fecha acima
     }
 
     function addContagemManual() {
@@ -1160,23 +1179,24 @@
         return saldos;
     }
     
+    // --- CÓDIGO ATUALIZADO: GARANTINDO BUSCA DE TODOS OS MESES ANTIGOS ---
     function renderContagem() {
         let dados = {};
         db.vendas.forEach(v => {
             let mes = (v.data || "").substring(0,7);
             if(!dados[mes]) dados[mes] = {v:0, a:0};
-            dados[mes].v += (v.produto.includes('Combo')?3:1)*(v.qtd||1);
+            dados[mes].v += (v.produto && v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
         });
         db.atacado.filter(a=>a.status==='PAGO').forEach(a => {
             let mes = (a.data || "").substring(0,7);
             if(!dados[mes]) dados[mes] = {v:0, a:0};
-            dados[mes].a += (a.qtd||0);
+            dados[mes].a += (a.qtd || 0);
         });
         db.ajustesContagem.forEach(aj => {
             let mes = aj.mes;
             if(!dados[mes]) dados[mes] = {v:0, a:0};
             if(aj.tipo === 'varejo') dados[mes].v += aj.qtd;
-            if(aj.tipo === 'atacado') dados[mes].a += aj.qtd;
+            else dados[mes].a += aj.qtd;
         });
         
         let html = '';
@@ -1278,7 +1298,6 @@
         let totalConta = totalContaOriginal + sumCaixinhasAjustes + caixasAjustes['Caixa Geral'];
         document.getElementById('global-total-conta').innerText = formatMoney(totalConta);
         
-        // ... (resto do updateDashboard original mantido)
         const filterMonth = document.getElementById('dash-filter-month').value; const filterFn = (d) => !filterMonth || (d.data && d.data.startsWith(filterMonth));
         
         let vBruto=0, vLiq=0, vQtd=0, vIns=0, vCG=0, vMO=0, vLucro=0, vGiroF=0, vFundo=0, vLu=0, vBea=0, vEnt=0;
