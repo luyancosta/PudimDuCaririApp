@@ -1277,7 +1277,7 @@
         db.producoes.forEach(p => { 
             const pq = p.qtd || 0; const sabor = p.sabor || 'tradicional';
             if (sabor === 'ninho') {
-                const calcNinhoGrams = Number((7 * 100 / 12).toFixed(2));
+                const calcNinhoGrams = (7 * 100 / 12);
                 saldos.pudim_ninho += pq*7; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*400; saldos.ovos -= pq*3; saldos.leite_po -= pq*130; saldos.nutella -= pq*calcNinhoGrams; saldos.creme_leite -= pq*calcNinhoGrams; saldos.copo -= pq*7; saldos.tampa -= pq*7; saldos.adesivo -= pq*7;
             } else if (sabor === 'brigadeirao') {
                 saldos.pudim_brig += pq*7; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*200; saldos.ovos -= pq*3; saldos.creme_leite -= pq*200; saldos.chocolate_50 -= pq*90; saldos.granulado -= pq*35; saldos.copo -= pq*7; saldos.tampa -= pq*7; saldos.adesivo -= pq*7;
@@ -1364,7 +1364,9 @@
         mapKeys.forEach(k => {
             let el = document.getElementById('est-' + k);
             if(el) {
-                let val = saldos[k]; let suffix = (k==='leite_integral') ? ' ml' : ((k==='acucar' || k==='leite_po' || k==='nutella' || k==='chocolate_50' || k==='granulado' || k==='creme_leite') ? ' g' : ' un');
+                // CORREÇÃO AQUI: Garante que números com muitas casas decimais sejam arredondados para no máximo 2 casas
+                let val = parseFloat(saldos[k].toFixed(2)); 
+                let suffix = (k==='leite_integral') ? ' ml' : ((k==='acucar' || k==='leite_po' || k==='nutella' || k==='chocolate_50' || k==='granulado' || k==='creme_leite') ? ' g' : ' un');
                 el.innerText = val + suffix; el.classList.remove('status-red', 'status-yellow', 'status-green'); el.classList.add(val <= 0 ? 'status-red' : 'status-green');
             }
         });
