@@ -441,11 +441,19 @@
             <h2 class="section-title">⚙️ Parâmetros do Sistema</h2>
             <div class="card mb-2">
                 <div class="form-grid">
+                    <div class="form-group" style="grid-column: 1 / -1;"><h4 style="color: var(--primary); margin-bottom: 5px;">Tabela VAREJO</h4><hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 10px;"></div>
+                    <div class="form-group"><label>Custo Insumo Tradicional</label><input type="number" id="cfg-custo-insumo-trad-varejo" step="0.01"></div>
+                    <div class="form-group"><label>Custo Insumo Ninho</label><input type="number" id="cfg-custo-insumo-ninho-varejo" step="0.01"></div>
+                    <div class="form-group"><label>Custo Insumo Brigadeirão</label><input type="number" id="cfg-custo-insumo-brig-varejo" step="0.01"></div>
+                    
+                    <div class="form-group" style="grid-column: 1 / -1; margin-top: 10px;"><h4 style="color: #8B5CF6; margin-bottom: 5px;">Tabela ATACADO</h4><hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 10px;"></div>
+                    <div class="form-group"><label>Custo Insumo Tradicional</label><input type="number" id="cfg-custo-insumo-trad-atacado" step="0.01"></div>
+                    <div class="form-group"><label>Custo Insumo Ninho</label><input type="number" id="cfg-custo-insumo-ninho-atacado" step="0.01"></div>
+                    <div class="form-group"><label>Custo Insumo Brigadeirão</label><input type="number" id="cfg-custo-insumo-brig-atacado" step="0.01"></div>
+                    
+                    <div class="form-group" style="grid-column: 1 / -1; margin-top: 10px;"><h4 style="color: var(--secondary); margin-bottom: 5px;">Outros Valores</h4><hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 10px;"></div>
                     <div class="form-group"><label>Preço Venda (Unidade)</label><input type="number" id="cfg-preco-und" step="0.01"></div>
                     <div class="form-group"><label>Preço Venda (Combo)</label><input type="number" id="cfg-preco-combo" step="0.01"></div>
-                    <div class="form-group"><label>Custo Insumo Tradicional</label><input type="number" id="cfg-custo-insumo-tradicional" step="0.01"></div>
-                    <div class="form-group"><label>Custo Insumo Ninho</label><input type="number" id="cfg-custo-insumo-ninho" step="0.01"></div>
-                    <div class="form-group"><label>Custo Insumo Brigadeirão</label><input type="number" id="cfg-custo-insumo-brigadeirao" step="0.01"></div>
                     <div class="form-group"><label>Valor Abatimento Copo</label><input type="number" id="cfg-custo-copo" step="0.01"></div>
                     <div class="form-group"><label>Taxa Crédito (Inserção) %</label><input type="number" id="cfg-taxa-cred-ins" step="0.01"></div>
                     <div class="form-group"><label>Taxa Crédito (Aprox) %</label><input type="number" id="cfg-taxa-cred-apr" step="0.01"></div>
@@ -463,11 +471,12 @@
                     <div class="form-group"><label>Leite Condensado (Und)</label><input type="number" id="calc-pre-lc" value="6.50" step="0.01" oninput="recalcularFichasSimuladas()"></div>
                     <div class="form-group"><label>Leite Integral (Litro)</label><input type="number" id="calc-pre-li" value="4.50" step="0.01" oninput="recalcularFichasSimuladas()"></div>
                     <div class="form-group"><label>Ovos (Pacote c/ 20 und)</label><input type="number" id="calc-pre-ov" value="13.00" step="0.01" oninput="recalcularFichasSimuladas()"></div>
-                    <div class="form-group"><label>Açúcar (Kg)</label><input type="number" id="calc-pre-ac" value="4.50" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                    <div class="form-group"><label>Açúcar (Kg)</label><input type="number" id="calc-pre-ac" value="4.00" step="0.01" oninput="recalcularFichasSimuladas()"></div>
                     <div class="form-group"><label>Copo (Und)</label><input type="number" id="calc-pre-cp" value="1.65" step="0.01" oninput="recalcularFichasSimuladas()"></div>
                     <div class="form-group"><label>Tampa (Und)</label><input type="number" id="calc-pre-tp" value="1.20" step="0.01" oninput="recalcularFichasSimuladas()"></div>
                     <div class="form-group"><label>Adesivo (Und)</label><input type="number" id="calc-pre-ad" value="0.55" step="0.01" oninput="recalcularFichasSimuladas()"></div>
                     <div class="form-group"><label>Sacola (Und)</label><input type="number" id="calc-pre-sc" value="0.70" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                    <div class="form-group"><label>Colher (Und)</label><input type="number" id="calc-pre-co" value="0.20" step="0.01" oninput="recalcularFichasSimuladas()"></div>
                     <div class="form-group"><label>Leite em Pó (Kg)</label><input type="number" id="calc-pre-lp" value="30.00" step="0.01" oninput="recalcularFichasSimuladas()"></div>
                     <div class="form-group"><label>Nutella (Kg)</label><input type="number" id="calc-pre-nt" value="60.00" step="0.01" oninput="recalcularFichasSimuladas()"></div>
                     <div class="form-group"><label>Creme de Leite (Kg)</label><input type="number" id="calc-pre-cl" value="18.00" step="0.01" oninput="recalcularFichasSimuladas()"></div>
@@ -677,7 +686,8 @@
     let db = {
         "config": {
             "precoUnd": 15, "precoCombo": 40, 
-            "custoInsumoTradicional": 5.30, "custoInsumoNinho": 6.60, "custoInsumoBrigadeirao": 6.00,
+            "custoInsumoTradVarejo": 6.20, "custoInsumoNinhoVarejo": 7.50, "custoInsumoBrigVarejo": 6.90,
+            "custoInsumoTradAtacado": 5.30, "custoInsumoNinhoAtacado": 6.60, "custoInsumoBrigAtacado": 6.00,
             "taxaCredIns": 4.98, "taxaCredApr": 3.09, "taxaDebIns": 1.99, "taxaDebApr": 0.89,
             "custoCopo": 1.5, "taxaCartaoOnline": 2.99
         },
@@ -762,12 +772,19 @@
         return { cg, mo, lucro, giro, fundo, luyan, beatriz };
     }
 
-    const getCustoInsumo = (sabor) => {
+    const getCustoInsumo = (sabor, tipo) => {
         if (!db.config) return 5.30;
         const s = (sabor || 'tradicional').toLowerCase();
-        if (s === 'ninho') return db.config.custoInsumoNinho !== undefined ? db.config.custoInsumoNinho : 6.60;
-        if (s === 'brigadeirao' || s === 'brigadeirão') return db.config.custoInsumoBrigadeirao !== undefined ? db.config.custoInsumoBrigadeirao : 6.00;
-        return db.config.custoInsumoTradicional !== undefined ? db.config.custoInsumoTradicional : 5.30;
+        const t = (tipo || 'varejo').toLowerCase();
+        if (t === 'atacado') {
+            if (s === 'ninho') return db.config.custoInsumoNinhoAtacado !== undefined ? db.config.custoInsumoNinhoAtacado : 6.60;
+            if (s === 'brigadeirao' || s === 'brigadeirão') return db.config.custoInsumoBrigAtacado !== undefined ? db.config.custoInsumoBrigAtacado : 6.00;
+            return db.config.custoInsumoTradAtacado !== undefined ? db.config.custoInsumoTradAtacado : 5.30;
+        } else {
+            if (s === 'ninho') return db.config.custoInsumoNinhoVarejo !== undefined ? db.config.custoInsumoNinhoVarejo : 7.50;
+            if (s === 'brigadeirao' || s === 'brigadeirão') return db.config.custoInsumoBrigVarejo !== undefined ? db.config.custoInsumoBrigVarejo : 6.90;
+            return db.config.custoInsumoTradVarejo !== undefined ? db.config.custoInsumoTradVarejo : 6.20;
+        }
     };
 
     const globalCardsTemplate = `
@@ -843,10 +860,16 @@
     function fazerLogout() { firebase.auth().signOut(); window.location.reload(); }
 
     function loadDBData(data) {
-        if(!data.config) data.config = { precoUnd: 15, precoCombo: 40, custoInsumoTradicional: 5.30, custoInsumoNinho: 6.60, custoInsumoBrigadeirao: 6.00, taxaCredIns: 4.98, taxaCredApr: 3.09, taxaDebIns: 1.99, taxaDebApr: 0.89, custoCopo: 1.5, taxaCartaoOnline: 2.99 };
-        if(data.config.custoInsumoTradicional === undefined) data.config.custoInsumoTradicional = 5.30;
-        if(data.config.custoInsumoNinho === undefined) data.config.custoInsumoNinho = 6.60;
-        if(data.config.custoInsumoBrigadeirao === undefined) data.config.custoInsumoBrigadeirao = 6.00;
+        if(!data.config) data.config = { precoUnd: 15, precoCombo: 40, custoInsumoTradVarejo: 6.20, custoInsumoNinhoVarejo: 7.50, custoInsumoBrigVarejo: 6.90, custoInsumoTradAtacado: 5.30, custoInsumoNinhoAtacado: 6.60, custoInsumoBrigAtacado: 6.00, taxaCredIns: 4.98, taxaCredApr: 3.09, taxaDebIns: 1.99, taxaDebApr: 0.89, custoCopo: 1.5, taxaCartaoOnline: 2.99 };
+        
+        // Migração caso seja um banco antigo sem as novas propriedades separadas
+        if(data.config.custoInsumoTradAtacado === undefined) data.config.custoInsumoTradAtacado = data.config.custoInsumoTradicional !== undefined ? data.config.custoInsumoTradicional : 5.30;
+        if(data.config.custoInsumoNinhoAtacado === undefined) data.config.custoInsumoNinhoAtacado = data.config.custoInsumoNinho !== undefined ? data.config.custoInsumoNinho : 6.60;
+        if(data.config.custoInsumoBrigAtacado === undefined) data.config.custoInsumoBrigAtacado = data.config.custoInsumoBrigadeirao !== undefined ? data.config.custoInsumoBrigadeirao : 6.00;
+        
+        if(data.config.custoInsumoTradVarejo === undefined) data.config.custoInsumoTradVarejo = data.config.custoInsumoTradAtacado + 0.90;
+        if(data.config.custoInsumoNinhoVarejo === undefined) data.config.custoInsumoNinhoVarejo = data.config.custoInsumoNinhoAtacado + 0.90;
+        if(data.config.custoInsumoBrigVarejo === undefined) data.config.custoInsumoBrigVarejo = data.config.custoInsumoBrigAtacado + 0.90;
         
         ['pagamentos','producoes','estoqueMov','vendas','atacado','despesas','ajustesCaixas','ajustesContagem'].forEach(k => data[k] = forceArray(data[k]));
         
@@ -933,9 +956,15 @@
     function renderConfig() {
         if(!db.config) return;
         document.getElementById('cfg-preco-und').value = db.config.precoUnd; document.getElementById('cfg-preco-combo').value = db.config.precoCombo;
-        document.getElementById('cfg-custo-insumo-tradicional').value = db.config.custoInsumoTradicional !== undefined ? db.config.custoInsumoTradicional : 5.30;
-        document.getElementById('cfg-custo-insumo-ninho').value = db.config.custoInsumoNinho !== undefined ? db.config.custoInsumoNinho : 6.60;
-        document.getElementById('cfg-custo-insumo-brigadeirao').value = db.config.custoInsumoBrigadeirao !== undefined ? db.config.custoInsumoBrigadeirao : 6.00;
+        
+        document.getElementById('cfg-custo-insumo-trad-varejo').value = db.config.custoInsumoTradVarejo !== undefined ? db.config.custoInsumoTradVarejo : 6.20;
+        document.getElementById('cfg-custo-insumo-ninho-varejo').value = db.config.custoInsumoNinhoVarejo !== undefined ? db.config.custoInsumoNinhoVarejo : 7.50;
+        document.getElementById('cfg-custo-insumo-brig-varejo').value = db.config.custoInsumoBrigVarejo !== undefined ? db.config.custoInsumoBrigVarejo : 6.90;
+        
+        document.getElementById('cfg-custo-insumo-trad-atacado').value = db.config.custoInsumoTradAtacado !== undefined ? db.config.custoInsumoTradAtacado : 5.30;
+        document.getElementById('cfg-custo-insumo-ninho-atacado').value = db.config.custoInsumoNinhoAtacado !== undefined ? db.config.custoInsumoNinhoAtacado : 6.60;
+        document.getElementById('cfg-custo-insumo-brig-atacado').value = db.config.custoInsumoBrigAtacado !== undefined ? db.config.custoInsumoBrigAtacado : 6.00;
+        
         document.getElementById('cfg-custo-copo').value = db.config.custoCopo;
         document.getElementById('cfg-taxa-cred-ins').value = db.config.taxaCredIns; document.getElementById('cfg-taxa-cred-apr').value = db.config.taxaCredApr;
         document.getElementById('cfg-taxa-deb-ins').value = db.config.taxaDebIns; document.getElementById('cfg-taxa-deb-apr').value = db.config.taxaDebApr;
@@ -947,9 +976,15 @@
     function saveConfig() {
         db.config = {
             precoUnd: parseFloat(document.getElementById('cfg-preco-und').value)||0, precoCombo: parseFloat(document.getElementById('cfg-preco-combo').value)||0,
-            custoInsumoTradicional: parseFloat(document.getElementById('cfg-custo-insumo-tradicional').value)||5.30,
-            custoInsumoNinho: parseFloat(document.getElementById('cfg-custo-insumo-ninho').value)||6.60,
-            custoInsumoBrigadeirao: parseFloat(document.getElementById('cfg-custo-insumo-brigadeirao').value)||6.00,
+            
+            custoInsumoTradVarejo: parseFloat(document.getElementById('cfg-custo-insumo-trad-varejo').value)||6.20,
+            custoInsumoNinhoVarejo: parseFloat(document.getElementById('cfg-custo-insumo-ninho-varejo').value)||7.50,
+            custoInsumoBrigVarejo: parseFloat(document.getElementById('cfg-custo-insumo-brig-varejo').value)||6.90,
+            
+            custoInsumoTradAtacado: parseFloat(document.getElementById('cfg-custo-insumo-trad-atacado').value)||5.30,
+            custoInsumoNinhoAtacado: parseFloat(document.getElementById('cfg-custo-insumo-ninho-atacado').value)||6.60,
+            custoInsumoBrigAtacado: parseFloat(document.getElementById('cfg-custo-insumo-brig-atacado').value)||6.00,
+            
             custoCopo: parseFloat(document.getElementById('cfg-custo-copo').value)||0,
             taxaCredIns: parseFloat(document.getElementById('cfg-taxa-cred-ins').value)||0, taxaCredApr: parseFloat(document.getElementById('cfg-taxa-cred-apr').value)||0,
             taxaDebIns: parseFloat(document.getElementById('cfg-taxa-deb-ins').value)||0, taxaDebApr: parseFloat(document.getElementById('cfg-taxa-deb-apr').value)||0,
@@ -967,6 +1002,7 @@
         const tp = parseFloat(document.getElementById('calc-pre-tp').value)||0;
         const ad = parseFloat(document.getElementById('calc-pre-ad').value)||0;
         const sc = parseFloat(document.getElementById('calc-pre-sc').value)||0;
+        const co = parseFloat(document.getElementById('calc-pre-co').value)||0;
         const lp = parseFloat(document.getElementById('calc-pre-lp').value)||0;
         const nt = parseFloat(document.getElementById('calc-pre-nt').value)||0;
         const cl = parseFloat(document.getElementById('calc-pre-cl').value)||0;
@@ -983,18 +1019,24 @@
         const costCH = ch / 1000;
         const costGR = gr / 1000;
         
+        // Tradicional
         const costTrad = (1 * costLC) + (400 * costLI) + (3 * costOV) + (200 * costAC) + (6 * cp) + (6 * tp) + (6 * ad);
         const perTrad = costTrad / 6;
-        document.getElementById('ficha-res-tradicional').innerHTML = `Receita Base: ${formatMoney(costTrad)}<br><b>Custo p/ Unidade (Rende 6): ${formatMoney(perTrad)}</b>`;
+        const perTradVarejo = perTrad + sc + co;
+        document.getElementById('ficha-res-tradicional').innerHTML = `Receita Base: ${formatMoney(costTrad)}<br><b>Atacado (Und): ${formatMoney(perTrad)}</b><br><b style="color:var(--primary)">Varejo (Und): ${formatMoney(perTradVarejo)}</b>`;
         
+        // Ninho
         const calcNinhoGrams = 7 * 100 / 12;
         const costNinh = (1 * costLC) + (400 * costLI) + (3 * costOV) + (130 * costLP) + (calcNinhoGrams * costNT) + (calcNinhoGrams * costCL) + (7 * cp) + (7 * tp) + (7 * ad);
         const perNinh = costNinh / 7;
-        document.getElementById('ficha-res-ninho').innerHTML = `Receita Base: ${formatMoney(costNinh)}<br><b>Custo p/ Unidade (Rende 7): ${formatMoney(perNinh)}</b>`;
+        const perNinhVarejo = perNinh + sc + co;
+        document.getElementById('ficha-res-ninho').innerHTML = `Receita Base: ${formatMoney(costNinh)}<br><b>Atacado (Und): ${formatMoney(perNinh)}</b><br><b style="color:var(--primary)">Varejo (Und): ${formatMoney(perNinhVarejo)}</b>`;
         
+        // Brigadeirão
         const costBrig = (1 * costLC) + (200 * costLI) + (3 * costOV) + (200 * costCL) + (90 * costCH) + (35 * costGR) + (7 * cp) + (7 * tp) + (7 * ad);
         const perBrig = costBrig / 7;
-        document.getElementById('ficha-res-brigadeirao').innerHTML = `Receita Base: ${formatMoney(costBrig)}<br><b>Custo p/ Unidade (Rende 7): ${formatMoney(perBrig)}</b>`;
+        const perBrigVarejo = perBrig + sc + co;
+        document.getElementById('ficha-res-brigadeirao').innerHTML = `Receita Base: ${formatMoney(costBrig)}<br><b>Atacado (Und): ${formatMoney(perBrig)}</b><br><b style="color:var(--primary)">Varejo (Und): ${formatMoney(perBrigVarejo)}</b>`;
     }
 
     function finalizarEdicao(lista, novoItem, btnId, txtOriginal, msgToast) {
@@ -1113,7 +1155,7 @@
                 id: Date.now() + index, num: curNum++, data, produto: item.produto, sabor: item.sabor, pgto, asaas: isFirst ? isAsaas : false, qtd: item.qtd, desconto: Number(itemDesconto.toFixed(2)),
                 sacola1_tipo: isFirst ? sacola1_tipo : 'nenhuma', sacola1_qtd: isFirst ? sacola1_qtd : 0, sacola2_tipo: isFirst ? sacola2_tipo : 'nenhuma', sacola2_qtd: isFirst ? sacola2_qtd : 0,
                 valorManual: item.valorManual, valorBruto: Number(item.bruto.toFixed(2)), valorTaxa: Number(itemTaxa.toFixed(2)), valorLiquido: Number((itemCobrado - itemTaxa).toFixed(2)), entrega: isFirst ? Number(entregaGeral.toFixed(2)) : 0,
-                custoInsumoUnd: getCustoInsumo(item.sabor)
+                custoInsumoUnd: getCustoInsumo(item.sabor, 'varejo') // Salva o custo exato do varejo no momento da venda
             });
         });
 
@@ -1139,7 +1181,7 @@
         finalizarEdicao('atacado', {
             id: (editingItem.lista==='atacado'?editingItem.id:Date.now()), num: (editingItem.lista==='atacado'?db.atacado.find(i=>i.id===editingItem.id).num:getNextNum(db.atacado)),
             data, cliente, sabor, qtd, unitario, coposDevolvidos: copos, desconto, totalBruto: Number(totalBruto), totalLiquido: Number(totalBruto - desconto), status, usarRegraNova: usarNovaRegra,
-            custoInsumoUnd: getCustoInsumo(sabor)
+            custoInsumoUnd: getCustoInsumo(sabor, 'atacado') // Salva o custo exato do atacado no momento da venda
         }, 'btn-submit-atacado', 'Salvar Pedido', 'Atacado Salvo!');
         document.getElementById('a-cliente').value = ''; document.getElementById('a-qtd').value = ''; document.getElementById('a-valor').value = '';
     }
@@ -1277,7 +1319,7 @@
         db.producoes.forEach(p => { 
             const pq = p.qtd || 0; const sabor = p.sabor || 'tradicional';
             if (sabor === 'ninho') {
-                const calcNinhoGrams = (7 * 100 / 12);
+                const calcNinhoGrams = Number((7 * 100 / 12).toFixed(2));
                 saldos.pudim_ninho += pq*7; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*400; saldos.ovos -= pq*3; saldos.leite_po -= pq*130; saldos.nutella -= pq*calcNinhoGrams; saldos.creme_leite -= pq*calcNinhoGrams; saldos.copo -= pq*7; saldos.tampa -= pq*7; saldos.adesivo -= pq*7;
             } else if (sabor === 'brigadeirao') {
                 saldos.pudim_brig += pq*7; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*200; saldos.ovos -= pq*3; saldos.creme_leite -= pq*200; saldos.chocolate_50 -= pq*90; saldos.granulado -= pq*35; saldos.copo -= pq*7; saldos.tampa -= pq*7; saldos.adesivo -= pq*7;
@@ -1364,7 +1406,6 @@
         mapKeys.forEach(k => {
             let el = document.getElementById('est-' + k);
             if(el) {
-                // CORREÇÃO AQUI: Garante que números com muitas casas decimais sejam arredondados para no máximo 2 casas
                 let val = parseFloat(saldos[k].toFixed(2)); 
                 let suffix = (k==='leite_integral') ? ' ml' : ((k==='acucar' || k==='leite_po' || k==='nutella' || k==='chocolate_50' || k==='granulado' || k==='creme_leite') ? ' g' : ' un');
                 el.innerText = val + suffix; el.classList.remove('status-red', 'status-yellow', 'status-green'); el.classList.add(val <= 0 ? 'status-red' : 'status-green');
