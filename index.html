@@ -239,7 +239,7 @@
                 <div class="card" style="border-left-color: #EF4444;"><h3>Mão de Obra</h3><p id="v-dash-mo" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #10B981;"><h3>Lucro Líquido</h3><p id="v-dash-lucro-restante" style="color: #10B981;">R$ 0,00</p></div>
                 
-                <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo (12%)</h3><p id="v-dash-fundo">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo (15%)</h3><p id="v-dash-fundo">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #F59E0B;"><h3>Luyan</h3><p id="v-dash-luyan">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #F59E0B;"><h3>Beatriz</h3><p id="v-dash-beatriz">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #8B5CF6;"><h3>Giro (Legado)</h3><p id="v-dash-giro" style="color: #6B7280;">R$ 0,00</p></div>
@@ -257,7 +257,7 @@
                 <div class="card" style="border-left-color: #EF4444;"><h3>Mão de Obra</h3><p id="a-dash-mo" style="color: #EF4444;">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #10B981;"><h3>Lucro Líquido</h3><p id="a-dash-lucro-restante" style="color: #10B981;">R$ 0,00</p></div>
                 
-                <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo (12%)</h3><p id="a-dash-fundo">R$ 0,00</p></div>
+                <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo (15%)</h3><p id="a-dash-fundo">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #F59E0B;"><h3>Luyan</h3><p id="a-dash-luyan">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #F59E0B;"><h3>Beatriz</h3><p id="a-dash-beatriz">R$ 0,00</p></div>
                 <div class="card" style="border-left-color: #8B5CF6;"><h3>Giro (Legado)</h3><p id="a-dash-giro" style="color: #6B7280;">R$ 0,00</p></div>
@@ -678,7 +678,6 @@
     const VIEWER_EMAIL = "beatriz@pudim.com"; 
 
     const DATA_CORTE_RATEIO = '2026-03-23'; 
-    const DATA_CORTE_RATEIO_V3 = '2026-06-04'; 
 
     let isOnline = firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLE_SUA_API_KEY_AQUI";
     if(isOnline) { firebase.initializeApp(firebaseConfig); }
@@ -763,14 +762,7 @@
         let cg, mo, lucro, giro, fundo, luyan, beatriz;
         let d = dataRef || '2000-01-01'; 
         
-        if (forcarRegraNova) {
-            d = getTodayDate();
-        }
-        
-        if (d >= DATA_CORTE_RATEIO_V3) {
-            cg = base * 0.15; mo = base * 0.23; lucro = base - cg - mo; giro = 0; 
-            fundo = lucro * 0.12; luyan = lucro * 0.53; beatriz = lucro * 0.35;
-        } else if (d >= DATA_CORTE_RATEIO) {
+        if (forcarRegraNova || d >= DATA_CORTE_RATEIO) {
             cg = base * 0.20; mo = base * 0.20; lucro = base - cg - mo; giro = 0; 
             fundo = lucro * 0.15; luyan = lucro * 0.50; beatriz = lucro * 0.35;
         } else {
@@ -805,7 +797,7 @@
                     <button class="btn-action-small" style="background:#4B5563; flex:1;" onclick="abrirModalAjusteCaixa('MO')">⚖️ Ajustar</button>
                 </div>
             </div>
-            <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo 12%</h3><p class="global-fundo">R$ 0,00</p><div style="margin-top:5px;"><button class="btn-action-small" style="background:#4B5563" onclick="abrirModalAjusteCaixa('Fundo')">⚖️ Ajustar</button></div></div>
+            <div class="card" style="border-left-color: #8B5CF6;"><h3>Fundo 15%</h3><p class="global-fundo">R$ 0,00</p><div style="margin-top:5px;"><button class="btn-action-small" style="background:#4B5563" onclick="abrirModalAjusteCaixa('Fundo')">⚖️ Ajustar</button></div></div>
             <div class="card" style="border-left-color: #F59E0B;"><h3>Luyan</h3><p class="global-luyan">R$ 0,00</p>
                 <div style="display:flex; gap:5px; margin-top:5px;">
                     <button class="btn-action-small" style="background:#F59E0B; flex:1;" onclick="realizarSaque('Luyan')">💸 Sacar</button>
@@ -870,6 +862,7 @@
     function loadDBData(data) {
         if(!data.config) data.config = { precoUnd: 15, precoCombo: 40, custoInsumoTradVarejo: 6.20, custoInsumoNinhoVarejo: 7.50, custoInsumoBrigVarejo: 6.90, custoInsumoTradAtacado: 5.30, custoInsumoNinhoAtacado: 6.60, custoInsumoBrigAtacado: 6.00, taxaCredIns: 4.98, taxaCredApr: 3.09, taxaDebIns: 1.99, taxaDebApr: 0.89, custoCopo: 1.5, taxaCartaoOnline: 2.99 };
         
+        // Migração caso seja um banco antigo sem as novas propriedades separadas
         if(data.config.custoInsumoTradAtacado === undefined) data.config.custoInsumoTradAtacado = data.config.custoInsumoTradicional !== undefined ? data.config.custoInsumoTradicional : 5.30;
         if(data.config.custoInsumoNinhoAtacado === undefined) data.config.custoInsumoNinhoAtacado = data.config.custoInsumoNinho !== undefined ? data.config.custoInsumoNinho : 6.60;
         if(data.config.custoInsumoBrigAtacado === undefined) data.config.custoInsumoBrigAtacado = data.config.custoInsumoBrigadeirao !== undefined ? data.config.custoInsumoBrigadeirao : 6.00;
@@ -1162,7 +1155,7 @@
                 id: Date.now() + index, num: curNum++, data, produto: item.produto, sabor: item.sabor, pgto, asaas: isFirst ? isAsaas : false, qtd: item.qtd, desconto: Number(itemDesconto.toFixed(2)),
                 sacola1_tipo: isFirst ? sacola1_tipo : 'nenhuma', sacola1_qtd: isFirst ? sacola1_qtd : 0, sacola2_tipo: isFirst ? sacola2_tipo : 'nenhuma', sacola2_qtd: isFirst ? sacola2_qtd : 0,
                 valorManual: item.valorManual, valorBruto: Number(item.bruto.toFixed(2)), valorTaxa: Number(itemTaxa.toFixed(2)), valorLiquido: Number((itemCobrado - itemTaxa).toFixed(2)), entrega: isFirst ? Number(entregaGeral.toFixed(2)) : 0,
-                custoInsumoUnd: getCustoInsumo(item.sabor, 'varejo') 
+                custoInsumoUnd: getCustoInsumo(item.sabor, 'varejo') // Salva o custo exato do varejo no momento da venda
             });
         });
 
@@ -1188,7 +1181,7 @@
         finalizarEdicao('atacado', {
             id: (editingItem.lista==='atacado'?editingItem.id:Date.now()), num: (editingItem.lista==='atacado'?db.atacado.find(i=>i.id===editingItem.id).num:getNextNum(db.atacado)),
             data, cliente, sabor, qtd, unitario, coposDevolvidos: copos, desconto, totalBruto: Number(totalBruto), totalLiquido: Number(totalBruto - desconto), status, usarRegraNova: usarNovaRegra,
-            custoInsumoUnd: getCustoInsumo(sabor, 'atacado') 
+            custoInsumoUnd: getCustoInsumo(sabor, 'atacado') // Salva o custo exato do atacado no momento da venda
         }, 'btn-submit-atacado', 'Salvar Pedido', 'Atacado Salvo!');
         document.getElementById('a-cliente').value = ''; document.getElementById('a-qtd').value = ''; document.getElementById('a-valor').value = '';
     }
@@ -1664,7 +1657,7 @@
             ["Caixinha Insumo Fixo", document.querySelector('.global-insumos').innerText],
             ["Caixinha Custos Gerais", document.querySelector('.global-cg').innerText],
             ["Caixinha Mão de Obra", document.querySelector('.global-mo').innerText],
-            ["Caixinha Fundo 12%", document.querySelector('.global-fundo').innerText],
+            ["Caixinha Fundo 15%", document.querySelector('.global-fundo').innerText],
             ["Caixinha Luyan", document.querySelector('.global-luyan').innerText],
             ["Caixinha Beatriz", document.querySelector('.global-beatriz').innerText],
             ["Gaveta de Entregas", document.querySelector('.global-entrega').innerText],
@@ -1693,7 +1686,7 @@
             ];
         });
         addAba('Varejo', 'FFD97706', 
-            ["ID", "Data", "Produto", "Sabor", "Pgto", "Qtd", "Bruto", "Desconto", "Entrega", "Taxa Maq", "Líquido", "Insumo", "Custos Gerais", "Mão de Obra", "Lucro", "Giro (Antigo)", "Fundo", "Luyan", "Beatriz"], 
+            ["ID", "Data", "Produto", "Sabor", "Pgto", "Qtd", "Bruto", "Desconto", "Entrega", "Taxa Maq", "Líquido", "Insumo", "Custos Gerais", "Mão de Obra", "Lucro", "Giro (Antigo)", "Fundo (15%)", "Luyan", "Beatriz"], 
             rowsVendas, [7,8,9,10,11,12,13,14,15,16,17,18,19], [6,7,8,9,10,11,12,13,14,15,16,17,18,19] 
         );
 
@@ -1709,7 +1702,7 @@
             ];
         });
         addAba('Atacado', 'FF8B5CF6', 
-            ["ID", "Data", "Cliente", "Sabor", "Status", "Qtd", "Copos Dev", "Valor Un", "Bruto", "Desc Log", "Líquido", "Insumo", "Custos Gerais", "Mão de Obra", "Lucro", "Giro (Antigo)", "Fundo", "Luyan", "Beatriz"], 
+            ["ID", "Data", "Cliente", "Sabor", "Status", "Qtd", "Copos Dev", "Valor Un", "Bruto", "Desc Log", "Líquido", "Insumo", "Custos Gerais", "Mão de Obra", "Lucro", "Giro (Antigo)", "Fundo (15%)", "Luyan", "Beatriz"], 
             rowsAtacado, [8,9,10,11,12,13,14,15,16,17,18,19], [6,7,9,10,11,12,13,14,15,16,17,18,19] 
         );
 
