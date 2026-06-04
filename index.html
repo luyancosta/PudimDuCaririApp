@@ -136,7 +136,6 @@
 
     <div id="toast" class="toast">Ação salva com sucesso!</div>
 
-    <!-- POPUP SAQUE -->
     <div id="modal-saque" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; animation: fadeIn 0.2s;">
         <div class="card" style="width: 90%; max-width: 400px; padding: 2rem;">
             <h3 class="section-title" id="modal-saque-title" style="margin-top: 0; border-bottom: none; color: var(--primary);">💸 Novo Saque</h3>
@@ -153,7 +152,6 @@
         </div>
     </div>
 
-    <!-- POPUP AJUSTE CAIXA -->
     <div id="modal-ajuste-caixa" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; animation: fadeIn 0.2s;">
         <div class="card" style="width: 90%; max-width: 400px; padding: 2rem;">
             <h3 class="section-title" id="modal-ajuste-title" style="margin-top: 0; border-bottom: none; color: var(--primary);">⚖️ Ajustar Valor</h3>
@@ -331,7 +329,7 @@
                 <div class="card estoque-card"><button class="btn-edit-stock" onclick="ajustarEstoqueRapido('acucar', 'Açúcar')">✏️</button><h3>Açúcar</h3><p id="est-acucar">0 g</p></div>
                 <div class="card estoque-card"><button class="btn-edit-stock" onclick="ajustarEstoqueRapido('leite_po', 'Leite em Pó')">✏️</button><h3>Leite Pó</h3><p id="est-leite_po">0 g</p></div>
                 <div class="card estoque-card"><button class="btn-edit-stock" onclick="ajustarEstoqueRapido('nutella', 'Nutella')">✏️</button><h3>Nutella</h3><p id="est-nutella">0 g</p></div>
-                <div class="card estoque-card"><button class="btn-edit-stock" onclick="ajustarEstoqueRapido('creme_leite', 'Creme de Leite')">✏️</button><h3>Creme Leite</h3><p id="est-creme_leite">0 un</p></div>
+                <div class="card estoque-card"><button class="btn-edit-stock" onclick="ajustarEstoqueRapido('creme_leite', 'Creme de Leite')">✏️</button><h3>Creme Leite</h3><p id="est-creme_leite">0 g</p></div>
                 <div class="card estoque-card"><button class="btn-edit-stock" onclick="ajustarEstoqueRapido('chocolate_50', 'Chocolate 50%')">✏️</button><h3>Choc 50%</h3><p id="est-chocolate_50">0 g</p></div>
                 <div class="card estoque-card"><button class="btn-edit-stock" onclick="ajustarEstoqueRapido('granulado', 'Granulado')">✏️</button><h3>Granulado</h3><p id="est-granulado">0 g</p></div>
                 <div class="card estoque-card" style="border-left-color: #8B5CF6;"><button class="btn-edit-stock" onclick="ajustarEstoqueRapido('copo', 'Copo Vazio')">✏️</button><h3>Copos Vazios</h3><p id="est-copo">0 un</p></div>
@@ -445,7 +443,9 @@
                 <div class="form-grid">
                     <div class="form-group"><label>Preço Venda (Unidade)</label><input type="number" id="cfg-preco-und" step="0.01"></div>
                     <div class="form-group"><label>Preço Venda (Combo)</label><input type="number" id="cfg-preco-combo" step="0.01"></div>
-                    <div class="form-group"><label>Custo Insumos (Por Unidade)</label><input type="number" id="cfg-custo-insumo" step="0.01"></div>
+                    <div class="form-group"><label>Custo Insumo Tradicional</label><input type="number" id="cfg-custo-insumo-tradicional" step="0.01"></div>
+                    <div class="form-group"><label>Custo Insumo Ninho</label><input type="number" id="cfg-custo-insumo-ninho" step="0.01"></div>
+                    <div class="form-group"><label>Custo Insumo Brigadeirão</label><input type="number" id="cfg-custo-insumo-brigadeirao" step="0.01"></div>
                     <div class="form-group"><label>Valor Abatimento Copo</label><input type="number" id="cfg-custo-copo" step="0.01"></div>
                     <div class="form-group"><label>Taxa Crédito (Inserção) %</label><input type="number" id="cfg-taxa-cred-ins" step="0.01"></div>
                     <div class="form-group"><label>Taxa Crédito (Aprox) %</label><input type="number" id="cfg-taxa-cred-apr" step="0.01"></div>
@@ -454,6 +454,41 @@
                     <div class="form-group"><label>Taxa Link Pagamento %</label><input type="number" id="cfg-taxa-cartao-online" step="0.01"></div>
                 </div>
                 <button class="btn-submit" onclick="saveConfig()">Salvar Configurações</button>
+            </div>
+
+            <div class="card mb-2" style="border-left-color: var(--info); margin-top: 20px;">
+                <h3 class="section-title" style="border:none; margin-bottom:10px;">📊 Calculadora de Ficha Técnica (Estudo Interno)</h3>
+                <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.85rem;">Altere os custos unitários abaixo para simular o custo de produção de cada receita. Esses valores funcionam de forma isolada e não afetam os lançamentos reais do sistema.</p>
+                <div class="form-grid">
+                    <div class="form-group"><label>Leite Condensado (Und)</label><input type="number" id="calc-pre-lc" value="6.50" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                    <div class="form-group"><label>Leite Integral (Litro)</label><input type="number" id="calc-pre-li" value="4.50" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                    <div class="form-group"><label>Ovos (Pacote c/ 20 und)</label><input type="number" id="calc-pre-ov" value="13.00" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                    <div class="form-group"><label>Açúcar (Kg)</label><input type="number" id="calc-pre-ac" value="4.50" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                    <div class="form-group"><label>Copo (Und)</label><input type="number" id="calc-pre-cp" value="1.65" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                    <div class="form-group"><label>Tampa (Und)</label><input type="number" id="calc-pre-tp" value="1.20" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                    <div class="form-group"><label>Adesivo (Und)</label><input type="number" id="calc-pre-ad" value="0.55" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                    <div class="form-group"><label>Sacola (Und)</label><input type="number" id="calc-pre-sc" value="0.70" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                    <div class="form-group"><label>Leite em Pó (Kg)</label><input type="number" id="calc-pre-lp" value="30.00" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                    <div class="form-group"><label>Nutella (Kg)</label><input type="number" id="calc-pre-nt" value="60.00" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                    <div class="form-group"><label>Creme de Leite (Kg)</label><input type="number" id="calc-pre-cl" value="18.00" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                    <div class="form-group"><label>Chocolate 50% (Kg)</label><input type="number" id="calc-pre-ch" value="40.00" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                    <div class="form-group"><label>Granulado (Kg)</label><input type="number" id="calc-pre-gr" value="20.00" step="0.01" oninput="recalcularFichasSimuladas()"></div>
+                </div>
+                
+                <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                    <div style="background: #F3F4F6; padding: 12px; border-radius: 8px; border-left: 4px solid var(--primary);">
+                        <h4 style="font-weight: 700; font-size: 0.9rem; margin-bottom: 5px;">🍮 Tradicional (Rende 6)</h4>
+                        <div id="ficha-res-tradicional" style="font-size: 0.85rem; color: var(--text-main); line-height: 1.4;"></div>
+                    </div>
+                    <div style="background: #F3F4F6; padding: 12px; border-radius: 8px; border-left: 4px solid #8B5CF6;">
+                        <h4 style="font-weight: 700; font-size: 0.9rem; margin-bottom: 5px;">🥛 Ninho com Nutella (Rende 7)</h4>
+                        <div id="ficha-res-ninho" style="font-size: 0.85rem; color: var(--text-main); line-height: 1.4;"></div>
+                    </div>
+                    <div style="background: #F3F4F6; padding: 12px; border-radius: 8px; border-left: 4px solid #3B82F6;">
+                        <h4 style="font-weight: 700; font-size: 0.9rem; margin-bottom: 5px;">🍫 Brigadeirão (Rende 7)</h4>
+                        <div id="ficha-res-brigadeirao" style="font-size: 0.85rem; color: var(--text-main); line-height: 1.4;"></div>
+                    </div>
+                </div>
             </div>
             
             <button class="btn-submit" style="background: var(--danger); margin-top:30px;" onclick="resetarSistema()">⚠️ RESETAR TODO O SISTEMA</button>
@@ -641,7 +676,8 @@
     // --- DB INIT ---
     let db = {
         "config": {
-            "precoUnd": 15, "precoCombo": 40, "custoInsumo": 5.95,
+            "precoUnd": 15, "precoCombo": 40, 
+            "custoInsumoTradicional": 5.30, "custoInsumoNinho": 6.60, "custoInsumoBrigadeirao": 6.00,
             "taxaCredIns": 4.98, "taxaCredApr": 3.09, "taxaDebIns": 1.99, "taxaDebApr": 0.89,
             "custoCopo": 1.5, "taxaCartaoOnline": 2.99
         },
@@ -726,6 +762,14 @@
         return { cg, mo, lucro, giro, fundo, luyan, beatriz };
     }
 
+    const getCustoInsumo = (sabor) => {
+        if (!db.config) return 5.30;
+        const s = (sabor || 'tradicional').toLowerCase();
+        if (s === 'ninho') return db.config.custoInsumoNinho !== undefined ? db.config.custoInsumoNinho : 6.60;
+        if (s === 'brigadeirao' || s === 'brigadeirão') return db.config.custoInsumoBrigadeirao !== undefined ? db.config.custoInsumoBrigadeirao : 6.00;
+        return db.config.custoInsumoTradicional !== undefined ? db.config.custoInsumoTradicional : 5.30;
+    };
+
     const globalCardsTemplate = `
         <div class="dashboard-grid">
             <div class="card" style="border-left-color: #EF4444;"><h3>Insumo Fixo</h3><p class="global-insumos" style="color: #EF4444;">R$ 0,00</p><div style="margin-top:5px;"><button class="btn-action-small" style="background:#4B5563" onclick="abrirModalAjusteCaixa('Insumos')">⚖️ Ajustar</button></div></div>
@@ -799,7 +843,11 @@
     function fazerLogout() { firebase.auth().signOut(); window.location.reload(); }
 
     function loadDBData(data) {
-        if(!data.config) data.config = { precoUnd: 15, precoCombo: 40, custoInsumo: 5.95, taxaCredIns: 4.98, taxaCredApr: 3.09, taxaDebIns: 1.99, taxaDebApr: 0.89, custoCopo: 1.50, taxaCartaoOnline: 2.99 };
+        if(!data.config) data.config = { precoUnd: 15, precoCombo: 40, custoInsumoTradicional: 5.30, custoInsumoNinho: 6.60, custoInsumoBrigadeirao: 6.00, taxaCredIns: 4.98, taxaCredApr: 3.09, taxaDebIns: 1.99, taxaDebApr: 0.89, custoCopo: 1.5, taxaCartaoOnline: 2.99 };
+        if(data.config.custoInsumoTradicional === undefined) data.config.custoInsumoTradicional = 5.30;
+        if(data.config.custoInsumoNinho === undefined) data.config.custoInsumoNinho = 6.60;
+        if(data.config.custoInsumoBrigadeirao === undefined) data.config.custoInsumoBrigadeirao = 6.00;
+        
         ['pagamentos','producoes','estoqueMov','vendas','atacado','despesas','ajustesCaixas','ajustesContagem'].forEach(k => data[k] = forceArray(data[k]));
         
         const addMissingNums = (arr) => { arr.sort((a,b)=> new Date(a.data||0) - new Date(b.data||0)).forEach((x,i)=>{ if(!x.num) x.num=i+1; }); };
@@ -814,9 +862,6 @@
         if(isOnline) firebase.database().ref('pudimAppDB').set(db);
     }
     
-    // ============================================
-    // Correção: BOTAO DE SALVAR (HEADER) EXIBE AVISO
-    // ============================================
     function saveDataManual() {
         saveData();
         showToast("Dados sincronizados com sucesso!");
@@ -826,19 +871,14 @@
         saveDataManual();
     }
     
-    // ============================================
-    // Correção: BOTAO DE BACKUP
-    // ============================================
     function exportDataBlob() {
         try {
             const dataStr = JSON.stringify(db, null, 2);
             const blob = new Blob([dataStr], { type: "application/json;charset=utf-8" });
             
             if (window.saveAs) {
-                // Utilizando a biblioteca FileSaver.js que já estava no seu <head>
                 window.saveAs(blob, "backup_pudim_" + getTodayDate() + ".json");
             } else {
-                // Fallback para download nativo
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
@@ -893,21 +933,68 @@
     function renderConfig() {
         if(!db.config) return;
         document.getElementById('cfg-preco-und').value = db.config.precoUnd; document.getElementById('cfg-preco-combo').value = db.config.precoCombo;
-        document.getElementById('cfg-custo-insumo').value = db.config.custoInsumo; document.getElementById('cfg-custo-copo').value = db.config.custoCopo;
+        document.getElementById('cfg-custo-insumo-tradicional').value = db.config.custoInsumoTradicional !== undefined ? db.config.custoInsumoTradicional : 5.30;
+        document.getElementById('cfg-custo-insumo-ninho').value = db.config.custoInsumoNinho !== undefined ? db.config.custoInsumoNinho : 6.60;
+        document.getElementById('cfg-custo-insumo-brigadeirao').value = db.config.custoInsumoBrigadeirao !== undefined ? db.config.custoInsumoBrigadeirao : 6.00;
+        document.getElementById('cfg-custo-copo').value = db.config.custoCopo;
         document.getElementById('cfg-taxa-cred-ins').value = db.config.taxaCredIns; document.getElementById('cfg-taxa-cred-apr').value = db.config.taxaCredApr;
         document.getElementById('cfg-taxa-deb-ins').value = db.config.taxaDebIns; document.getElementById('cfg-taxa-deb-apr').value = db.config.taxaDebApr;
         document.getElementById('cfg-taxa-cartao-online').value = db.config.taxaCartaoOnline;
+        
+        recalcularFichasSimuladas();
     }
 
     function saveConfig() {
         db.config = {
             precoUnd: parseFloat(document.getElementById('cfg-preco-und').value)||0, precoCombo: parseFloat(document.getElementById('cfg-preco-combo').value)||0,
-            custoInsumo: parseFloat(document.getElementById('cfg-custo-insumo').value)||0, custoCopo: parseFloat(document.getElementById('cfg-custo-copo').value)||0,
+            custoInsumoTradicional: parseFloat(document.getElementById('cfg-custo-insumo-tradicional').value)||5.30,
+            custoInsumoNinho: parseFloat(document.getElementById('cfg-custo-insumo-ninho').value)||6.60,
+            custoInsumoBrigadeirao: parseFloat(document.getElementById('cfg-custo-insumo-brigadeirao').value)||6.00,
+            custoCopo: parseFloat(document.getElementById('cfg-custo-copo').value)||0,
             taxaCredIns: parseFloat(document.getElementById('cfg-taxa-cred-ins').value)||0, taxaCredApr: parseFloat(document.getElementById('cfg-taxa-cred-apr').value)||0,
             taxaDebIns: parseFloat(document.getElementById('cfg-taxa-deb-ins').value)||0, taxaDebApr: parseFloat(document.getElementById('cfg-taxa-deb-apr').value)||0,
             taxaCartaoOnline: parseFloat(document.getElementById('cfg-taxa-cartao-online').value)||0
         };
         saveData(); showToast("Configurações Salvas");
+    }
+
+    function recalcularFichasSimuladas() {
+        const lc = parseFloat(document.getElementById('calc-pre-lc').value)||0;
+        const li = parseFloat(document.getElementById('calc-pre-li').value)||0;
+        const ov = parseFloat(document.getElementById('calc-pre-ov').value)||0;
+        const ac = parseFloat(document.getElementById('calc-pre-ac').value)||0;
+        const cp = parseFloat(document.getElementById('calc-pre-cp').value)||0;
+        const tp = parseFloat(document.getElementById('calc-pre-tp').value)||0;
+        const ad = parseFloat(document.getElementById('calc-pre-ad').value)||0;
+        const sc = parseFloat(document.getElementById('calc-pre-sc').value)||0;
+        const lp = parseFloat(document.getElementById('calc-pre-lp').value)||0;
+        const nt = parseFloat(document.getElementById('calc-pre-nt').value)||0;
+        const cl = parseFloat(document.getElementById('calc-pre-cl').value)||0;
+        const ch = parseFloat(document.getElementById('calc-pre-ch').value)||0;
+        const gr = parseFloat(document.getElementById('calc-pre-gr').value)||0;
+        
+        const costLC = lc;
+        const costLI = li / 1000;
+        const costOV = ov / 20;
+        const costAC = ac / 1000;
+        const costLP = lp / 1000;
+        const costNT = nt / 1000;
+        const costCL = cl / 1000;
+        const costCH = ch / 1000;
+        const costGR = gr / 1000;
+        
+        const costTrad = (1 * costLC) + (400 * costLI) + (3 * costOV) + (200 * costAC) + (6 * cp) + (6 * tp) + (6 * ad);
+        const perTrad = costTrad / 6;
+        document.getElementById('ficha-res-tradicional').innerHTML = `Receita Base: ${formatMoney(costTrad)}<br><b>Custo p/ Unidade (Rende 6): ${formatMoney(perTrad)}</b>`;
+        
+        const calcNinhoGrams = 7 * 100 / 12;
+        const costNinh = (1 * costLC) + (400 * costLI) + (3 * costOV) + (130 * costLP) + (calcNinhoGrams * costNT) + (calcNinhoGrams * costCL) + (7 * cp) + (7 * tp) + (7 * ad);
+        const perNinh = costNinh / 7;
+        document.getElementById('ficha-res-ninho').innerHTML = `Receita Base: ${formatMoney(costNinh)}<br><b>Custo p/ Unidade (Rende 7): ${formatMoney(perNinh)}</b>`;
+        
+        const costBrig = (1 * costLC) + (200 * costLI) + (3 * costOV) + (200 * costCL) + (90 * costCH) + (35 * costGR) + (7 * cp) + (7 * tp) + (7 * ad);
+        const perBrig = costBrig / 7;
+        document.getElementById('ficha-res-brigadeirao').innerHTML = `Receita Base: ${formatMoney(costBrig)}<br><b>Custo p/ Unidade (Rende 7): ${formatMoney(perBrig)}</b>`;
     }
 
     function finalizarEdicao(lista, novoItem, btnId, txtOriginal, msgToast) {
@@ -1025,7 +1112,8 @@
             db.vendas.push({
                 id: Date.now() + index, num: curNum++, data, produto: item.produto, sabor: item.sabor, pgto, asaas: isFirst ? isAsaas : false, qtd: item.qtd, desconto: Number(itemDesconto.toFixed(2)),
                 sacola1_tipo: isFirst ? sacola1_tipo : 'nenhuma', sacola1_qtd: isFirst ? sacola1_qtd : 0, sacola2_tipo: isFirst ? sacola2_tipo : 'nenhuma', sacola2_qtd: isFirst ? sacola2_qtd : 0,
-                valorManual: item.valorManual, valorBruto: Number(item.bruto.toFixed(2)), valorTaxa: Number(itemTaxa.toFixed(2)), valorLiquido: Number((itemCobrado - itemTaxa).toFixed(2)), entrega: isFirst ? Number(entregaGeral.toFixed(2)) : 0
+                valorManual: item.valorManual, valorBruto: Number(item.bruto.toFixed(2)), valorTaxa: Number(itemTaxa.toFixed(2)), valorLiquido: Number((itemCobrado - itemTaxa).toFixed(2)), entrega: isFirst ? Number(entregaGeral.toFixed(2)) : 0,
+                custoInsumoUnd: getCustoInsumo(item.sabor)
             });
         });
 
@@ -1050,7 +1138,8 @@
 
         finalizarEdicao('atacado', {
             id: (editingItem.lista==='atacado'?editingItem.id:Date.now()), num: (editingItem.lista==='atacado'?db.atacado.find(i=>i.id===editingItem.id).num:getNextNum(db.atacado)),
-            data, cliente, sabor, qtd, unitario, coposDevolvidos: copos, desconto, totalBruto: Number(totalBruto), totalLiquido: Number(totalBruto - desconto), status, usarRegraNova: usarNovaRegra
+            data, cliente, sabor, qtd, unitario, coposDevolvidos: copos, desconto, totalBruto: Number(totalBruto), totalLiquido: Number(totalBruto - desconto), status, usarRegraNova: usarNovaRegra,
+            custoInsumoUnd: getCustoInsumo(sabor)
         }, 'btn-submit-atacado', 'Salvar Pedido', 'Atacado Salvo!');
         document.getElementById('a-cliente').value = ''; document.getElementById('a-qtd').value = ''; document.getElementById('a-valor').value = '';
     }
@@ -1081,9 +1170,6 @@
         document.getElementById('modal-saque').style.display = 'flex'; document.getElementById('modal-saque-valor').focus();
     }
 
-    // ============================================
-    // Correção: CONFIRMAR SAQUE FECHA POPUP E MOSTRA AVISO
-    // ============================================
     function confirmarSaqueDashboard() {
         const tipo = document.getElementById('modal-saque-tipo').value; const data = document.getElementById('modal-saque-data').value;
         const valor = parseFloat(document.getElementById('modal-saque-valor').value); const obs = document.getElementById('modal-saque-obs').value || '';
@@ -1092,8 +1178,8 @@
         db.pagamentos.push({ id: Date.now(), data, valor, tipo, obs }); 
         saveData();
         
-        document.getElementById('modal-saque').style.display = 'none'; // Fecha o popup
-        showToast("Saque Registrado com Sucesso!"); // Mostra aviso
+        document.getElementById('modal-saque').style.display = 'none';
+        showToast("Saque Registrado com Sucesso!");
     }
 
     function abrirModalAjusteCaixa(box) {
@@ -1105,9 +1191,6 @@
         document.getElementById('modal-ajuste-valor').focus();
     }
 
-    // ============================================
-    // Correção: CONFIRMAR AJUSTE CAIXA FECHA POPUP E MOSTRA AVISO
-    // ============================================
     function confirmarAjusteCaixa() {
         const box = document.getElementById('modal-ajuste-box').value;
         const op = document.getElementById('modal-ajuste-op').value;
@@ -1115,18 +1198,15 @@
         const data = document.getElementById('modal-ajuste-data').value;
         
         if(!valor || isNaN(valor)) return alert("Valor inválido");
-        if(op === 'saida') valor = -valor; // transforma em negativo
+        if(op === 'saida') valor = -valor;
         
         db.ajustesCaixas.push({ id: Date.now(), caixa: box, data: data, valor: valor });
         saveData();
         
-        document.getElementById('modal-ajuste-caixa').style.display = 'none'; // Fecha o popup
-        showToast("Ajuste em " + box + " realizado com sucesso!"); // Mostra aviso
+        document.getElementById('modal-ajuste-caixa').style.display = 'none';
+        showToast("Ajuste em " + box + " realizado com sucesso!");
     }
 
-    // ============================================
-    // Correção: ADICIONAR CONTAGEM MANUAL (LIMPA CAMPOS E MOSTRA AVISO)
-    // ============================================
     function addContagemManual() {
         const mes = document.getElementById('cnt-mes').value;
         const tipo = document.getElementById('cnt-tipo').value;
@@ -1136,7 +1216,7 @@
         db.ajustesContagem.push({ id: Date.now(), mes: mes, tipo: tipo, qtd: qtd });
         saveData();
         
-        document.getElementById('cnt-qtd').value = ''; // Limpa o campo
+        document.getElementById('cnt-qtd').value = '';
         showToast("Contagem Manual Adicionada com sucesso!");
     }
 
@@ -1197,9 +1277,10 @@
         db.producoes.forEach(p => { 
             const pq = p.qtd || 0; const sabor = p.sabor || 'tradicional';
             if (sabor === 'ninho') {
-                saldos.pudim_ninho += pq*7; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*400; saldos.ovos -= pq*3; saldos.leite_po -= pq*130; saldos.nutella -= pq*70; saldos.copo -= pq*7; saldos.tampa -= pq*7; saldos.adesivo -= pq*7;
+                const calcNinhoGrams = Number((7 * 100 / 12).toFixed(2));
+                saldos.pudim_ninho += pq*7; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*400; saldos.ovos -= pq*3; saldos.leite_po -= pq*130; saldos.nutella -= pq*calcNinhoGrams; saldos.creme_leite -= pq*calcNinhoGrams; saldos.copo -= pq*7; saldos.tampa -= pq*7; saldos.adesivo -= pq*7;
             } else if (sabor === 'brigadeirao') {
-                saldos.pudim_brig += pq*7; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*200; saldos.ovos -= pq*3; saldos.creme_leite -= pq*1; saldos.chocolate_50 -= pq*90; saldos.granulado -= pq*35; saldos.copo -= pq*7; saldos.tampa -= pq*7; saldos.adesivo -= pq*7;
+                saldos.pudim_brig += pq*7; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*200; saldos.ovos -= pq*3; saldos.creme_leite -= pq*200; saldos.chocolate_50 -= pq*90; saldos.granulado -= pq*35; saldos.copo -= pq*7; saldos.tampa -= pq*7; saldos.adesivo -= pq*7;
             } else { 
                 saldos.pudim += pq*6; saldos.leite_condensado -= pq*1; saldos.leite_integral -= pq*400; saldos.ovos -= pq*3; saldos.acucar -= pq*200; saldos.copo -= pq*6; saldos.tampa -= pq*6; saldos.adesivo -= pq*6;
             }
@@ -1224,13 +1305,9 @@
         return saldos;
     }
     
-    // ============================================
-    // Correção: ABA CONTAGEM PEGANDO TODO O PASSADO DE FORMA SEGURA
-    // ============================================
     function renderContagem() {
         let dados = {};
         
-        // Varejo
         db.vendas.forEach(v => {
             let dStr = v.data || "";
             let mes = dStr.length >= 7 ? dStr.substring(0,7) : 'Sem Data';
@@ -1241,7 +1318,6 @@
             dados[mes].v += q * (parseInt(v.qtd) || 1);
         });
         
-        // Atacado (Apenas Pagos)
         db.atacado.forEach(a => {
             if (a.status !== 'PAGO') return;
             let dStr = a.data || "";
@@ -1250,7 +1326,6 @@
             dados[mes].a += (parseInt(a.qtd) || 0);
         });
         
-        // Ajustes Manuais da Contagem
         db.ajustesContagem.forEach(aj => {
             let mes = aj.mes || 'Sem Data';
             if(!dados[mes]) dados[mes] = {v:0, a:0};
@@ -1260,11 +1335,9 @@
         
         let html = '';
         
-        // Ordena do mais recente para o mais antigo
         Object.keys(dados).sort().reverse().forEach(m => {
             let t = dados[m].v + dados[m].a;
             
-            // Formatar de '2026-05' para 'Mai / 2026'
             let mesFormatado = m;
             if(m.includes('-')) {
                 const [y, mm] = m.split('-');
@@ -1291,7 +1364,7 @@
         mapKeys.forEach(k => {
             let el = document.getElementById('est-' + k);
             if(el) {
-                let val = saldos[k]; let suffix = (k==='leite_integral') ? ' ml' : ((k==='acucar' || k==='leite_po' || k==='nutella' || k==='chocolate_50' || k==='granulado') ? ' g' : ' un');
+                let val = saldos[k]; let suffix = (k==='leite_integral') ? ' ml' : ((k==='acucar' || k==='leite_po' || k==='nutella' || k==='chocolate_50' || k==='granulado' || k==='creme_leite') ? ' g' : ' un');
                 el.innerText = val + suffix; el.classList.remove('status-red', 'status-yellow', 'status-green'); el.classList.add(val <= 0 ? 'status-red' : 'status-green');
             }
         });
@@ -1317,7 +1390,8 @@
         let abs_vIns=0, abs_vCg=0, abs_vMo=0, abs_vGiro=0, abs_vFundo=0, abs_vLu=0, abs_vBea=0;
         db.vendas.forEach(v => {
             const q = (v.produto && v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
-            const ins = q * (db.config.custoInsumo||0); const base = Number(v.valorLiquido||0) - ins;
+            const custoUnd = v.custoInsumoUnd !== undefined ? v.custoInsumoUnd : 5.95;
+            const ins = q * custoUnd; const base = Number(v.valorLiquido||0) - ins;
             const r = calcularRateio(base, v.data, v.usarRegraNova); 
             abs_vIns+=ins; abs_vCg+=r.cg; abs_vMo+=r.mo; abs_vGiro+=r.giro; abs_vFundo+=r.fundo; abs_vLu+=r.luyan; abs_vBea+=r.beatriz;
         });
@@ -1325,7 +1399,8 @@
         let abs_aIns=0, abs_aCg=0, abs_aMo=0, abs_aGiro=0, abs_aFundo=0, abs_aLu=0, abs_aBea=0;
         db.atacado.forEach(a => {
             if (a.status !== 'PAGO') return;
-            const liq = Number(a.totalLiquido||0); const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - ((a.coposDevolvidos||0)*db.config.custoCopo));
+            const custoUnd = a.custoInsumoUnd !== undefined ? a.custoInsumoUnd : 5.95;
+            const liq = Number(a.totalLiquido||0); const ins = Math.max(0, (a.qtd * custoUnd) - ((a.coposDevolvidos||0)*db.config.custoCopo));
             const base = liq - ins; const r = calcularRateio(base, a.data, a.usarRegraNova); 
             abs_aIns+=ins; abs_aCg+=r.cg; abs_aMo+=r.mo; abs_aGiro+=r.giro; abs_aFundo+=r.fundo; abs_aLu+=r.luyan; abs_aBea+=r.beatriz;
         });
@@ -1382,7 +1457,8 @@
         db.vendas.filter(filterFn).forEach(v => {
             vBruto += Number(v.valorBruto||0); vLiq += Number(v.valorLiquido||0); vEnt += Number(v.entrega||0);
             const q = (v.produto.includes('Combo')?3:1)*(v.qtd||1); vQtd += q;
-            const ins = q*db.config.custoInsumo; const base = Number(v.valorLiquido||0)-ins;
+            const custoUnd = v.custoInsumoUnd !== undefined ? v.custoInsumoUnd : 5.95;
+            const ins = q * custoUnd; const base = Number(v.valorLiquido||0)-ins;
             const r = calcularRateio(base, v.data, v.usarRegraNova);
             vIns+=ins; vCG+=r.cg; vMO+=r.mo; vLucro+=r.lucro; vGiroF+=r.giro; vFundo+=r.fundo; vLu+=r.luyan; vBea+=r.beatriz;
         });
@@ -1391,7 +1467,8 @@
         let aBruto=0, aLiq=0, aQtd=0, aIns=0, aCG=0, aMO=0, aLucro=0, aGiroF=0, aFundo=0, aLu=0, aBea=0, aDesc=0;
         db.atacado.filter(filterFn).filter(a=>a.status==='PAGO').forEach(a => {
             aBruto += Number(a.totalBruto||0); aLiq += Number(a.totalLiquido||0); aQtd += Number(a.qtd||0); aDesc += Number(a.desconto||0);
-            const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - ((a.coposDevolvidos||0)*db.config.custoCopo));
+            const custoUnd = a.custoInsumoUnd !== undefined ? a.custoInsumoUnd : 5.95;
+            const ins = Math.max(0, (a.qtd * custoUnd) - ((a.coposDevolvidos||0)*db.config.custoCopo));
             const base = Number(a.totalLiquido||0)-ins; const r = calcularRateio(base, a.data, a.usarRegraNova);
             aIns+=ins; aCG+=r.cg; aMO+=r.mo; aLucro+=r.lucro; aGiroF+=r.giro; aFundo+=r.fundo; aLu+=r.luyan; aBea+=r.beatriz;
         });
@@ -1447,7 +1524,8 @@
         let tLiq=0, tIns=0, tGer=0, tMao=0, tLuc=0, tGiro=0, tFun=0, tLu=0, tBea=0;
         let rateioVArray = [...db.vendas].sort(sortByDateDesc).map(v => {
             const pStr = v.produto || ''; const q = (pStr.includes('Combo') ? 3 : 1) * (v.qtd || 1);
-            const ins = q * (db.config.custoInsumo||0); const base = Number(v.valorLiquido||0) - ins;
+            const custoUnd = v.custoInsumoUnd !== undefined ? v.custoInsumoUnd : 5.95;
+            const ins = q * custoUnd; const base = Number(v.valorLiquido||0) - ins;
             const r = calcularRateio(base, v.data, v.usarRegraNova);
             tLiq+=Number(v.valorLiquido); tIns+=ins; tGer+=r.cg; tMao+=r.mo; tLuc+=r.lucro; tGiro+=r.giro; tFun+=r.fundo; tLu+=r.luyan; tBea+=r.beatriz;
             return `<tr><td>${v.num}</td><td>${formatData(v.data)}</td><td>${formatMoney(v.valorLiquido)}</td><td style="color:red">-${formatMoney(ins)}</td><td style="color:red">-${formatMoney(r.cg)}</td><td style="color:red">-${formatMoney(r.mo)}</td><td style="color:green;font-weight:bold">${formatMoney(r.lucro)}</td><td>${formatMoney(r.giro)}</td><td>${formatMoney(r.fundo)}</td><td>${formatMoney(r.luyan)}</td><td>${formatMoney(r.beatriz)}</td></tr>`;
@@ -1459,7 +1537,8 @@
         
         let atLiq=0, atIns=0, atGer=0, atMao=0, atLuc=0, atGiro=0, atFun=0, atLu=0, atBea=0;
         let rateioAArray = [...db.atacado].filter(a=>a.status === 'PAGO').sort(sortByDateDesc).map(a => {
-            const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - (a.coposDevolvidos*db.config.custoCopo));
+            const custoUnd = a.custoInsumoUnd !== undefined ? a.custoInsumoUnd : 5.95;
+            const ins = Math.max(0, (a.qtd * custoUnd) - (a.coposDevolvidos*db.config.custoCopo));
             const base = Number(a.totalLiquido||0) - ins; const r = calcularRateio(base, a.data, a.usarRegraNova);
             atLiq+=Number(a.totalLiquido); atIns+=ins; atGer+=r.cg; atMao+=r.mo; atLuc+=r.lucro; atGiro+=r.giro; atFun+=r.fundo; atLu+=r.luyan; atBea+=r.beatriz;
             return `<tr><td>${a.num}</td><td>${formatData(a.data)}</td><td>${formatMoney(a.totalLiquido)}</td><td style="color:red">-${formatMoney(ins)}</td><td style="color:red">-${formatMoney(r.cg)}</td><td style="color:red">-${formatMoney(r.mo)}</td><td style="color:green;font-weight:bold">${formatMoney(r.lucro)}</td><td>${formatMoney(r.giro)}</td><td>${formatMoney(r.fundo)}</td><td>${formatMoney(r.luyan)}</td><td>${formatMoney(r.beatriz)}</td></tr>`;
@@ -1553,7 +1632,8 @@
 
         const rowsVendas = db.vendas.map(v => {
             const q = (v.produto.includes('Combo') ? 3 : 1) * (v.qtd || 1);
-            const ins = q * db.config.custoInsumo; const base = Number(v.valorLiquido||0) - ins;
+            const custoUnd = v.custoInsumoUnd !== undefined ? v.custoInsumoUnd : 5.95;
+            const ins = q * custoUnd; const base = Number(v.valorLiquido||0) - ins;
             const r = calcularRateio(base, v.data, v.usarRegraNova);
             const saborNome = v.sabor === 'ninho' ? 'Ninho' : (v.sabor === 'brigadeirao' ? 'Brigadeirão' : 'Tradicional');
             return [
@@ -1568,7 +1648,8 @@
         );
 
         const rowsAtacado = db.atacado.map(a => {
-            const ins = Math.max(0, (a.qtd*db.config.custoInsumo) - ((a.coposDevolvidos||0)*db.config.custoCopo));
+            const custoUnd = a.custoInsumoUnd !== undefined ? a.custoInsumoUnd : 5.95;
+            const ins = Math.max(0, (a.qtd * custoUnd) - ((a.coposDevolvidos||0)*db.config.custoCopo));
             const base = Number(a.totalLiquido||0) - ins; const r = calcularRateio(base, a.data, a.usarRegraNova);
             const saborNome = a.sabor === 'ninho' ? 'Ninho' : (a.sabor === 'brigadeirao' ? 'Brigadeirão' : 'Tradicional');
             return [
